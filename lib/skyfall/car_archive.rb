@@ -24,7 +24,6 @@ module Skyfall
     attr_reader :roots, :sections
 
     def initialize(data)
-      # @data = data
       @sections = []
 
       buffer = StringIO.new(data)

@@ -11,7 +11,7 @@ module Skyfall
   class WebsocketMessage
     using Skyfall::Extensions
 
-    attr_reader :type, :repo, :date, :commit, :blocks, :operations
+    attr_reader :type, :repo, :time, :seq, :commit, :blocks, :operations
 
     def initialize(data)
       objects = CBOR.decode_sequence(data)
@@ -24,7 +24,8 @@ module Skyfall
       @type = @type_object['t'][1..-1].to_sym
 
       @repo = @data_object['repo']
-      @date = Time.parse(@data_object['time'])
+      @time = Time.parse(@data_object['time'])
+      @seq = @data_object['seq']
 
       @commit = CID.from_cbor_tag(@data_object['commit'])
       @blocks = CarArchive.new(@data_object['blocks'])
