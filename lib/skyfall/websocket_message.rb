@@ -20,6 +20,9 @@ module Skyfall
       @type_object, @data_object = objects
       raise DecodeError.new("Invalid object type: #{@type_object}") unless @type_object.is_a?(Hash)
       raise DecodeError.new("Invalid object type: #{@data_object}") unless @data_object.is_a?(Hash)
+      raise DecodeError.new("Missing data: #{@type_object}") unless @type_object['op'] && @type_object['t']
+      raise DecodeError.new("Invalid message type: #{@type_object['t']}") unless @type_object['t'].start_with?('#')
+      raise UnsupportedError.new("Unexpected CBOR object: #{@type_object}") unless @type_object['op'] == 1
 
       @type = @type_object['t'][1..-1].to_sym
 
