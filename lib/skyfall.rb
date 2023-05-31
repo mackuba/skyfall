@@ -1,8 +1,4 @@
 # frozen_string_literal: true
 
-require_relative "skyfall/version"
-
-module Skyfall
-  class Error < StandardError; end
-  # Your code goes here...
-end
+require_relative 'skyfall/websocket_message'
+require_relative 'skyfall/version'
