@@ -11,7 +11,7 @@ module Skyfall
   class WebsocketMessage
     using Skyfall::Extensions
 
-    attr_reader :type_object, :data_object, :repo, :date, :commit, :ops, :blocks, :operations
+    attr_reader :type, :repo, :date, :commit, :blocks, :operations
 
     def initialize(data)
       objects = CBOR.decode_sequence(data)
@@ -20,6 +20,8 @@ module Skyfall
       @type_object, @data_object = objects
       raise DecodeError.new("Invalid object type: #{@type_object}") unless @type_object.is_a?(Hash)
       raise DecodeError.new("Invalid object type: #{@data_object}") unless @data_object.is_a?(Hash)
+
+      @type = @type_object['t'][1..-1].to_sym
 
       @repo = @data_object['repo']
       @date = Time.parse(@data_object['time'])
