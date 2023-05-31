@@ -39,7 +39,7 @@ module Skyfall
         cid = op['cid'] && CID.from_cbor_tag(op['cid'])
         path = op['path']
         action = op['action']
-        record = cid && @blocks.sections.detect { |s| s.cid == cid }
+        record = cid && @blocks.sections.detect { |s| s.cid == cid }.body
 
         Operation.new(@repo, path, action, cid, record)
       }
