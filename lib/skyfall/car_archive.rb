@@ -1,4 +1,5 @@
 require_relative 'cid'
+require_relative 'errors'
 
 require 'cbor'
 require 'stringio'
@@ -29,10 +30,10 @@ module Skyfall
       len = read_varint(buffer)
 
       header_data = buffer.read(len)
-      raise "Header too short: #{header_data}" unless header_data.length == len
+      raise DecodeError.new("Header too short: #{header_data}") unless header_data.length == len
 
       header = CBOR.decode(header_data)
-      raise "Unexpected CAR version: #{header['version']}" unless header['version'] == 1
+      raise UnsupportedError.new("Unexpected CAR version: #{header['version']}") unless header['version'] == 1
       @roots = header['roots'].map { |x| CID.from_cbor_tag(x) }
     end
 
@@ -40,26 +41,26 @@ module Skyfall
       len = read_varint(buffer)
 
       section_data = buffer.read(len)
-      raise "Section too short: #{section_data}" unless section_data.length == len
+      raise DecodeError.new("Section too short: #{section_data}") unless section_data.length == len
 
       sbuffer = StringIO.new(section_data)
 
       version = read_varint(sbuffer)
-      raise "Unexpected CID version: #{version}" unless version == 1
+      raise UnsupportedError.new("Unexpected CID version: #{version}") unless version == 1
 
       codec = read_varint(sbuffer)
-      raise "Unexpected CID codec: #{codec}" unless codec == 0x71
+      raise UnsupportedError.new("Unexpected CID codec: #{codec}") unless codec == 0x71
 
       hash = read_varint(sbuffer)
-      raise "Unexpected CID hash: #{hash}" unless hash == 0x12
+      raise UnsupportedError.new("Unexpected CID hash: #{hash}") unless hash == 0x12
 
       clen = read_varint(sbuffer)
-      raise "Unexpected CID length: #{clen}" unless clen == 32
+      raise UnsupportedError.new("Unexpected CID length: #{clen}") unless clen == 32
 
       prefix = section_data[0...sbuffer.pos]
 
       cid_data = sbuffer.read(clen)
-      raise "CID too short: #{cid_data}" unless cid_data.length == clen
+      raise DecodeError.new("CID too short: #{cid_data}") unless cid_data.length == clen
 
       cid = CID.new(prefix + cid_data)
 

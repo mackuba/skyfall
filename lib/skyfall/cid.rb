@@ -1,3 +1,5 @@
+require_relative 'errors'
+
 require 'base32'
 
 module Skyfall
@@ -5,7 +7,9 @@ module Skyfall
     attr_reader :data
 
     def self.from_cbor_tag(tag)
-      CID.new(tag.value[1..-1])
+      data = tag.value
+      raise DecodeError.new("Unexpected first byte of CID: #{data[0]}") unless data[0] == "\x00"
+      CID.new(data[1..-1])
     end
 
     def initialize(data)
