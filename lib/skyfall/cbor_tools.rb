@@ -12,7 +12,7 @@ class Op
   attr_reader :cid, :path, :action
 
   def initialize(hash)
-    @cid = CID.from_cbor_tag(hash['cid'])
+    @cid = hash['cid'] && CID.from_cbor_tag(hash['cid'])
     @path = hash['path']
     @action = hash['action']
   end
@@ -38,7 +38,7 @@ class CID
   end
 
   def ==(other)
-    @data == other.data
+    other.is_a?(CID) && @data == other.data
   end
 end
 
