@@ -4,6 +4,9 @@ require_relative 'errors'
 require 'cbor'
 require 'stringio'
 
+# CAR v1: https://ipld.io/specs/transport/car/carv1/
+# multicodec codes: https://github.com/multiformats/multicodec/blob/master/table.csv
+
 module Skyfall
   class CarSection
     attr_reader :cid, :body
@@ -49,10 +52,10 @@ module Skyfall
       raise UnsupportedError.new("Unexpected CID version: #{version}") unless version == 1
 
       codec = read_varint(sbuffer)
-      raise UnsupportedError.new("Unexpected CID codec: #{codec}") unless codec == 0x71
+      raise UnsupportedError.new("Unexpected CID codec: #{codec}") unless codec == 0x71  # dag-cbor
 
       hash = read_varint(sbuffer)
-      raise UnsupportedError.new("Unexpected CID hash: #{hash}") unless hash == 0x12
+      raise UnsupportedError.new("Unexpected CID hash: #{hash}") unless hash == 0x12  # sha2-256
 
       clen = read_varint(sbuffer)
       raise UnsupportedError.new("Unexpected CID length: #{clen}") unless clen == 32

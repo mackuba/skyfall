@@ -2,6 +2,10 @@ require_relative 'errors'
 
 require 'base32'
 
+# CIDs in DAG-CBOR: https://ipld.io/specs/codecs/dag-cbor/spec/
+# CIDs in JSON: https://ipld.io/specs/codecs/dag-json/spec/
+# multibase: https://github.com/multiformats/multibase
+
 module Skyfall
   class CID
     attr_reader :data
