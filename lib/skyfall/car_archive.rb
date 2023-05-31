@@ -31,6 +31,9 @@ module Skyfall
       read_section(buffer) until buffer.eof?
     end
 
+
+    private
+
     def read_header(buffer)
       len = buffer.read_varint
 
