@@ -30,6 +30,8 @@ module Skyfall
       @time = Time.parse(@data_object['time'])
       @seq = @data_object['seq']
 
+      return unless @type == :commit
+
       @commit = CID.from_cbor_tag(@data_object['commit'])
       @blocks = CarArchive.new(@data_object['blocks'])
 
