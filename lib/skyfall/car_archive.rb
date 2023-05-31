@@ -1,5 +1,6 @@
 require_relative 'cid'
 require_relative 'errors'
+require_relative 'extensions'
 
 require 'cbor'
 require 'stringio'
@@ -18,6 +19,8 @@ module Skyfall
   end
 
   class CarArchive
+    using Skyfall::Extensions
+
     attr_reader :roots, :sections
 
     def initialize(data)
@@ -30,7 +33,7 @@ module Skyfall
     end
 
     def read_header(buffer)
-      len = read_varint(buffer)
+      len = buffer.read_varint
 
       header_data = buffer.read(len)
       raise DecodeError.new("Header too short: #{header_data}") unless header_data.length == len
@@ -41,23 +44,23 @@ module Skyfall
     end
 
     def read_section(buffer)
-      len = read_varint(buffer)
+      len = buffer.read_varint
 
       section_data = buffer.read(len)
       raise DecodeError.new("Section too short: #{section_data}") unless section_data.length == len
 
       sbuffer = StringIO.new(section_data)
 
-      version = read_varint(sbuffer)
+      version = sbuffer.read_varint
       raise UnsupportedError.new("Unexpected CID version: #{version}") unless version == 1
 
-      codec = read_varint(sbuffer)
+      codec = sbuffer.read_varint
       raise UnsupportedError.new("Unexpected CID codec: #{codec}") unless codec == 0x71  # dag-cbor
 
-      hash = read_varint(sbuffer)
+      hash = sbuffer.read_varint
       raise UnsupportedError.new("Unexpected CID hash: #{hash}") unless hash == 0x12  # sha2-256
 
-      clen = read_varint(sbuffer)
+      clen = sbuffer.read_varint
       raise UnsupportedError.new("Unexpected CID length: #{clen}") unless clen == 32
 
       prefix = section_data[0...sbuffer.pos]
@@ -71,20 +74,6 @@ module Skyfall
       body = CBOR.decode(body_data)
 
       @sections << CarSection.new(cid, body)
-    end
-
-    def read_varint(buffer)
-      shift = 1
-      value = 0
-
-      loop do
-        byte = buffer.readbyte
-        value += byte % 128 * shift
-        break if byte < 128
-        shift *= 128
-      end
-
-      value
     end
   end
 end

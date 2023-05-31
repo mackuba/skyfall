@@ -1,18 +1,20 @@
 require_relative 'car_archive'
 require_relative 'cid'
 require_relative 'errors'
+require_relative 'extensions'
 require_relative 'operation'
 
 require 'cbor'
-require 'stringio'
 require 'time'
 
 module Skyfall
   class WebsocketMessage
+    using Skyfall::Extensions
+
     attr_reader :type_object, :data_object, :repo, :date, :commit, :ops, :blocks, :operations
 
     def initialize(data)
-      objects = decode_cbor_sequence(data)
+      objects = CBOR.decode_sequence(data)
       raise DecodeError.new("Invalid number of objects: #{objects.length}") unless objects.length == 2
 
       @type_object, @data_object = objects
@@ -33,11 +35,6 @@ module Skyfall
 
         Operation.new(@repo, path, action, cid, record)
       }
-    end
-
-    def decode_cbor_sequence(data)
-      unpacker = CBOR::Unpacker.new(StringIO.new(data))
-      unpacker.each.to_a
     end
   end
 end
