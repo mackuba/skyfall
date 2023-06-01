@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
 
   # spec.description = "TODO: Write a longer description or delete this line."
 
-  spec.license = "MIT"
+  spec.license = "Zlib"
   spec.required_ruby_version = ">= 2.6.0"
 
   # spec.metadata["homepage_uri"] = spec.homepage
