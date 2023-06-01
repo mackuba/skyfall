@@ -11,6 +11,7 @@ module Skyfall
   class WebsocketMessage
     using Skyfall::Extensions
 
+    attr_reader :type_object, :data_object
     attr_reader :type, :repo, :time, :seq, :commit, :blocks, :operations
 
     def initialize(data)
@@ -43,6 +44,12 @@ module Skyfall
 
         Operation.new(@repo, path, action, cid, record)
       }
+    end
+
+    def inspect
+      keys = instance_variables - [:@type_object, :@data_object, :@blocks]
+      vars = keys.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
+      "#<#{self.class}:0x#{object_id} #{vars}>"
     end
   end
 end
