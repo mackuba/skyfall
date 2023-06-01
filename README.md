@@ -83,6 +83,8 @@ sky.on_message do |m|
 end
 ```
 
+See complete example in [example/firehose.rb](https://github.com/mackuba/skyfall/blob/master/example/firehose.rb).
+
 
 ## Credits
 
