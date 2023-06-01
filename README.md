@@ -1,35 +1,93 @@
 # Skyfall
 
-TODO: Delete this and the text below, and describe your gem
+🌤 A Ruby gem for streaming data from the Bluesky/AtProto firehose 🦋
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/skyfall`. To experiment with that code, run `bin/console` for an interactive prompt.
+
+## What does it do
+
+Skyfall is a Ruby library for connecting to the *"firehose"* of the Bluesky social network, i.e. a websocket which
+streams all new posts and everything else happening on the Bluesky network in real time. The code connects to the
+websocket endpoint, decodes the messages which are encoded in some binary formats like DAG-CBOR, and returns the data as Ruby objects, which you can filter and save to some kind of database (e.g. in order to create a custom feed).
+
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+    gem install skyfall
 
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
 
 ## Usage
 
-TODO: Write usage instructions here
+Start a connection to the firehose by creating a `Skyfall::Stream` object, passing the server hostname and endpoint name:
 
-## Development
+```rb
+require 'skyfall'
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+sky = Skyfall::Stream.new('bsky.social', :subscribe_repos)
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Add event listeners to handle incoming messages and get notified of errors:
 
-## Contributing
+```rb
+sky.on_connect { puts "Connected" }
+sky.on_disconnect { puts "Disconnected" }
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/skyfall.
+sky.on_message { |m| p m }
+sky.on_error { |e| puts "ERROR: #{e}" }
+```
 
-## License
+When you're ready, open the connection by calling `connect`:
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+```rb
+sky.connect
+```
+
+The connection is started asynchronously on a separate thread. If you're running this code in a simple script (and not as a part of a server), call e.g. `sleep` without arguments or `loop { STDIN.read }` to prevent the script for exiting while the connection is open.
+
+
+### Processing messages
+
+Each message passed to `on_message` is an instance of the `WebsocketMessage` class and has such properties:
+
+- `type` (symbol) - usually `:commit`
+- `seq` (sequential number)
+- `time` (Time)
+- `repo` (string) - DID of the repository (user account)
+- `commit` - CID
+- `operations` - list of operations (usually one)
+
+Operations are objects of type `Operation` and have such properties:
+
+- `repo` (string) - DID of the repository (user account)
+- `collection` (string) - name of the relevant collection in the repository, e.g. `app.bsky.feed.post` for posts
+- `path` (string) - the path part of the at:// URI - collection name + ID (rkey) of the item
+- `action` (symbol) - `:create`, `:update` or `:delete`
+- `uri` (string) - the at:// URI
+- `type` (symbol) - short name of the collection, e.g. `:bsky_post`
+- `cid` - CID
+
+Most operations will also have an attached record (JSON object) with details of the post, like etc. The record data is currently available as a Ruby hash via `raw_record` property (custom types will be added in a later version).
+
+So for example, in order to filter only "create post" operations and print their details, you can do something like this:
+
+```rb
+sky.on_message do |m|
+  next if m.type != :commit
+
+  m.operations.each do |op|
+    next unless op.action == :create && op.type == :bsky_post
+
+    puts "#{op.repo}:"
+    puts op.raw_record['text']
+    puts
+  end
+end
+```
+
+
+## Credits
+
+Copyright © 2023 Kuba Suder ([@mackuba.eu](https://bsky.app/profile/mackuba.eu)).
+
+The code is available under the terms of the [zlib license](https://choosealicense.com/licenses/zlib/) (permissive, similar to MIT).
+
+Bug reports and pull requests are welcome 😎
