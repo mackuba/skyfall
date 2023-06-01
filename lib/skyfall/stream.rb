@@ -23,6 +23,8 @@ module Skyfall
 
       @websocket = WebSocket::Client::Simple.connect(url) do |ws|
         ws.on :message do |msg|
+          handlers[:raw_message]&.call(msg.data)
+
           if handlers[:message]
             atp_message = Skyfall::WebsocketMessage.new(msg.data)
             handlers[:message].call(atp_message)
@@ -54,6 +56,10 @@ module Skyfall
 
     def on_message(&block)
       @handlers[:message] = block
+    end
+
+    def on_raw_message(&block)
+      @handlers[:raw_message] = block
     end
 
     def on_connect(&block)
