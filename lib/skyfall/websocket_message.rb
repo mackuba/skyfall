@@ -26,6 +26,7 @@ module Skyfall
       raise UnsupportedError.new("Unexpected CBOR object: #{@type_object}") unless @type_object['op'] == 1
 
       @type = @type_object['t'][1..-1].to_sym
+      @operations = []
 
       @repo = @data_object['repo']
       @time = Time.parse(@data_object['time'])
