@@ -2,7 +2,7 @@ require_relative 'collection'
 
 module Skyfall
   class Operation
-    attr_reader :repo, :path, :action, :cid, :record
+    attr_reader :repo, :path, :action, :cid
 
     def initialize(repo, path, action, cid, record)
       @repo = repo
@@ -10,6 +10,10 @@ module Skyfall
       @action = action.to_sym
       @cid = cid
       @record = record
+    end
+
+    def raw_record
+      @record
     end
 
     def uri
