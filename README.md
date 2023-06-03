@@ -52,7 +52,8 @@ Each message passed to `on_message` is an instance of the `WebsocketMessage` cla
 - `seq` (sequential number)
 - `time` (Time)
 - `repo` (string) - DID of the repository (user account)
-- `commit` - CID
+- `commit` - CID of the commit
+- `prev` - CID of the previous commit in that repo
 - `operations` - list of operations (usually one)
 
 Operations are objects of type `Operation` and have such properties:
@@ -63,9 +64,9 @@ Operations are objects of type `Operation` and have such properties:
 - `action` (symbol) - `:create`, `:update` or `:delete`
 - `uri` (string) - the at:// URI
 - `type` (symbol) - short name of the collection, e.g. `:bsky_post`
-- `cid` - CID
+- `cid` - CID of the operation/record (`nil` for delete operations)
 
-Most operations will also have an attached record (JSON object) with details of the post, like etc. The record data is currently available as a Ruby hash via `raw_record` property (custom types will be added in a later version).
+Create and update operations will also have an attached record (JSON object) with details of the post, like etc. The record data is currently available as a Ruby hash via `raw_record` property (custom types will be added in a later version).
 
 So for example, in order to filter only "create post" operations and print their details, you can do something like this:
 
