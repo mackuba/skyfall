@@ -7,5 +7,6 @@ module Skyfall
     BSKY_BLOCK = "app.bsky.graph.block"
     BSKY_PROFILE = "app.bsky.actor.profile"
     BSKY_LISTITEM = "app.bsky.graph.listitem"
+    BSKY_FEED = "app.bsky.feed.generator"
   end
 end
