@@ -16,6 +16,14 @@ module Skyfall
       CID.new(data[1..-1])
     end
 
+    def self.from_json(string)
+      raise DecodeError.new("Unexpected CID length") unless string.length == 59
+      raise DecodeError.new("Unexpected CID prefix") unless string[0] == 'b'
+
+      data = Base32.decode(string[1..-1].upcase)
+      CID.new(data)
+    end
+
     def initialize(data)
       @data = data
     end
