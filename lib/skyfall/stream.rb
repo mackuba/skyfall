@@ -9,10 +9,16 @@ module Skyfall
       :subscribe_repos => SUBSCRIBE_REPOS
     }
 
+    attr_accessor :heartbeat_timeout, :heartbeat_interval
+
     def initialize(server, endpoint)
       @endpoint = check_endpoint(endpoint)
       @server = check_hostname(server)
       @handlers = {}
+      @heartbeat_mutex = Mutex.new
+      @heartbeat_interval = 5
+      @heartbeat_timeout = 30
+      @last_update = nil
     end
 
     def connect
@@ -20,9 +26,11 @@ module Skyfall
 
       url = "wss://#{@server}/xrpc/#{@endpoint}"
       handlers = @handlers
+      stream = self
 
       @websocket = WebSocket::Client::Simple.connect(url) do |ws|
         ws.on :message do |msg|
+          stream.notify_heartbeat
           handlers[:raw_message]&.call(msg.data)
 
           if handlers[:message]
@@ -43,13 +51,59 @@ module Skyfall
           handlers[:error]&.call(e)
         end
       end
+
+      if @heartbeat_interval && @heartbeat_timeout && @heartbeat_thread.nil?
+        hb_interval = @heartbeat_interval
+        hb_timeout = @heartbeat_timeout
+
+        @last_update = Time.now
+
+        @heartbeat_thread = Thread.new do
+          loop do
+            sleep(hb_interval)
+            @heartbeat_mutex.synchronize do
+              if Time.now - @last_update > hb_timeout
+                force_restart
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def force_restart
+      @websocket.close
+      @websocket = nil
+
+      timeout = 5
+
+      loop do
+        begin
+          @handlers[:reconnect]&.call
+          connect
+          break
+        rescue Exception => e
+          @handlers[:error]&.call(e)
+          sleep(timeout)
+          timeout *= 2
+        end
+      end
+
+      @last_update = Time.now
     end
 
     def disconnect
       return unless @websocket
 
+      @heartbeat_thread&.kill
+      @heartbeat_thread = nil
+
       @websocket.close
       @websocket = nil
+    end
+
+    def notify_heartbeat
+      @heartbeat_mutex.synchronize { @last_update = Time.now }
     end
 
     alias close disconnect
@@ -72,6 +126,10 @@ module Skyfall
 
     def on_error(&block)
       @handlers[:error] = block
+    end
+
+    def on_reconnect(&block)
+      @handlers[:reconnect] = block
     end
 
 

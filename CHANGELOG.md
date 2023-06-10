@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- added heartbeat thread to restart websocket if it stops responding
+
 ## [0.1.0] - 2023-06-01
 
 - connecting to the firehose websocket
