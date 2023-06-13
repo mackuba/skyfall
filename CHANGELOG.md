@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.1.1] - 2023-06-13
 
 - added heartbeat thread to restart websocket if it stops responding
 
