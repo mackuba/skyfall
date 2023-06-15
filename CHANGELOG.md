@@ -1,3 +1,7 @@
+## [0.1.2] - 2023-06-15
+
+- added rkey property for Operation
+
 ## [0.1.1] - 2023-06-13
 
 - added heartbeat thread to restart websocket if it stops responding
