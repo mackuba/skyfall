@@ -21,7 +21,11 @@ module Skyfall
     end
 
     def collection
-      path.split('/').first
+      path.split('/')[0]
+    end
+
+    def rkey
+      path.split('/')[1]
     end
 
     def type
