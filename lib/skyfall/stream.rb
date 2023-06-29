@@ -1,4 +1,6 @@
 require_relative 'websocket_message'
+
+require 'uri'
 require 'websocket-client-simple'
 
 module Skyfall
@@ -11,9 +13,8 @@ module Skyfall
 
     attr_accessor :heartbeat_timeout, :heartbeat_interval
 
-    def initialize(server, endpoint)
-      @endpoint = check_endpoint(endpoint)
-      @server = check_hostname(server)
+    def initialize(server, endpoint, params = nil)
+      @url = build_websocket_url(server, endpoint, params)
       @handlers = {}
       @heartbeat_mutex = Mutex.new
       @heartbeat_interval = 5
@@ -24,11 +25,10 @@ module Skyfall
     def connect
       return if @websocket
 
-      url = "wss://#{@server}/xrpc/#{@endpoint}"
       handlers = @handlers
       stream = self
 
-      @websocket = WebSocket::Client::Simple.connect(url) do |ws|
+      @websocket = WebSocket::Client::Simple.connect(@url) do |ws|
         ws.on :message do |msg|
           stream.notify_heartbeat
           handlers[:raw_message]&.call(msg.data)
@@ -134,6 +134,15 @@ module Skyfall
 
 
     private
+
+    def build_websocket_url(server, endpoint, params = nil)
+      endpoint = check_endpoint(endpoint)
+      server = check_hostname(server)
+
+      url = "wss://#{server}/xrpc/#{endpoint}"
+      url += '?' + URI.encode_www_form(params) if params
+      url
+    end
 
     def check_endpoint(endpoint)
       if endpoint.is_a?(String)
