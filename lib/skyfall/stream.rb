@@ -144,6 +144,8 @@ module Skyfall
       else
         raise ArgumentError("Endpoint should be a string or a symbol")
       end
+
+      endpoint
     end
 
     def check_hostname(server)
