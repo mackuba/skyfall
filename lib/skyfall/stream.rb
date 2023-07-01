@@ -31,6 +31,8 @@ module Skyfall
       handlers = @handlers
       stream = self
 
+      handlers[:connecting]&.call(url)
+
       @websocket = WebSocket::Client::Simple.connect(url) do |ws|
         ws.on :message do |msg|
           stream.notify_heartbeat
@@ -117,6 +119,10 @@ module Skyfall
 
     def on_raw_message(&block)
       @handlers[:raw_message] = block
+    end
+
+    def on_connecting(&block)
+      @handlers[:connecting] = block
     end
 
     def on_connect(&block)
