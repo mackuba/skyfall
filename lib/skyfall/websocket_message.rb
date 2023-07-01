@@ -15,15 +15,7 @@ module Skyfall
     attr_reader :type, :repo, :time, :seq, :commit, :prev, :blocks, :operations
 
     def initialize(data)
-      objects = CBOR.decode_sequence(data)
-      raise DecodeError.new("Invalid number of objects: #{objects.length}") unless objects.length == 2
-
-      @type_object, @data_object = objects
-      raise DecodeError.new("Invalid object type: #{@type_object}") unless @type_object.is_a?(Hash)
-      raise DecodeError.new("Invalid object type: #{@data_object}") unless @data_object.is_a?(Hash)
-      raise DecodeError.new("Missing data: #{@type_object}") unless @type_object['op'] && @type_object['t']
-      raise DecodeError.new("Invalid message type: #{@type_object['t']}") unless @type_object['t'].start_with?('#')
-      raise UnsupportedError.new("Unexpected CBOR object: #{@type_object}") unless @type_object['op'] == 1
+      @type_object, @data_object = decode_cbor_objects(data)
 
       @type = @type_object['t'][1..-1].to_sym
       @operations = []
@@ -53,6 +45,33 @@ module Skyfall
       keys = instance_variables - [:@type_object, :@data_object, :@blocks]
       vars = keys.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
       "#<#{self.class}:0x#{object_id} #{vars}>"
+    end
+
+    private
+
+    def decode_cbor_objects(data)
+      objects = CBOR.decode_sequence(data)
+
+      if objects.length < 2
+        raise DecodeError.new("Malformed message: #{objects.inspect}")
+      elsif objects.length > 2
+        raise DecodeError.new("Invalid number of objects: #{objects.length}")
+      end
+
+      type_object, data_object = objects
+
+      if data_object['error']
+        raise SubscriptionError.new(data_object['error'], data_object['message'])
+      end
+
+      raise DecodeError.new("Invalid object type: #{type_object}") unless type_object.is_a?(Hash)
+      raise UnsupportedError.new("Unexpected CBOR object: #{type_object}") unless type_object['op'] == 1
+      raise DecodeError.new("Missing data: #{type_object} #{objects.inspect}") unless type_object['op'] && type_object['t']
+      raise DecodeError.new("Invalid message type: #{type_object['t']}") unless type_object['t'].start_with?('#')
+
+      raise DecodeError.new("Invalid object type: #{data_object}") unless data_object.is_a?(Hash)
+
+      [type_object, data_object]
     end
   end
 end
