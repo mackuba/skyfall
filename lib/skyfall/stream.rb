@@ -11,10 +11,12 @@ module Skyfall
       :subscribe_repos => SUBSCRIBE_REPOS
     }
 
-    attr_accessor :heartbeat_timeout, :heartbeat_interval
+    attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor
 
-    def initialize(server, endpoint, params = nil)
-      @url = build_websocket_url(server, endpoint, params)
+    def initialize(server, endpoint, cursor = nil)
+      @endpoint = check_endpoint(endpoint)
+      @server = check_hostname(server)
+      @cursor = cursor
       @handlers = {}
       @heartbeat_mutex = Mutex.new
       @heartbeat_interval = 5
@@ -25,18 +27,19 @@ module Skyfall
     def connect
       return if @websocket
 
+      url = build_websocket_url
       handlers = @handlers
       stream = self
 
-      @websocket = WebSocket::Client::Simple.connect(@url) do |ws|
+      @websocket = WebSocket::Client::Simple.connect(url) do |ws|
         ws.on :message do |msg|
           stream.notify_heartbeat
-          handlers[:raw_message]&.call(msg.data)
 
-          if handlers[:message]
-            atp_message = Skyfall::WebsocketMessage.new(msg.data)
-            handlers[:message].call(atp_message)
-          end
+          atp_message = Skyfall::WebsocketMessage.new(msg.data)
+          stream.cursor = atp_message.seq
+
+          handlers[:raw_message]&.call(msg.data)
+          handlers[:message]&.call(atp_message)
         end
 
         ws.on :open do
@@ -135,12 +138,9 @@ module Skyfall
 
     private
 
-    def build_websocket_url(server, endpoint, params = nil)
-      endpoint = check_endpoint(endpoint)
-      server = check_hostname(server)
-
-      url = "wss://#{server}/xrpc/#{endpoint}"
-      url += '?' + URI.encode_www_form(params) if params
+    def build_websocket_url
+      url = "wss://#{@server}/xrpc/#{@endpoint}"
+      url += "?cursor=#{@cursor}" if @cursor
       url
     end
 
