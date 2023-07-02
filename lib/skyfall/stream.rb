@@ -1,7 +1,8 @@
 require_relative 'websocket_message'
 
+require 'eventmachine'
+require 'faye/websocket'
 require 'uri'
-require 'websocket-client-simple'
 
 module Skyfall
   class Stream
@@ -25,90 +26,48 @@ module Skyfall
     end
 
     def connect
-      return if @websocket
+      return if EM.reactor_running?
 
       url = build_websocket_url
-      handlers = @handlers
-      stream = self
 
-      handlers[:connecting]&.call(url)
+      @handlers[:connecting]&.call(url)
 
-      @websocket = WebSocket::Client::Simple.connect(url) do |ws|
-        ws.on :message do |msg|
-          stream.notify_heartbeat
+      Thread.new do
+        EM.run do
+          ws = Faye::WebSocket::Client.new(url)
 
-          atp_message = Skyfall::WebsocketMessage.new(msg.data)
-          stream.cursor = atp_message.seq
+          ws.on(:open) do |e|
+            @handlers[:connect]&.call
+          end
 
-          handlers[:raw_message]&.call(msg.data)
-          handlers[:message]&.call(atp_message)
-        end
+          ws.on(:message) do |msg|
+            begin
+              data = msg.data.pack('C*')
+              atp_message = Skyfall::WebsocketMessage.new(data)
+              @cursor = atp_message.seq
 
-        ws.on :open do
-          handlers[:connect]&.call
-        end
-
-        ws.on :close do |e|
-          handlers[:disconnect]&.call(e)
-        end
-
-        ws.on :error do |e|
-          handlers[:error]&.call(e)
-        end
-      end
-
-      if @heartbeat_interval && @heartbeat_timeout && @heartbeat_thread.nil?
-        hb_interval = @heartbeat_interval
-        hb_timeout = @heartbeat_timeout
-
-        @last_update = Time.now
-
-        @heartbeat_thread = Thread.new do
-          loop do
-            sleep(hb_interval)
-            @heartbeat_mutex.synchronize do
-              if Time.now - @last_update > hb_timeout
-                force_restart
-              end
+              @handlers[:raw_message]&.call(data)
+              @handlers[:message]&.call(atp_message)
+            rescue StandardError => e
+              @handlers[:error]&.call(e)
             end
+          end
+
+          ws.on(:error) do |e|
+            @handlers[:error]&.call(e)
+          end
+
+          ws.on(:close) do |e|
+            @handlers[:disconnect]&.call(e)
           end
         end
       end
     end
 
-    def force_restart
-      @websocket.close
-      @websocket = nil
-
-      timeout = 5
-
-      loop do
-        begin
-          @handlers[:reconnect]&.call
-          connect
-          break
-        rescue Exception => e
-          @handlers[:error]&.call(e)
-          sleep(timeout)
-          timeout *= 2
-        end
-      end
-
-      @last_update = Time.now
-    end
-
     def disconnect
-      return unless @websocket
+      return unless EM.reactor_running?
 
-      @heartbeat_thread&.kill
-      @heartbeat_thread = nil
-
-      @websocket.close
-      @websocket = nil
-    end
-
-    def notify_heartbeat
-      @heartbeat_mutex.synchronize { @last_update = Time.now }
+      EM.stop_event_loop
     end
 
     alias close disconnect
