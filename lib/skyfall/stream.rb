@@ -1,7 +1,7 @@
 require_relative 'websocket_message'
 
+require 'iodine'
 require 'uri'
-require 'websocket-client-simple'
 
 module Skyfall
   class Stream
@@ -11,13 +11,42 @@ module Skyfall
       :subscribe_repos => SUBSCRIBE_REPOS
     }
 
+    class Handler
+      attr_reader :websocket
+
+      def initialize(stream, callbacks)
+        @stream = stream
+        @callbacks = callbacks
+      end
+
+      def on_open(connection)
+        @websocket = connection
+        @callbacks[:connect]&.call
+      end
+
+      def on_message(connection, data)
+        atp_message = Skyfall::WebsocketMessage.new(data)
+        @stream.cursor = atp_message.seq
+
+        @callbacks[:raw_message]&.call(data)
+        @callbacks[:message]&.call(atp_message)
+      rescue StandardError => e
+        @callbacks[:error]&.call(e)
+      end
+
+      def on_close(connection)
+        @websocket = nil
+        @callbacks[:disconnect]&.call
+      end
+    end
+
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor
 
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
       @server = check_hostname(server)
       @cursor = cursor
-      @handlers = {}
+      @callbacks = {}
       @heartbeat_mutex = Mutex.new
       @heartbeat_interval = 5
       @heartbeat_timeout = 30
@@ -25,120 +54,55 @@ module Skyfall
     end
 
     def connect
-      return if @websocket
+      return if @handler
 
       url = build_websocket_url
-      handlers = @handlers
-      stream = self
 
-      handlers[:connecting]&.call(url)
+      @callbacks[:connecting]&.call(url)
+      @handler = Handler.new(self, @callbacks)
 
-      @websocket = WebSocket::Client::Simple.connect(url) do |ws|
-        ws.on :message do |msg|
-          stream.notify_heartbeat
-
-          atp_message = Skyfall::WebsocketMessage.new(msg.data)
-          stream.cursor = atp_message.seq
-
-          handlers[:raw_message]&.call(msg.data)
-          handlers[:message]&.call(atp_message)
-        end
-
-        ws.on :open do
-          handlers[:connect]&.call
-        end
-
-        ws.on :close do |e|
-          handlers[:disconnect]&.call(e)
-        end
-
-        ws.on :error do |e|
-          handlers[:error]&.call(e)
-        end
+      Thread.new do
+        Iodine.threads = 1
+        Iodine.connect url: url, handler: @handler, ping: 40
+        Iodine.start
       end
-
-      if @heartbeat_interval && @heartbeat_timeout && @heartbeat_thread.nil?
-        hb_interval = @heartbeat_interval
-        hb_timeout = @heartbeat_timeout
-
-        @last_update = Time.now
-
-        @heartbeat_thread = Thread.new do
-          loop do
-            sleep(hb_interval)
-            @heartbeat_mutex.synchronize do
-              if Time.now - @last_update > hb_timeout
-                force_restart
-              end
-            end
-          end
-        end
-      end
-    end
-
-    def force_restart
-      @websocket.close
-      @websocket = nil
-
-      timeout = 5
-
-      loop do
-        begin
-          @handlers[:reconnect]&.call
-          connect
-          break
-        rescue Exception => e
-          @handlers[:error]&.call(e)
-          sleep(timeout)
-          timeout *= 2
-        end
-      end
-
-      @last_update = Time.now
     end
 
     def disconnect
-      return unless @websocket
+      return unless @handler && @handler.websocket
 
-      @heartbeat_thread&.kill
-      @heartbeat_thread = nil
-
-      @websocket.close
-      @websocket = nil
-    end
-
-    def notify_heartbeat
-      @heartbeat_mutex.synchronize { @last_update = Time.now }
+      @handler.websocket.close
+      @handler = nil
     end
 
     alias close disconnect
 
     def on_message(&block)
-      @handlers[:message] = block
+      @callbacks[:message] = block
     end
 
     def on_raw_message(&block)
-      @handlers[:raw_message] = block
+      @callbacks[:raw_message] = block
     end
 
     def on_connecting(&block)
-      @handlers[:connecting] = block
+      @callbacks[:connecting] = block
     end
 
     def on_connect(&block)
-      @handlers[:connect] = block
+      @callbacks[:connect] = block
     end
 
     def on_disconnect(&block)
-      @handlers[:disconnect] = block
+      @callbacks[:disconnect] = block
     end
 
     def on_error(&block)
-      @handlers[:error] = block
+      @callbacks[:error] = block
     end
 
     def on_reconnect(&block)
-      @handlers[:reconnect] = block
+      @callbacks[:reconnect] = block
     end
 
 
