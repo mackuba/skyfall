@@ -12,7 +12,7 @@ module Skyfall
     using Skyfall::Extensions
 
     attr_reader :type_object, :data_object
-    attr_reader :type, :repo, :time, :seq, :commit, :prev, :operations
+    attr_reader :type, :repo, :seq, :operations
 
     def initialize(data)
       @type_object, @data_object = decode_cbor_objects(data)
@@ -21,13 +21,9 @@ module Skyfall
       @operations = []
 
       @repo = @data_object['repo']
-      @time = Time.parse(@data_object['time'])
       @seq = @data_object['seq']
 
       return unless @type == :commit
-
-      @commit = @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
-      @prev = @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
 
       @operations = @data_object['ops'].map { |op|
         cid = op['cid'] && CID.from_cbor_tag(op['cid'])
@@ -36,6 +32,18 @@ module Skyfall
 
         Operation.new(self, path, action, cid)
       }
+    end
+
+    def time
+      @time ||= Time.parse(@data_object['time'])
+    end
+
+    def commit
+      @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
+    end
+
+    def prev
+      @prev ||= @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
     end
 
     def blocks
