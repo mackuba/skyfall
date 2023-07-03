@@ -12,7 +12,7 @@ module Skyfall
     using Skyfall::Extensions
 
     attr_reader :type_object, :data_object
-    attr_reader :type, :repo, :time, :seq, :commit, :prev, :blocks, :operations
+    attr_reader :type, :repo, :time, :seq, :commit, :prev, :operations
 
     def initialize(data)
       @type_object, @data_object = decode_cbor_objects(data)
@@ -29,16 +29,17 @@ module Skyfall
       @commit = @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
       @prev = @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
 
-      @blocks = CarArchive.new(@data_object['blocks'])
-
       @operations = @data_object['ops'].map { |op|
         cid = op['cid'] && CID.from_cbor_tag(op['cid'])
         path = op['path']
         action = op['action']
-        record = cid && @blocks.sections.detect { |s| s.cid == cid }.body
 
-        Operation.new(@repo, path, action, cid, record)
+        Operation.new(self, path, action, cid)
       }
+    end
+
+    def blocks
+      @blocks ||= CarArchive.new(@data_object['blocks'])
     end
 
     def inspect

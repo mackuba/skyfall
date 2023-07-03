@@ -2,18 +2,21 @@ require_relative 'collection'
 
 module Skyfall
   class Operation
-    attr_reader :repo, :path, :action, :cid
+    attr_reader :path, :action, :cid
 
-    def initialize(repo, path, action, cid, record)
-      @repo = repo
+    def initialize(message, path, action, cid)
+      @message = message
       @path = path
       @action = action.to_sym
       @cid = cid
-      @record = record
+    end
+
+    def repo
+      @message.repo
     end
 
     def raw_record
-      @record
+      @raw_record ||= (@cid && @message.blocks.sections.detect { |s| s.cid == @cid }.body)
     end
 
     def uri
