@@ -1,3 +1,11 @@
+## [0.1.3] - 2023-07-04
+
+- allow passing a previously saved cursor to websocket to replay any missed events
+- the cursor is also kept in memory and automatically used when reconnecting
+- added "connecting" callback with url as argument
+- fixed connecting to websocket when endpoint is given as a string
+- improved error handling during parsing
+
 ## [0.1.2] - 2023-06-15
 
 - added rkey property for Operation
