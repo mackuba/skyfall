@@ -61,7 +61,8 @@ module Skyfall
 
         @ws.on(:close) do |e|
           @ws = nil
-          @handlers[:disconnect]&.call(e)          
+          @handlers[:disconnect]&.call(e)
+          EM.stop_event_loop unless @ws
         end
       end
     end
