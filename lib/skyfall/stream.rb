@@ -33,6 +33,10 @@ module Skyfall
       @handlers[:connecting]&.call(url)
 
       EM.run do
+        EventMachine.error_handler do |e|
+          @handlers[:error]&.call(e)
+        end
+
         ws = Faye::WebSocket::Client.new(url)
 
         ws.on(:open) do |e|
@@ -40,16 +44,12 @@ module Skyfall
         end
 
         ws.on(:message) do |msg|
-          begin
-            data = msg.data.pack('C*')
-            atp_message = Skyfall::WebsocketMessage.new(data)
-            @cursor = atp_message.seq
+          data = msg.data.pack('C*')
+          atp_message = Skyfall::WebsocketMessage.new(data)
+          @cursor = atp_message.seq
 
-            @handlers[:raw_message]&.call(data)
-            @handlers[:message]&.call(atp_message)
-          rescue StandardError => e
-            @handlers[:error]&.call(e)
-          end
+          @handlers[:raw_message]&.call(data)
+          @handlers[:message]&.call(atp_message)
         end
 
         ws.on(:error) do |e|
