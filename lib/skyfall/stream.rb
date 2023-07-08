@@ -32,34 +32,32 @@ module Skyfall
 
       @handlers[:connecting]&.call(url)
 
-      Thread.new do
-        EM.run do
-          ws = Faye::WebSocket::Client.new(url)
+      EM.run do
+        ws = Faye::WebSocket::Client.new(url)
 
-          ws.on(:open) do |e|
-            @handlers[:connect]&.call
-          end
+        ws.on(:open) do |e|
+          @handlers[:connect]&.call
+        end
 
-          ws.on(:message) do |msg|
-            begin
-              data = msg.data.pack('C*')
-              atp_message = Skyfall::WebsocketMessage.new(data)
-              @cursor = atp_message.seq
+        ws.on(:message) do |msg|
+          begin
+            data = msg.data.pack('C*')
+            atp_message = Skyfall::WebsocketMessage.new(data)
+            @cursor = atp_message.seq
 
-              @handlers[:raw_message]&.call(data)
-              @handlers[:message]&.call(atp_message)
-            rescue StandardError => e
-              @handlers[:error]&.call(e)
-            end
-          end
-
-          ws.on(:error) do |e|
+            @handlers[:raw_message]&.call(data)
+            @handlers[:message]&.call(atp_message)
+          rescue StandardError => e
             @handlers[:error]&.call(e)
           end
+        end
 
-          ws.on(:close) do |e|
-            @handlers[:disconnect]&.call(e)
-          end
+        ws.on(:error) do |e|
+          @handlers[:error]&.call(e)
+        end
+
+        ws.on(:close) do |e|
+          @handlers[:disconnect]&.call(e)
         end
       end
     end
