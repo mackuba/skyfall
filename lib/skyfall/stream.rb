@@ -26,7 +26,7 @@ module Skyfall
     end
 
     def connect
-      return if EM.reactor_running?
+      return if @ws
 
       url = build_websocket_url
 
@@ -37,14 +37,14 @@ module Skyfall
           @handlers[:error]&.call(e)
         end
 
-        ws = Faye::WebSocket::Client.new(url)
+        @ws = Faye::WebSocket::Client.new(url)
 
-        ws.on(:open) do |e|
+        @ws.on(:open) do |e|
           @handlers[:connect]&.call
           @cursor = nil
         end
 
-        ws.on(:message) do |msg|
+        @ws.on(:message) do |msg|
           data = msg.data.pack('C*')
           @handlers[:raw_message]&.call(data)
 
@@ -55,12 +55,13 @@ module Skyfall
           end
         end
 
-        ws.on(:error) do |e|
+        @ws.on(:error) do |e|
           @handlers[:error]&.call(e)
         end
 
-        ws.on(:close) do |e|
-          @handlers[:disconnect]&.call(e)
+        @ws.on(:close) do |e|
+          @ws = nil
+          @handlers[:disconnect]&.call(e)          
         end
       end
     end
