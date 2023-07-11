@@ -12,7 +12,7 @@ module Skyfall
       :subscribe_repos => SUBSCRIBE_REPOS
     }
 
-    attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor
+    attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor, :auto_reconnect
 
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
@@ -23,6 +23,7 @@ module Skyfall
       @heartbeat_interval = 5
       @heartbeat_timeout = 30
       @last_update = nil
+      @auto_reconnect = true
     end
 
     def connect
@@ -31,6 +32,7 @@ module Skyfall
       url = build_websocket_url
 
       @handlers[:connecting]&.call(url)
+      @engines_on = true
 
       EM.run do
         EventMachine.error_handler do |e|
@@ -61,8 +63,14 @@ module Skyfall
 
         @ws.on(:close) do |e|
           @ws = nil
-          @handlers[:disconnect]&.call(e)
-          EM.stop_event_loop unless @ws
+          if @auto_reconnect && @engines_on
+            @handlers[:reconnect]&.call(e)
+            connect
+          else
+            @engines_on = false
+            @handlers[:disconnect]&.call(e)
+            EM.stop_event_loop unless @ws
+          end
         end
       end
     end
@@ -70,6 +78,7 @@ module Skyfall
     def disconnect
       return unless EM.reactor_running?
 
+      @engines_on = false
       EM.stop_event_loop
     end
 
