@@ -35,5 +35,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'base32', '~> 0.3', '>= 0.3.4'
   spec.add_dependency 'cbor', '~> 0.5', '>= 0.5.9.6'
-  spec.add_dependency 'websocket-client-simple', '~> 0.6', '>= 0.6.1'
+  spec.add_dependency 'faye-websocket', '~> 0.11.2'
 end
