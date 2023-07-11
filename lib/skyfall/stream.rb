@@ -43,7 +43,6 @@ module Skyfall
 
         @ws.on(:open) do |e|
           @handlers[:connect]&.call
-          @cursor = nil
         end
 
         @ws.on(:message) do |msg|
@@ -54,6 +53,8 @@ module Skyfall
             atp_message = Skyfall::WebsocketMessage.new(data)
             @cursor = atp_message.seq
             @handlers[:message].call(atp_message)
+          else
+            @cursor = nil
           end
         end
 
