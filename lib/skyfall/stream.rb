@@ -12,6 +12,8 @@ module Skyfall
       :subscribe_repos => SUBSCRIBE_REPOS
     }
 
+    MAX_RECONNECT_INTERVAL = 300
+
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor, :auto_reconnect
 
     def initialize(server, endpoint, cursor = nil)
@@ -24,6 +26,7 @@ module Skyfall
       @heartbeat_timeout = 30
       @last_update = nil
       @auto_reconnect = true
+      @connection_attempts = 0
     end
 
     def connect
@@ -46,6 +49,8 @@ module Skyfall
         end
 
         @ws.on(:message) do |msg|
+          @connection_attempts = 0
+
           data = msg.data.pack('C*')
           @handlers[:raw_message]&.call(data)
 
@@ -64,9 +69,13 @@ module Skyfall
 
         @ws.on(:close) do |e|
           @ws = nil
+
           if @auto_reconnect && @engines_on
-            @handlers[:reconnect]&.call(e)
-            connect
+            EM.add_timer(reconnect_delay) do
+              @connection_attempts += 1
+              @handlers[:reconnect]&.call(e)
+              connect
+            end
           else
             @engines_on = false
             @handlers[:disconnect]&.call(e)
@@ -115,6 +124,14 @@ module Skyfall
 
 
     private
+
+    def reconnect_delay
+      if @connection_attempts == 0
+        0
+      else
+        [2 ** (@connection_attempts - 1), MAX_RECONNECT_INTERVAL].min
+      end
+    end
 
     def build_websocket_url
       url = "wss://#{@server}/xrpc/#{@endpoint}"
