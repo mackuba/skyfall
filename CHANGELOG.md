@@ -1,3 +1,14 @@
+## [0.2.0] - 2023-07-24
+
+- switched the websocket library from `websocket-client-simple` to `faye-websocket`, which should make event parsing up to ~30× faster (!)
+- added `auto_reconnect` property to `Stream` (on by default) - if true, it will try to reconnect with an exponential backoff when the websocket disconnects, until you call `Stream#disconnect`
+
+Note:
+
+- calling `sleep` is no longer needed after connecting - call `connect` on a new thread instead to get previously default behavior of running the event loop asynchronously
+- the disconnect event no longer passes an error object in the argument
+- there is currently no "heartbeat" feature as in 0.1.x that checks for a stuck connection - but it doesn't seem to be needed
+
 ## [0.1.3] - 2023-07-04
 
 - allow passing a previously saved cursor to websocket to replay any missed events
