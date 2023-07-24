@@ -41,8 +41,6 @@ When you're ready, open the connection by calling `connect`:
 sky.connect
 ```
 
-The connection is started asynchronously on a separate thread. If you're running this code in a simple script (and not as a part of a server), call e.g. `sleep` without arguments or `loop { STDIN.read }` to prevent the script for exiting while the connection is open.
-
 
 ### Processing messages
 
