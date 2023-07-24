@@ -21,7 +21,7 @@ end
 
 sky.on_connect { puts "Connected" }
 sky.on_disconnect { puts "Disconnected" }
+sky.on_reconnect { puts "Reconnecting..." }
 sky.on_error { |e| puts "ERROR: #{e}" }
 
 sky.connect
-sleep
