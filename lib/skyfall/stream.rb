@@ -73,12 +73,12 @@ module Skyfall
           if @auto_reconnect && @engines_on
             EM.add_timer(reconnect_delay) do
               @connection_attempts += 1
-              @handlers[:reconnect]&.call(e)
+              @handlers[:reconnect]&.call
               connect
             end
           else
             @engines_on = false
-            @handlers[:disconnect]&.call(e)
+            @handlers[:disconnect]&.call
             EM.stop_event_loop unless @ws
           end
         end
