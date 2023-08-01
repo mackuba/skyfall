@@ -1,8 +1,8 @@
-require_relative 'car_archive'
-require_relative 'cid'
-require_relative 'errors'
-require_relative 'extensions'
-require_relative 'operation'
+require_relative '../car_archive'
+require_relative '../cid'
+require_relative '../errors'
+require_relative '../extensions'
+require_relative '../operation'
 
 require 'cbor'
 require 'time'

@@ -1,4 +1,4 @@
-require_relative 'websocket_message'
+require_relative 'messages/websocket_message'
 
 require 'eventmachine'
 require 'faye/websocket'
