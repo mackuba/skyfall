@@ -31,6 +31,9 @@ module Skyfall
       read_section(buffer) until buffer.eof?
     end
 
+    def section_with_cid(cid)
+      @sections.detect { |s| s.cid == cid }&.body
+    end
 
     private
 

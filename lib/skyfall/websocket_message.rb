@@ -25,13 +25,7 @@ module Skyfall
 
       return unless @type == :commit
 
-      @operations = @data_object['ops'].map { |op|
-        cid = op['cid'] && CID.from_cbor_tag(op['cid'])
-        path = op['path']
-        action = op['action']
-
-        Operation.new(self, path, action, cid)
-      }
+      @operations = @data_object['ops'].map { |op| Operation.new(self, op) }
     end
 
     def time

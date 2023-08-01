@@ -2,33 +2,41 @@ require_relative 'collection'
 
 module Skyfall
   class Operation
-    attr_reader :path, :action, :cid
-
-    def initialize(message, path, action, cid)
+    def initialize(message, json)
       @message = message
-      @path = path
-      @action = action.to_sym
-      @cid = cid
+      @json = json
     end
 
     def repo
       @message.repo
     end
 
-    def raw_record
-      @raw_record ||= (@cid && @message.blocks.sections.detect { |s| s.cid == @cid }.body)
+    def path
+      @json['path']
+    end
+
+    def action
+      @json['action'].to_sym
+    end
+
+    def collection
+      @json['path'].split('/')[0]
+    end
+
+    def rkey
+      @json['path'].split('/')[1]
     end
 
     def uri
       "at://#{repo}/#{path}"
     end
 
-    def collection
-      path.split('/')[0]
+    def cid
+      @cid ||= @json['cid'] && CID.from_cbor_tag(@json['cid'])
     end
 
-    def rkey
-      path.split('/')[1]
+    def raw_record
+      @raw_record ||= cid && @message.blocks.section_with_cid(cid)
     end
 
     def type
