@@ -10,6 +10,7 @@ module Skyfall
 
     require_relative 'commit_message'
     require_relative 'handle_message'
+    require_relative 'info_message'
 
     attr_reader :type_object, :data_object
     attr_reader :type, :did, :seq
@@ -22,6 +23,7 @@ module Skyfall
       message_class = case type_object['t']
         when '#commit' then CommitMessage
         when '#handle' then HandleMessage
+        when '#info' then InfoMessage
         else WebsocketMessage
       end
 
@@ -43,9 +45,12 @@ module Skyfall
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
 
+    def inspectable_variables
+      instance_variables - [:@type_object, :@data_object, :@blocks]
+    end
+
     def inspect
-      keys = instance_variables - [:@type_object, :@data_object, :@blocks]
-      vars = keys.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
+      vars = inspectable_variables.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
       "#<#{self.class}:0x#{object_id} #{vars}>"
     end
 
