@@ -11,6 +11,7 @@ module Skyfall
     require_relative 'commit_message'
     require_relative 'handle_message'
     require_relative 'info_message'
+    require_relative 'tombstone_message'
     require_relative 'unknown_message'
 
     attr_reader :type_object, :data_object
@@ -25,6 +26,7 @@ module Skyfall
         when '#commit' then CommitMessage
         when '#handle' then HandleMessage
         when '#info' then InfoMessage
+        when '#tombstone' then TombstoneMessage
         else UnknownMessage
       end
 
