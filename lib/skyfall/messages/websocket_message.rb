@@ -66,20 +66,19 @@ module Skyfall
         raise DecodeError.new("Invalid number of objects: #{objects.length}")
       end
 
-      type_object, data_object = objects
+      type, data = objects
 
-      if data_object['error']
-        raise SubscriptionError.new(data_object['error'], data_object['message'])
+      if data['error']
+        raise SubscriptionError.new(data['error'], data['message'])
       end
 
-      raise DecodeError.new("Invalid object type: #{type_object}") unless type_object.is_a?(Hash)
-      raise UnsupportedError.new("Unexpected CBOR object: #{type_object}") unless type_object['op'] == 1
-      raise DecodeError.new("Missing data: #{type_object} #{objects.inspect}") unless type_object['op'] && type_object['t']
-      raise DecodeError.new("Invalid message type: #{type_object['t']}") unless type_object['t'].start_with?('#')
+      raise DecodeError.new("Invalid object type: #{type}") unless type.is_a?(Hash)
+      raise UnsupportedError.new("Unexpected CBOR object: #{type}") unless type['op'] == 1
+      raise DecodeError.new("Missing data: #{type} #{objects.inspect}") unless type['op'] && type['t']
+      raise DecodeError.new("Invalid message type: #{type['t']}") unless type['t'].start_with?('#')
+      raise DecodeError.new("Invalid object type: #{data}") unless data.is_a?(Hash)
 
-      raise DecodeError.new("Invalid object type: #{data_object}") unless data_object.is_a?(Hash)
-
-      [type_object, data_object]
+      [type, data]
     end
   end
 end
