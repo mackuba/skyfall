@@ -11,6 +11,7 @@ module Skyfall
     require_relative 'commit_message'
     require_relative 'handle_message'
     require_relative 'info_message'
+    require_relative 'unknown_message'
 
     attr_reader :type_object, :data_object
     attr_reader :type, :did, :seq
@@ -24,7 +25,7 @@ module Skyfall
         when '#commit' then CommitMessage
         when '#handle' then HandleMessage
         when '#info' then InfoMessage
-        else WebsocketMessage
+        else UnknownMessage
       end
 
       message = message_class.allocate
