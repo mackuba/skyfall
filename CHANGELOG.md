@@ -1,3 +1,10 @@
+## Unreleased
+
+- optimized `WebsocketMessage` parsing performance - lazy parsing of most properties
+- added separate subclasses of `WebsocketMessage` for different message types
+- added support for `#handle`, `#info` and `#tombstone` message types
+- `UnknownMessage` is returned for unrecognized message types
+
 ## [0.2.0] - 2023-07-24
 
 - switched the websocket library from `websocket-client-simple` to `faye-websocket`, which should make event parsing up to ~30× faster (!)
