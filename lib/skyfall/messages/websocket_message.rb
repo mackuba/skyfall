@@ -9,17 +9,19 @@ module Skyfall
     using Skyfall::Extensions
 
     require_relative 'commit_message'
+    require_relative 'handle_message'
 
     attr_reader :type_object, :data_object
-    attr_reader :type, :repo, :seq
+    attr_reader :type, :did, :seq
 
-    alias did repo
+    alias repo did
 
     def self.new(data)
       type_object, data_object = decode_cbor_objects(data)
 
       message_class = case type_object['t']
         when '#commit' then CommitMessage
+        when '#handle' then HandleMessage
         else WebsocketMessage
       end
 
@@ -33,7 +35,7 @@ module Skyfall
       @data_object = data_object
 
       @type = @type_object['t'][1..-1].to_sym
-      @repo = @data_object['repo']
+      @did = @data_object['repo'] || @data_object['did']
       @seq = @data_object['seq']
     end
 
