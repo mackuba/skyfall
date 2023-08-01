@@ -1,8 +1,5 @@
-require_relative '../car_archive'
-require_relative '../cid'
 require_relative '../errors'
 require_relative '../extensions'
-require_relative '../operation'
 
 require 'cbor'
 require 'time'
@@ -11,39 +8,37 @@ module Skyfall
   class WebsocketMessage
     using Skyfall::Extensions
 
-    attr_reader :type_object, :data_object
-    attr_reader :type, :repo, :seq, :operations
+    require_relative 'commit_message'
 
-    def initialize(data)
-      @type_object, @data_object = decode_cbor_objects(data)
+    attr_reader :type_object, :data_object
+    attr_reader :type, :repo, :seq
+
+    alias did repo
+
+    def self.new(data)
+      type_object, data_object = decode_cbor_objects(data)
+
+      message_class = case type_object['t']
+        when '#commit' then CommitMessage
+        else WebsocketMessage
+      end
+
+      message = message_class.allocate
+      message.send(:initialize, type_object, data_object)
+      message
+    end
+
+    def initialize(type_object, data_object)
+      @type_object = type_object
+      @data_object = data_object
 
       @type = @type_object['t'][1..-1].to_sym
-      @operations = []
-
       @repo = @data_object['repo']
       @seq = @data_object['seq']
-
-      return unless @type == :commit
     end
 
     def time
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
-    end
-
-    def commit
-      @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
-    end
-
-    def prev
-      @prev ||= @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
-    end
-
-    def blocks
-      @blocks ||= CarArchive.new(@data_object['blocks'])
-    end
-
-    def operations
-      @operations = @data_object['ops'].map { |op| Operation.new(self, op) }
     end
 
     def inspect
@@ -54,7 +49,7 @@ module Skyfall
 
     private
 
-    def decode_cbor_objects(data)
+    def self.decode_cbor_objects(data)
       objects = CBOR.decode_sequence(data)
 
       if objects.length < 2
