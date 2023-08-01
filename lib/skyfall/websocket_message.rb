@@ -24,12 +24,10 @@ module Skyfall
       @seq = @data_object['seq']
 
       return unless @type == :commit
-
-      @operations = @data_object['ops'].map { |op| Operation.new(self, op) }
     end
 
     def time
-      @time ||= Time.parse(@data_object['time'])
+      @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
 
     def commit
@@ -42,6 +40,10 @@ module Skyfall
 
     def blocks
       @blocks ||= CarArchive.new(@data_object['blocks'])
+    end
+
+    def operations
+      @operations = @data_object['ops'].map { |op| Operation.new(self, op) }
     end
 
     def inspect
