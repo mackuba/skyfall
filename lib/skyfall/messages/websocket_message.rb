@@ -44,6 +44,10 @@ module Skyfall
       @seq = @data_object['seq']
     end
 
+    def operations
+      []
+    end
+
     def time
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
