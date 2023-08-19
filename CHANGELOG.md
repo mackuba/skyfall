@@ -1,6 +1,6 @@
-## Unreleased
+## [0.2.1] - 2023-08-19
 
-- optimized `WebsocketMessage` parsing performance - lazy parsing of most properties
+- optimized `WebsocketMessage` parsing performance - lazy parsing of most properties (message decoding should be over 50% faster on average)
 - added separate subclasses of `WebsocketMessage` for different message types
 - added support for `#handle`, `#info` and `#tombstone` message types
 - `UnknownMessage` is returned for unrecognized message types
