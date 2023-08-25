@@ -32,10 +32,37 @@ module Skyfall
     end
 
     def section_with_cid(cid)
-      @sections.detect { |s| s.cid == cid }&.body
+      section = @sections.detect { |s| s.cid == cid }
+
+      if section
+        convert_cids(section.body)
+        section.body
+      end
     end
 
     private
+
+    def convert_cids(object)
+      if object.is_a?(Hash)
+        object.each do |k, v|
+          if v.is_a?(Hash) || v.is_a?(Array)
+            convert_cids(v)
+          elsif v.is_a?(CBOR::Tagged)
+            object[k] = CID.from_cbor_tag(v)
+          end
+        end
+      elsif object.is_a?(Array)
+        object.each_with_index do |v, i|
+          if v.is_a?(Hash) || v.is_a?(Array)
+            convert_cids(v)
+          elsif v.is_a?(CBOR::Tagged)
+            object[i] = CID.from_cbor_tag(v)
+          end
+        end
+      else
+        raise DecodeError, "Unexpected value type in record: #{object}"
+      end
+    end
 
     def read_header(buffer)
       len = buffer.read_varint
