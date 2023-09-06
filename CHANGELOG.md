@@ -1,3 +1,7 @@
+## [0.2.2] - 2023-09-06
+
+- fixed image CIDs returned in the record JSON as CBOR tag objects (they are now returned decoded to the string form)
+
 ## [0.2.1] - 2023-08-19
 
 - optimized `WebsocketMessage` parsing performance - lazy parsing of most properties (message decoding should be over 50% faster on average)
