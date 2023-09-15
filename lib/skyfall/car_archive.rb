@@ -48,7 +48,7 @@ module Skyfall
           if v.is_a?(Hash) || v.is_a?(Array)
             convert_cids(v)
           elsif v.is_a?(CBOR::Tagged)
-            object[k] = CID.from_cbor_tag(v)
+            object[k] = make_cid_link(v)
           end
         end
       elsif object.is_a?(Array)
@@ -56,12 +56,16 @@ module Skyfall
           if v.is_a?(Hash) || v.is_a?(Array)
             convert_cids(v)
           elsif v.is_a?(CBOR::Tagged)
-            object[i] = CID.from_cbor_tag(v)
+            object[i] = make_cid_link(v)
           end
         end
       else
         raise DecodeError, "Unexpected value type in record: #{object}"
       end
+    end
+
+    def make_cid_link(cid)
+      { '$link' => CID.from_cbor_tag(cid) }
     end
 
     def read_header(buffer)
