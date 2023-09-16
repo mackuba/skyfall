@@ -47,7 +47,9 @@ module Skyfall
       when Collection::BSKY_REPOST then :bsky_repost
       when Collection::BSKY_BLOCK then :bsky_block
       when Collection::BSKY_PROFILE then :bsky_profile
+      when Collection::BSKY_LIST then :bsky_list
       when Collection::BSKY_LISTITEM then :bsky_listitem
+      when Collection::BSKY_LISTBLOCK then :bsky_listblock
       when Collection::BSKY_FEED then :bsky_feed
       else :unknown
       end
