@@ -2,6 +2,7 @@ require_relative 'cid'
 require_relative 'errors'
 require_relative 'extensions'
 
+require 'base64'
 require 'cbor'
 require 'stringio'
 
@@ -33,30 +34,30 @@ module Skyfall
 
     def section_with_cid(cid)
       section = @sections.detect { |s| s.cid == cid }
-
-      if section
-        convert_cids(section.body)
-        section.body
-      end
+      section && section.body
     end
 
     private
 
-    def convert_cids(object)
+    def convert_data(object)
       if object.is_a?(Hash)
         object.each do |k, v|
           if v.is_a?(Hash) || v.is_a?(Array)
-            convert_cids(v)
+            convert_data(v)
           elsif v.is_a?(CBOR::Tagged)
             object[k] = make_cid_link(v)
+          elsif v.is_a?(String) && v.encoding == Encoding::ASCII_8BIT
+            object[k] = make_bytes(v)
           end
         end
       elsif object.is_a?(Array)
         object.each_with_index do |v, i|
           if v.is_a?(Hash) || v.is_a?(Array)
-            convert_cids(v)
+            convert_data(v)
           elsif v.is_a?(CBOR::Tagged)
             object[i] = make_cid_link(v)
+          elsif v.is_a?(String) && v.encoding == Encoding::ASCII_8BIT
+            object[i] = make_bytes(v)
           end
         end
       else
@@ -66,6 +67,10 @@ module Skyfall
 
     def make_cid_link(cid)
       { '$link' => CID.from_cbor_tag(cid) }
+    end
+
+    def make_bytes(data)
+      { '$bytes' => Base64.encode64(data).chomp.gsub(/=+$/, '') }
     end
 
     def read_header(buffer)
@@ -108,6 +113,7 @@ module Skyfall
 
       body_data = sbuffer.read
       body = CBOR.decode(body_data)
+      convert_data(body)
 
       @sections << CarSection.new(cid, body)
     end
