@@ -1,3 +1,9 @@
+## [0.2.3] - 2023-09-28
+
+- fixed encoding of image CIDs again (they should be wrapped in a `$link` object)
+- binary strings are now correctly returned as `$bytes` objects
+- added `list`, `listblock` and `threadgate` to record type symbols and collection constants
+
 ## [0.2.2] - 2023-09-06
 
 - fixed image CIDs returned in the record JSON as CBOR tag objects (they are now returned decoded to the string form)
