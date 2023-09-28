@@ -81,7 +81,7 @@ Info messages additionally have:
 
 Operations are objects of type `Operation` and have such properties:
 
-- `repo` (string) - DID of the repository (user account)
+- `repo` or `did` (string) - DID of the repository (user account)
 - `collection` (string) - name of the relevant collection in the repository, e.g. `app.bsky.feed.post` for posts
 - `type` (symbol) - short name of the collection, e.g. `:bsky_post`
 - `rkey` (string) - identifier of a record in a collection

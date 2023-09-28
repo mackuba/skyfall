@@ -11,6 +11,8 @@ module Skyfall
       @message.repo
     end
 
+    alias did repo
+
     def path
       @json['path']
     end
