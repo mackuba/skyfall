@@ -44,27 +44,53 @@ sky.connect
 
 ### Processing messages
 
-Each message passed to `on_message` is an instance of the `WebsocketMessage` class and has such properties:
+Each message passed to `on_message` is an instance of a subclass of `WebsocketMessage`, depending on the message type. The supported message types are:
 
-- `type` (symbol) - usually `:commit`
-- `seq` (sequential number)
-- `time` (Time)
-- `repo` (string) - DID of the repository (user account)
+- `CommitMessage` (`#commit`) - represents a change in a user's repo; most messages are of this type
+- `HandleMessage` (`#handle`) - when a different handle is assigned to a user's DID
+- `TombstoneMessage` (`#tombstone`) - when an account is deleted
+- `InfoMessage` (`#info`) - a protocol error message, e.g. about an invalid cursor parameter
+- `UnknownMessage` is used for other unrecognized message types
+
+All message objects have the following properties:
+
+- `type` (symbol) - the message type identifier, e.g. `:commit`
+- `seq` (integer) - a sequential index of the message
+- `repo` or `did` (string) - DID of the repository (user account)
+- `time` (Time) - timestamp of the described action
+
+All properties except `type` may be nil for some message types that aren't related to a specific user, like `#info`.
+
+Commit messages additionally have:
+
 - `commit` - CID of the commit
 - `prev` - CID of the previous commit in that repo
 - `operations` - list of operations (usually one)
+
+Handle messages additionally have:
+
+- `handle` - the new handle assigned to the DID
+
+Info messages additionally have:
+
+- `name` - identifier of the message/error
+- `message` - a human-readable description
+
+
+### Commit operations
 
 Operations are objects of type `Operation` and have such properties:
 
 - `repo` (string) - DID of the repository (user account)
 - `collection` (string) - name of the relevant collection in the repository, e.g. `app.bsky.feed.post` for posts
-- `path` (string) - the path part of the at:// URI - collection name + ID (rkey) of the item
-- `action` (symbol) - `:create`, `:update` or `:delete`
-- `uri` (string) - the at:// URI
 - `type` (symbol) - short name of the collection, e.g. `:bsky_post`
+- `rkey` (string) - identifier of a record in a collection
+- `path` (string) - the path part of the at:// URI - collection name + ID (rkey) of the item
+- `uri` (string) - the complete at:// URI
+- `action` (symbol) - `:create`, `:update` or `:delete`
 - `cid` - CID of the operation/record (`nil` for delete operations)
 
-Create and update operations will also have an attached record (JSON object) with details of the post, like etc. The record data is currently available as a Ruby hash via `raw_record` property (custom types will be added in a later version).
+Create and update operations will also have an attached record (JSON object) with details of the post, like etc. The record data is currently available as a Ruby hash via `raw_record` property (custom types will be added in future).
 
 So for example, in order to filter only "create post" operations and print their details, you can do something like this:
 
