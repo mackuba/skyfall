@@ -22,7 +22,7 @@ Start a connection to the firehose by creating a `Skyfall::Stream` object, passi
 ```rb
 require 'skyfall'
 
-sky = Skyfall::Stream.new('bsky.social', :subscribe_repos)
+sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
 ```
 
 Add event listeners to handle incoming messages and get notified of errors:
