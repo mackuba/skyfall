@@ -21,10 +21,6 @@ module Skyfall
       @server = check_hostname(server)
       @cursor = cursor
       @handlers = {}
-      @heartbeat_mutex = Mutex.new
-      @heartbeat_interval = 5
-      @heartbeat_timeout = 30
-      @last_update = nil
       @auto_reconnect = true
       @connection_attempts = 0
     end
