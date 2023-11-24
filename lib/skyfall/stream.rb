@@ -19,7 +19,7 @@ module Skyfall
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
       @server = check_hostname(server)
-      @cursor = cursor
+      @cursor = check_cursor(cursor)
       @handlers = {}
       @auto_reconnect = true
       @connection_attempts = 0
@@ -133,6 +133,16 @@ module Skyfall
       url = "wss://#{@server}/xrpc/#{@endpoint}"
       url += "?cursor=#{@cursor}" if @cursor
       url
+    end
+
+    def check_cursor(cursor)
+      if cursor.nil?
+        nil
+      elsif cursor.is_a?(Integer) || cursor.is_a?(String) && cursor =~ /^[0-9]+$/
+        cursor.to_i
+      else
+        raise ArgumentError, "Invalid cursor: #{cursor.inspect} - cursor must be an integer number"
+      end
     end
 
     def check_endpoint(endpoint)
