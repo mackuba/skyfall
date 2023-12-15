@@ -18,7 +18,7 @@ module Skyfall
 
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
-      @server = check_hostname(server)
+      @root_url = build_root_url(server)
       @cursor = check_cursor(cursor)
       @handlers = {}
       @auto_reconnect = true
@@ -130,9 +130,7 @@ module Skyfall
     end
 
     def build_websocket_url
-      url = "wss://#{@server}/xrpc/#{@endpoint}"
-      url += "?cursor=#{@cursor}" if @cursor
-      url
+      @root_url + "/xrpc/" + @endpoint + (@cursor ? "?cursor=#{@cursor}" : "")
     end
 
     def check_cursor(cursor)
@@ -158,14 +156,18 @@ module Skyfall
       endpoint
     end
 
-    def check_hostname(server)
+    def build_root_url(server)
       if server.is_a?(String)
-        raise ArgumentError("Invalid server name: #{server}") if server.strip.empty? || server.include?('/')
+        if server.start_with?('ws://') || server.start_with?('wss://')
+          server
+        elsif server.strip.empty? || server.include?('/')
+          raise ArgumentError("Server parameter should be a hostname or a ws:// or wss:// URL")
+        else
+          "wss://#{server}"
+        end
       else
-        raise ArgumentError("Server name should be a string")
+        raise ArgumentError("Server parameter should be a string")
       end
-
-      server
     end
   end
 end
