@@ -17,7 +17,7 @@ if terms.empty?
   exit 1
 end
 
-sky = Skyfall::Stream.new('bsky.social', :subscribe_repos)
+sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages

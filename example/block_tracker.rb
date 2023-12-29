@@ -19,7 +19,7 @@ elsif ARGV[0] !~ /^did:plc:[a-z0-9]{24}$/
   exit 1
 end
 
-sky = Skyfall::Stream.new('bsky.social', :subscribe_repos)
+sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
 
 sky.on_connect { puts "Connected, monitoring #{$monitored_did}" }
 sky.on_disconnect { puts "Disconnected" }

@@ -7,7 +7,7 @@ $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
 
 require 'skyfall'
 
-sky = Skyfall::Stream.new('bsky.social', :subscribe_repos)
+sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages
