@@ -45,6 +45,7 @@ module Skyfall
         end
 
         @ws.on(:message) do |msg|
+          @reconnecting = false
           @connection_attempts = 0
 
           data = msg.data.pack('C*')
@@ -66,7 +67,7 @@ module Skyfall
         @ws.on(:close) do |e|
           @ws = nil
 
-          if @auto_reconnect && @engines_on
+          if @reconnecting || @auto_reconnect && @engines_on
             EM.add_timer(reconnect_delay) do
               @connection_attempts += 1
               @handlers[:reconnect]&.call
@@ -81,11 +82,17 @@ module Skyfall
       end
     end
 
+    def reconnect
+      @reconnecting = true
+      @ws.close
+    end
+
     def disconnect
       return unless EM.reactor_running?
 
+      @reconnecting = false
       @engines_on = false
-      EM.stop_event_loop
+      @ws.close
     end
 
     alias close disconnect
