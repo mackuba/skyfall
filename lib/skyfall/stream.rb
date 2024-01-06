@@ -125,6 +125,15 @@ module Skyfall
       @handlers[:reconnect] = block
     end
 
+    def inspectable_variables
+      instance_variables - [:@handlers, :@ws]
+    end
+
+    def inspect
+      vars = inspectable_variables.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
+      "#<#{self.class}:0x#{object_id} #{vars}>"
+    end
+
 
     private
 
