@@ -88,6 +88,7 @@ module Skyfall
 
     def reconnect
       @reconnecting = true
+      @connection_attempts = 0
 
       @ws ? @ws.close : connect
     end
