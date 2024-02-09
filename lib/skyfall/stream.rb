@@ -84,7 +84,8 @@ module Skyfall
 
     def reconnect
       @reconnecting = true
-      @ws.close
+
+      @ws ? @ws.close : connect
     end
 
     def disconnect
@@ -92,7 +93,7 @@ module Skyfall
 
       @reconnecting = false
       @engines_on = false
-      @ws.close
+      EM.stop_event_loop
     end
 
     alias close disconnect
