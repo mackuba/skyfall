@@ -33,6 +33,9 @@ module Skyfall
       @handlers[:connecting]&.call(url)
       @engines_on = true
 
+      @reconnect_timer&.cancel
+      @reconnect_timer = nil
+
       EM.run do
         EventMachine.error_handler do |e|
           @handlers[:error]&.call(e)
@@ -68,7 +71,8 @@ module Skyfall
           @ws = nil
 
           if @reconnecting || @auto_reconnect && @engines_on
-            EM.add_timer(reconnect_delay) do
+            @reconnect_timer&.cancel
+            @reconnect_timer = EM::Timer.new(reconnect_delay) do
               @connection_attempts += 1
               @handlers[:reconnect]&.call
               connect
