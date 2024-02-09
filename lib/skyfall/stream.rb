@@ -71,10 +71,11 @@ module Skyfall
           @ws = nil
 
           if @reconnecting || @auto_reconnect && @engines_on
+            @handlers[:reconnect]&.call
+
             @reconnect_timer&.cancel
             @reconnect_timer = EM::Timer.new(reconnect_delay) do
               @connection_attempts += 1
-              @handlers[:reconnect]&.call
               connect
             end
           else
