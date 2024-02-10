@@ -50,7 +50,7 @@ class NotificationEngine
     @sky.on_connect { puts "Connected, monitoring #{@user_did}" }
     @sky.on_disconnect { puts "Disconnected" }
     @sky.on_reconnect { puts "Reconnecting..." }
-    @sky.on_error { |e| puts "ERROR: #{e} #{e.backtrace}"; exit }
+    @sky.on_error { |e| puts "ERROR: #{e}" }
 
     @sky.on_message do |msg|
       process_message(msg)
@@ -85,7 +85,7 @@ class NotificationEngine
           process_follow(msg, op)
         end
       rescue StandardError => e
-        puts "Error: #{e} #{e.backtrace}"; exit
+        puts "Error: #{e}"
       end
     end
   end
