@@ -225,7 +225,14 @@ class NotificationEngine
   end
 
 
-  # helpers
+  #
+  # Note: in this example, we're calling the Bluesky AppView to get details about the person interacting with the user
+  # and the post/feed that was liked/reposted etc. In a real app, you might run into rate limits if you do that,
+  # because these requests will all be sent from the server's IP.
+  #
+  # So you might need to take a different route and send just the info that you have here in the push notification data
+  # (the AT URI / DID) and fetch the details on the client side, e.g. in a Notification Service Extension on iOS.
+  #
 
   def get_user_handle(did)
     url = "https://api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=#{did}"
@@ -241,7 +248,7 @@ class NotificationEngine
   end
 
   def send_push(message, data = nil)
-    # in a real app, you'd send the message to APNS/FCM here
+    # send the message to APNS/FCM here
     puts
     puts "[#{Time.now}] #{message} #{data&.inspect}"
   end
