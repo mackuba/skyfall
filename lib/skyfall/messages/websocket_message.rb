@@ -10,6 +10,7 @@ module Skyfall
 
     require_relative 'commit_message'
     require_relative 'handle_message'
+    require_relative 'identity_message'
     require_relative 'info_message'
     require_relative 'tombstone_message'
     require_relative 'unknown_message'
@@ -25,6 +26,7 @@ module Skyfall
       message_class = case type_object['t']
         when '#commit' then CommitMessage
         when '#handle' then HandleMessage
+        when '#identity' then IdentityMessage
         when '#info' then InfoMessage
         when '#tombstone' then TombstoneMessage
         else UnknownMessage
