@@ -1,3 +1,12 @@
+## [0.2.4] - 2024-02-27
+
+- added support for `#identity` message type
+- added `Operation#did` as an alias of `#repo`
+- added `Stream#reconnect` method which forces the websocket to reconnect
+- added some validation for the `cursor` parameter in `Stream` initializer
+- the `server` parameter in `Stream` initializer can be a full URL with scheme, which lets you connect to e.g. `ws://localhost` (since by default, `wss://` is used)
+- tweaked `#inspect` output of `Stream` and `Operation`
+
 ## [0.2.3] - 2023-09-28
 
 - fixed encoding of image CIDs again (they should be wrapped in a `$link` object)
