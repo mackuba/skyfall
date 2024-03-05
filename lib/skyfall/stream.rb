@@ -192,12 +192,12 @@ module Skyfall
 
     def check_endpoint(endpoint)
       if endpoint.is_a?(String)
-        raise ArgumentError("Invalid endpoint name: #{endpoint}") if endpoint.strip.empty? || !endpoint.include?('.')
+        raise ArgumentError.new("Invalid endpoint name: #{endpoint}") if endpoint.strip == '' || !endpoint.include?('.')
       elsif endpoint.is_a?(Symbol)
-        raise ArgumentError("Unknown endpoint: #{endpoint}") if NAMED_ENDPOINTS[endpoint].nil?
+        raise ArgumentError.new("Unknown endpoint: #{endpoint}") if NAMED_ENDPOINTS[endpoint].nil?
         endpoint = NAMED_ENDPOINTS[endpoint]
       else
-        raise ArgumentError("Endpoint should be a string or a symbol")
+        raise ArgumentError, "Endpoint should be a string or a symbol"
       end
 
       endpoint
@@ -208,12 +208,12 @@ module Skyfall
         if server.start_with?('ws://') || server.start_with?('wss://')
           server
         elsif server.strip.empty? || server.include?('/')
-          raise ArgumentError("Server parameter should be a hostname or a ws:// or wss:// URL")
+          raise ArgumentError, "Server parameter should be a hostname or a ws:// or wss:// URL"
         else
           "wss://#{server}"
         end
       else
-        raise ArgumentError("Server parameter should be a string")
+        raise ArgumentError, "Server parameter should be a string"
       end
     end
   end
