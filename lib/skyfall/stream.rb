@@ -114,6 +114,10 @@ module Skyfall
       define_method "on_#{event}" do |&block|
         @handlers[event.to_sym] = block
       end
+
+      define_method "on_#{event}=" do |block|
+        @handlers[event.to_sym] = block
+      end
     end
 
     def inspectable_variables
