@@ -12,6 +12,7 @@ module Skyfall
     require_relative 'handle_message'
     require_relative 'identity_message'
     require_relative 'info_message'
+    require_relative 'labels_message'
     require_relative 'tombstone_message'
     require_relative 'unknown_message'
 
@@ -28,6 +29,7 @@ module Skyfall
         when '#handle' then HandleMessage
         when '#identity' then IdentityMessage
         when '#info' then InfoMessage
+        when '#labels' then LabelsMessage
         when '#tombstone' then TombstoneMessage
         else UnknownMessage
       end

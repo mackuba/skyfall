@@ -7,9 +7,11 @@ require 'uri'
 module Skyfall
   class Stream
     SUBSCRIBE_REPOS = "com.atproto.sync.subscribeRepos"
+    SUBSCRIBE_LABELS = "com.atproto.label.subscribeLabels"
 
     NAMED_ENDPOINTS = {
-      :subscribe_repos => SUBSCRIBE_REPOS
+      :subscribe_repos => SUBSCRIBE_REPOS,
+      :subscribe_labels => SUBSCRIBE_LABELS
     }
 
     MAX_RECONNECT_INTERVAL = 300
