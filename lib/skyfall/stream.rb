@@ -25,6 +25,8 @@ module Skyfall
       @handlers = {}
       @auto_reconnect = true
       @connection_attempts = 0
+
+      @handlers[:error] = proc { |e| puts "ERROR: #{e}" }
     end
 
     def connect
