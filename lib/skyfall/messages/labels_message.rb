@@ -1,4 +1,5 @@
 require_relative 'websocket_message'
+require_relative '../label'
 
 module Skyfall
   class LabelsMessage
@@ -16,7 +17,7 @@ module Skyfall
     end
 
     def labels
-      @labels ||= @data_object['labels']
+      @labels ||= @data_object['labels'].map { |x| Label.new(x) }
     end
   end
 end
