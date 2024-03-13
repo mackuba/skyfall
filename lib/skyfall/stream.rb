@@ -14,6 +14,8 @@ module Skyfall
       :subscribe_labels => SUBSCRIBE_LABELS
     }
 
+    EVENTS = %w(message raw_message connecting connect disconnect reconnect error)
+
     MAX_RECONNECT_INTERVAL = 300
 
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor, :auto_reconnect
@@ -108,32 +110,10 @@ module Skyfall
 
     alias close disconnect
 
-    def on_message(&block)
-      @handlers[:message] = block
-    end
-
-    def on_raw_message(&block)
-      @handlers[:raw_message] = block
-    end
-
-    def on_connecting(&block)
-      @handlers[:connecting] = block
-    end
-
-    def on_connect(&block)
-      @handlers[:connect] = block
-    end
-
-    def on_disconnect(&block)
-      @handlers[:disconnect] = block
-    end
-
-    def on_error(&block)
-      @handlers[:error] = block
-    end
-
-    def on_reconnect(&block)
-      @handlers[:reconnect] = block
+    EVENTS.each do |event|
+      define_method "on_#{event}" do |&block|
+        @handlers[event.to_sym] = block
+      end
     end
 
     def inspectable_variables
