@@ -46,6 +46,7 @@ module Skyfall
       when Collection::BSKY_BLOCK      then :bsky_block
       when Collection::BSKY_FEED       then :bsky_feed
       when Collection::BSKY_FOLLOW     then :bsky_follow
+      when Collection::BSKY_LABELER    then :bsky_labeler
       when Collection::BSKY_LIKE       then :bsky_like
       when Collection::BSKY_LIST       then :bsky_list
       when Collection::BSKY_LISTBLOCK  then :bsky_listblock
