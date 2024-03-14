@@ -11,5 +11,6 @@ module Skyfall
     BSKY_LIST       = "app.bsky.graph.list"
     BSKY_LISTBLOCK  = "app.bsky.graph.listblock"
     BSKY_LISTITEM   = "app.bsky.graph.listitem"
+    BSKY_LABELER    = "app.bsky.labeler.service"
   end
 end
