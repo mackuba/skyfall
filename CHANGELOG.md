@@ -1,3 +1,7 @@
+## [0.2.5] - 2024-03-14
+
+- added `:bsky_labeler` record type symbol & collection constant
+
 ## [0.2.4] - 2024-02-27
 
 - added support for `#identity` message type
