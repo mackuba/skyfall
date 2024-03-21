@@ -1,3 +1,11 @@
+## [0.3.0] - 2024-03-21
+
+- added support for labeller firehose, served by labeller services at the `com.atproto.label.subscribeLabels` endpoint (aliased as `:subscribe_labels`)
+- the `#labels` messages from the labeller firehose are parsed into a `LabelsMessage`, which includes a `labels` array of `Label` objects
+- `Stream` callbacks can now also be assigned via setters, e.g. `stream.on_message = proc { ... }`
+- added default error handler to `Stream` which logs the error to `$stdout` - set `stream.on_error = nil` to disable
+- added Ruby stdlib dependencies explicitly to the gemspec - fixes a warning in Ruby 3.3 when requiring `base64`, which will be extracted as an optional gem in 3.4
+
 ## [0.2.5] - 2024-03-14
 
 - added `:bsky_labeler` record type symbol & collection constant
