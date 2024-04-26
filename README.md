@@ -1,6 +1,9 @@
 # Skyfall
 
-🌤 A Ruby gem for streaming data from the Bluesky/AtProto firehose 🦋
+A Ruby gem for streaming data from the Bluesky/AtProto firehose 🦋
+
+> [!NOTE]
+> ATProto Ruby gems collection: [skyfall](https://github.com/mackuba/skyfall) | [blue_factory](https://github.com/mackuba/blue_factory) | [minisky](https://github.com/mackuba/minisky) | [didkit](https://github.com/mackuba/didkit)
 
 
 ## What does it do
