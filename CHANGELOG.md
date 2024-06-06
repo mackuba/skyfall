@@ -1,3 +1,10 @@
+## [Unreleased]
+
+- added heartbeat timer
+- fixed param validation on `Stream` initialization
+- reverted the change with adding Ruby stdlib dependencies explicitly to the gemspec, since this causes more problems than it's worth - only `base64` is left there, since it's the one now required to be listed
+- added chat.bsky.actor.declaration record type
+
 ## [0.3.0] - 2024-03-21
 
 - added support for labeller firehose, served by labeller services at the `com.atproto.label.subscribeLabels` endpoint (aliased as `:subscribe_labels`)
