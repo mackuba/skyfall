@@ -3,7 +3,9 @@
 - added heartbeat timer
 - fixed param validation on `Stream` initialization
 - reverted the change with adding Ruby stdlib dependencies explicitly to the gemspec, since this causes more problems than it's worth - only `base64` is left there, since it's the one now required to be listed
-- added chat.bsky.actor.declaration record type
+- added `chat.bsky.actor.declaration` record type
+- added `#account` event type (`AccountMessage`)
+- added `handle` field to `IdentityMessage`
 
 ## [0.3.0] - 2024-03-21
 
