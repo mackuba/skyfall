@@ -55,6 +55,7 @@ module Skyfall
       when Collection::BSKY_PROFILE    then :bsky_profile
       when Collection::BSKY_REPOST     then :bsky_repost
       when Collection::BSKY_THREADGATE then :bsky_threadgate
+      when Collection::BSKY_CHAT_DECLARATION then :bsky_chat_declaration
       else :unknown
       end
     end
