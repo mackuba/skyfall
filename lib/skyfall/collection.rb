@@ -4,6 +4,7 @@ module Skyfall
     BSKY_FEED        = "app.bsky.feed.generator"
     BSKY_LIKE        = "app.bsky.feed.like"
     BSKY_POST        = "app.bsky.feed.post"
+    BSKY_POSTGATE    = "app.bsky.feed.postgate"
     BSKY_REPOST      = "app.bsky.feed.repost"
     BSKY_THREADGATE  = "app.bsky.feed.threadgate"
     BSKY_BLOCK       = "app.bsky.graph.block"

@@ -52,6 +52,7 @@ module Skyfall
       when Collection::BSKY_LISTBLOCK   then :bsky_listblock
       when Collection::BSKY_LISTITEM    then :bsky_listitem
       when Collection::BSKY_POST        then :bsky_post
+      when Collection::BSKY_POSTGATE    then :bsky_postgate
       when Collection::BSKY_PROFILE     then :bsky_profile
       when Collection::BSKY_REPOST      then :bsky_repost
       when Collection::BSKY_STARTERPACK then :bsky_starterpack
