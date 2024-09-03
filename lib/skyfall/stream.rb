@@ -18,7 +18,8 @@ module Skyfall
 
     MAX_RECONNECT_INTERVAL = 300
 
-    attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor, :auto_reconnect, :last_update
+    attr_accessor :cursor, :auto_reconnect, :last_update
+    attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
@@ -26,6 +27,7 @@ module Skyfall
       @cursor = check_cursor(cursor)
       @handlers = {}
       @auto_reconnect = true
+      @check_heartbeat = false
       @connection_attempts = 0
       @heartbeat_interval = 10
       @heartbeat_timeout = 300
@@ -91,6 +93,7 @@ module Skyfall
               connect
             end
           else
+            stop_heartbeat_timer
             @engines_on = false
             @handlers[:disconnect]&.call
             EM.stop_event_loop unless @ws
@@ -116,10 +119,21 @@ module Skyfall
 
     alias close disconnect
 
-    def start_heartbeat_timer
-      return if @timer || @heartbeat_interval.to_f <= 0 || @heartbeat_timeout.to_f <= 0
+    def check_heartbeat=(value)
+      @check_heartbeat = value
 
-      @timer = EM::PeriodicTimer.new(@heartbeat_interval) do
+      if @check_heartbeat && @engines_on && @ws && !@heartbeat_timer
+        start_heartbeat_timer
+      elsif !@check_heartbeat && @heartbeat_timer
+        stop_heartbeat_timer
+      end
+    end
+
+    def start_heartbeat_timer
+      return if !@check_heartbeat || @heartbeat_interval.to_f <= 0 || @heartbeat_timeout.to_f <= 0
+      return if @heartbeat_timer
+
+      @heartbeat_timer = EM::PeriodicTimer.new(@heartbeat_interval) do
         next if @ws.nil? || @heartbeat_timeout.to_f <= 0
         time_passed = Time.now - @last_update
 
@@ -128,6 +142,11 @@ module Skyfall
           reconnect
         end
       end
+    end
+
+    def stop_heartbeat_timer
+      @heartbeat_timer&.cancel
+      @heartbeat_timer = nil
     end
 
     EVENTS.each do |event|
