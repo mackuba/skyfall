@@ -14,11 +14,12 @@ module Skyfall
       :subscribe_labels => SUBSCRIBE_LABELS
     }
 
-    EVENTS = %w(message raw_message connecting connect disconnect reconnect error)
+    EVENTS = %w(message raw_message connecting connect disconnect reconnect error timeout)
 
     MAX_RECONNECT_INTERVAL = 300
 
-    attr_accessor :heartbeat_timeout, :heartbeat_interval, :cursor, :auto_reconnect
+    attr_accessor :cursor, :auto_reconnect, :last_update
+    attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
     def initialize(server, endpoint, cursor = nil)
       @endpoint = check_endpoint(endpoint)
@@ -26,7 +27,11 @@ module Skyfall
       @cursor = check_cursor(cursor)
       @handlers = {}
       @auto_reconnect = true
+      @check_heartbeat = false
       @connection_attempts = 0
+      @heartbeat_interval = 10
+      @heartbeat_timeout = 300
+      @last_update = nil
 
       @handlers[:error] = proc { |e| puts "ERROR: #{e}" }
     end
@@ -51,11 +56,14 @@ module Skyfall
 
         @ws.on(:open) do |e|
           @handlers[:connect]&.call
+          @last_update = Time.now
+          start_heartbeat_timer
         end
 
         @ws.on(:message) do |msg|
           @reconnecting = false
           @connection_attempts = 0
+          @last_update = Time.now
 
           data = msg.data.pack('C*')
           @handlers[:raw_message]&.call(data)
@@ -85,6 +93,7 @@ module Skyfall
               connect
             end
           else
+            stop_heartbeat_timer
             @engines_on = false
             @handlers[:disconnect]&.call
             EM.stop_event_loop unless @ws
@@ -109,6 +118,36 @@ module Skyfall
     end
 
     alias close disconnect
+
+    def check_heartbeat=(value)
+      @check_heartbeat = value
+
+      if @check_heartbeat && @engines_on && @ws && !@heartbeat_timer
+        start_heartbeat_timer
+      elsif !@check_heartbeat && @heartbeat_timer
+        stop_heartbeat_timer
+      end
+    end
+
+    def start_heartbeat_timer
+      return if !@check_heartbeat || @heartbeat_interval.to_f <= 0 || @heartbeat_timeout.to_f <= 0
+      return if @heartbeat_timer
+
+      @heartbeat_timer = EM::PeriodicTimer.new(@heartbeat_interval) do
+        next if @ws.nil? || @heartbeat_timeout.to_f <= 0
+        time_passed = Time.now - @last_update
+
+        if time_passed > @heartbeat_timeout
+          @handlers[:timeout]&.call
+          reconnect
+        end
+      end
+    end
+
+    def stop_heartbeat_timer
+      @heartbeat_timer&.cancel
+      @heartbeat_timer = nil
+    end
 
     EVENTS.each do |event|
       define_method "on_#{event}" do |&block|
