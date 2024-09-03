@@ -18,7 +18,7 @@ module Skyfall
 
     MAX_RECONNECT_INTERVAL = 300
 
-    attr_accessor :cursor, :auto_reconnect, :last_update
+    attr_accessor :cursor, :auto_reconnect, :last_update, :user_agent
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
     def initialize(server, endpoint, cursor = nil)
@@ -32,6 +32,7 @@ module Skyfall
       @heartbeat_interval = 10
       @heartbeat_timeout = 300
       @last_update = nil
+      @user_agent = default_agent
 
       @handlers[:error] = proc { |e| puts "ERROR: #{e}" }
     end
@@ -52,7 +53,7 @@ module Skyfall
           @handlers[:error]&.call(e)
         end
 
-        @ws = Faye::WebSocket::Client.new(url)
+        @ws = Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }})
 
         @ws.on(:open) do |e|
           @handlers[:connect]&.call
@@ -118,6 +119,10 @@ module Skyfall
     end
 
     alias close disconnect
+
+    def default_agent
+      "Skyfall/#{Skyfall::VERSION}"
+    end
 
     def check_heartbeat=(value)
       @check_heartbeat = value
