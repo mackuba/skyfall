@@ -123,9 +123,36 @@ When Skyfall receives a message about a record type that's not on the list, whet
 Do not however check if such operations have a `type` equal to `:unknown` first - just ignore the type and only check the `collection` string. The reason is that some next version of Skyfall might start recognizing those records and add a new `type` value for them like e.g. `:skygram_photo`, and then they won't match your condition anymore.
 
 
+## Configuration
+
+### User agent
+
+`Skyfall::Stream` sends a user agent header when making a connection. This is set by default to `"Skyfall/0.x.y"`, but it's recommended that you override it using the `user_agent` field to something that identifies your app and its author – this will let the owner of the server you're connecting to know who to contact in case the client is causing some problems.
+
+You can also append your user agent info to the default value like this:
+
+```rb
+sky.user_agent = "NewsBot (@news.bot) #{sky.default_user_agent}"
+```
+
+### Heartbeat and reconnecting
+
+Occasionally, especially during times of very heavy traffic, the websocket can get into a stuck state where it stops receiving any data, but doesn't disconnect and just hangs like this forever. To work around this, there is a "heartbeat" feature which starts a background timer, which periodically checks how much time has passed since the last received event, and if the time exceeds a set limit, it manually disconnects and reconnects the stream.
+
+The option is not enabled by default, because there are some firehoses which will not be sending events often, possibly only once in a while – e.g. labellers and independent PDS firehoses – and in this case we don't want any heartbeat since it will be completely normal not to have any events for a long time. It's not really possible to detect easily if we're connecting to a full network relay or one of those, so in order to avoid false alarms, you need to enable this manually using the `check_heartbeat` property.
+
+You can also change the `heartbeat_interval`, i.e. how often the timer is triggered (default: 10s), and the `heartbeat_timeout`, i.e. the amount of time passed without events when it reconnects (default: 5 min):
+
+```rb
+sky.check_heartbeat = true
+sky.heartbeat_interval = 5
+sky.heartbeat_timeout = 120
+```
+
+
 ## Credits
 
-Copyright © 2023 Kuba Suder ([@mackuba.eu](https://bsky.app/profile/mackuba.eu)).
+Copyright © 2024 Kuba Suder ([@mackuba.eu](https://bsky.app/profile/mackuba.eu)).
 
 The code is available under the terms of the [zlib license](https://choosealicense.com/licenses/zlib/) (permissive, similar to MIT).
 
