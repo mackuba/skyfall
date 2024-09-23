@@ -32,7 +32,7 @@ module Skyfall
       @heartbeat_interval = 10
       @heartbeat_timeout = 300
       @last_update = nil
-      @user_agent = default_agent
+      @user_agent = default_user_agent
 
       @handlers[:error] = proc { |e| puts "ERROR: #{e}" }
     end
@@ -120,7 +120,7 @@ module Skyfall
 
     alias close disconnect
 
-    def default_agent
+    def default_user_agent
       "Skyfall/#{Skyfall::VERSION}"
     end
 
