@@ -1,30 +1,18 @@
-require_relative 'messages/websocket_message'
-
 require 'eventmachine'
 require 'faye/websocket'
 require 'uri'
 
 module Skyfall
   class Stream
-    SUBSCRIBE_REPOS = "com.atproto.sync.subscribeRepos"
-    SUBSCRIBE_LABELS = "com.atproto.label.subscribeLabels"
-
-    NAMED_ENDPOINTS = {
-      :subscribe_repos => SUBSCRIBE_REPOS,
-      :subscribe_labels => SUBSCRIBE_LABELS
-    }
-
     EVENTS = %w(message raw_message connecting connect disconnect reconnect error timeout)
-
     MAX_RECONNECT_INTERVAL = 300
 
-    attr_accessor :cursor, :auto_reconnect, :last_update, :user_agent
+    attr_accessor :auto_reconnect, :last_update, :user_agent
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
-    def initialize(server, endpoint, cursor = nil)
-      @endpoint = check_endpoint(endpoint)
-      @root_url = build_root_url(server)
-      @cursor = check_cursor(cursor)
+    def initialize(service)
+      @root_url = build_root_url(service)
+
       @handlers = {}
       @auto_reconnect = true
       @check_heartbeat = false
@@ -62,6 +50,9 @@ module Skyfall
         end
 
         @ws.on(:message) do |msg|
+          @reconnecting = false
+          @connection_attempts = 0
+          @last_update = Time.now
           handle_message(msg)
         end
 
@@ -91,20 +82,8 @@ module Skyfall
     end
 
     def handle_message(msg)
-      @reconnecting = false
-      @connection_attempts = 0
-      @last_update = Time.now
-
-      data = msg.data.pack('C*')
+      data = msg.data
       @handlers[:raw_message]&.call(data)
-
-      if @handlers[:message]
-        atp_message = Skyfall::WebsocketMessage.new(data)
-        @cursor = atp_message.seq
-        @handlers[:message].call(atp_message)
-      else
-        @cursor = nil
-      end
     end
 
     def reconnect
@@ -189,43 +168,24 @@ module Skyfall
     end
 
     def build_websocket_url
-      @root_url + "/xrpc/" + @endpoint + (@cursor ? "?cursor=#{@cursor}" : "")
+      @root_url
     end
 
-    def check_cursor(cursor)
-      if cursor.nil?
-        nil
-      elsif cursor.is_a?(Integer) || cursor.is_a?(String) && cursor =~ /^[0-9]+$/
-        cursor.to_i
-      else
-        raise ArgumentError, "Invalid cursor: #{cursor.inspect} - cursor must be an integer number"
-      end
-    end
-
-    def check_endpoint(endpoint)
-      if endpoint.is_a?(String)
-        raise ArgumentError.new("Invalid endpoint name: #{endpoint}") if endpoint.strip == '' || !endpoint.include?('.')
-      elsif endpoint.is_a?(Symbol)
-        raise ArgumentError.new("Unknown endpoint: #{endpoint}") if NAMED_ENDPOINTS[endpoint].nil?
-        endpoint = NAMED_ENDPOINTS[endpoint]
-      else
-        raise ArgumentError, "Endpoint should be a string or a symbol"
-      end
-
-      endpoint
-    end
-
-    def build_root_url(server)
-      if server.is_a?(String)
-        if server.start_with?('ws://') || server.start_with?('wss://')
-          server
-        elsif server.strip.empty? || server.include?('/')
-          raise ArgumentError, "Server parameter should be a hostname or a ws:// or wss:// URL"
+    def build_root_url(service)
+      if service.is_a?(String)
+        if service.include?('/')
+          uri = URI(service)
+          if uri.scheme != 'ws' && uri.scheme != 'wss'
+            raise ArgumentError, "Service parameter should be a hostname or a ws:// or wss:// URL"
+          end
+          uri.to_s
         else
-          "wss://#{server}"
+          service = "wss://#{service}"
+          uri = URI(service) # raises if invalid
+          service
         end
       else
-        raise ArgumentError, "Server parameter should be a string"
+        raise ArgumentError, "Service parameter should be a string"
       end
     end
   end
