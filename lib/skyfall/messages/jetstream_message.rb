@@ -25,17 +25,16 @@ module Skyfall
         :commit
       end
 
+      def raw_record_for_operation(op)
+        json['commit']['record']
+      end
+
       def operations
         @operations ||= begin
-          json = @json
-          op = Operation.new(self, {
+          [Operation.new(self, {
             'path' => "#{json['commit']['collection']}/#{json['commit']['rkey']}",
             'action' => { 'c' => 'create', 'u' => 'update', 'd' => 'delete' }[json['commit']['type']]
-          })
-          op.singleton_class.define_method(:raw_record) do
-            json['commit']['record']
-          end
-          [op]
+          })]
         end
       end
     end

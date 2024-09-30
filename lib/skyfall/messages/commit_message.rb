@@ -19,5 +19,9 @@ module Skyfall
     def operations
       @operations ||= @data_object['ops'].map { |op| Operation.new(self, op) }
     end
+
+    def raw_record_for_operation(op)
+      op.cid && blocks.section_with_cid(op.cid)
+    end
   end
 end

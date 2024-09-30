@@ -38,7 +38,7 @@ module Skyfall
     end
 
     def raw_record
-      @raw_record ||= cid && @message.blocks.section_with_cid(cid)
+      @raw_record ||= @message.raw_record_for_operation(self)
     end
 
     def type
