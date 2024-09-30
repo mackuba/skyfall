@@ -62,20 +62,7 @@ module Skyfall
         end
 
         @ws.on(:message) do |msg|
-          @reconnecting = false
-          @connection_attempts = 0
-          @last_update = Time.now
-
-          data = msg.data.pack('C*')
-          @handlers[:raw_message]&.call(data)
-
-          if @handlers[:message]
-            atp_message = Skyfall::WebsocketMessage.new(data)
-            @cursor = atp_message.seq
-            @handlers[:message].call(atp_message)
-          else
-            @cursor = nil
-          end
+          handle_message(msg)
         end
 
         @ws.on(:error) do |e|
@@ -100,6 +87,23 @@ module Skyfall
             EM.stop_event_loop unless @ws
           end
         end
+      end
+    end
+
+    def handle_message(msg)
+      @reconnecting = false
+      @connection_attempts = 0
+      @last_update = Time.now
+
+      data = msg.data.pack('C*')
+      @handlers[:raw_message]&.call(data)
+
+      if @handlers[:message]
+        atp_message = Skyfall::WebsocketMessage.new(data)
+        @cursor = atp_message.seq
+        @handlers[:message].call(atp_message)
+      else
+        @cursor = nil
       end
     end
 
