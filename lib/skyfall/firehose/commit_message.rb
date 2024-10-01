@@ -1,9 +1,10 @@
 require_relative '../car_archive'
 require_relative '../cid'
+require_relative '../firehose'
 require_relative '../operation'
 
 module Skyfall
-  class CommitMessage < WebsocketMessage
+  class Firehose::CommitMessage < Firehose::Message
     def commit
       @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
     end

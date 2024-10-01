@@ -1,5 +1,7 @@
+require_relative '../firehose'
+
 module Skyfall
-  class AccountMessage < WebsocketMessage
+  class Firehose::AccountMessage < Firehose::Message
     def active?
       @data_object['active']
     end

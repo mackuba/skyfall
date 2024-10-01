@@ -1,0 +1,45 @@
+require_relative '../errors'
+require_relative '../jetstream'
+
+require 'time'
+
+module Skyfall
+  class Jetstream::Message
+    require_relative 'account_message'
+    require_relative 'commit_message'
+    require_relative 'identity_message'
+    require_relative 'unknown_message'
+
+    attr_reader :did, :json, :seq
+    alias repo did
+
+    def self.new(data)
+      json = JSON.parse(data)
+
+      message_class = case json['type']
+        when 'acc' then Jetstream::AccountMessage
+        when 'com' then Jetstream::CommitMessage
+        when 'id' then Jetstream::IdentityMessage
+        else Jetstream::UnknownMessage
+      end
+
+      message = message_class.allocate
+      message.send(:initialize, json)
+      message
+    end
+
+    def initialize(json)
+      @json = json
+      @did = @json['did']
+      @seq = @json['time_us']
+    end
+
+    def operations
+      []
+    end
+
+    def time
+      @time ||= @json['time_us'] && Time.at(@json['time_us'] / 1000.0)
+    end
+  end
+end

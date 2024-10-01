@@ -1,6 +1,4 @@
-require_relative 'messages/websocket_message'
 require_relative 'stream'
-
 require 'uri'
 
 module Skyfall
@@ -23,6 +21,7 @@ module Skyfall
     end
 
     def initialize(server, endpoint, cursor = nil)
+      require_relative 'firehose/message'
       super(server)
 
       @endpoint = check_endpoint(endpoint)
@@ -39,7 +38,7 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        atp_message = Skyfall::WebsocketMessage.new(data)
+        atp_message = Message.new(data)
         @cursor = atp_message.seq
         @handlers[:message].call(atp_message)
       else

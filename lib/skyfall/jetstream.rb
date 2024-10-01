@@ -1,6 +1,4 @@
-require_relative 'messages/jetstream_message'
 require_relative 'stream'
-
 require 'json'
 require 'uri'
 
@@ -14,6 +12,7 @@ module Skyfall
     end
 
     def initialize(server)
+      require_relative 'jetstream/message'
       super
 
       @root_url = @root_url.chomp('/')
@@ -28,7 +27,7 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        jet_message = Skyfall::JetstreamMessage.new(data)
+        jet_message = Message.new(data)
         @cursor = jet_message.seq
         @handlers[:message].call(jet_message)
       else
