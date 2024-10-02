@@ -27,12 +27,12 @@ module Skyfall
       type_object, data_object = decode_cbor_objects(data)
 
       message_class = case type_object['t']
-        when '#account' then Firehose::AccountMessage
-        when '#commit' then Firehose::CommitMessage
-        when '#handle' then Firehose::HandleMessage
-        when '#identity' then Firehose::IdentityMessage
-        when '#info' then Firehose::InfoMessage
-        when '#labels' then Firehose::LabelsMessage
+        when '#account'   then Firehose::AccountMessage
+        when '#commit'    then Firehose::CommitMessage
+        when '#handle'    then Firehose::HandleMessage
+        when '#identity'  then Firehose::IdentityMessage
+        when '#info'      then Firehose::InfoMessage
+        when '#labels'    then Firehose::LabelsMessage
         when '#tombstone' then Firehose::TombstoneMessage
         else Firehose::UnknownMessage
       end

@@ -4,11 +4,7 @@ require_relative 'operation'
 module Skyfall
   class Jetstream::CommitMessage < Jetstream::Message
     def initialize(json)
-      super
-    end
-
-    def type
-      :commit
+      super(:commit, json)
     end
 
     def operations

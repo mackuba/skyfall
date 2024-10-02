@@ -10,7 +10,7 @@ module Skyfall
     require_relative 'identity_message'
     require_relative 'unknown_message'
 
-    attr_reader :did, :json, :seq
+    attr_reader :did, :json, :seq, :type
     alias repo did
 
     def self.new(data)
@@ -19,7 +19,7 @@ module Skyfall
       message_class = case json['type']
         when 'acc' then Jetstream::AccountMessage
         when 'com' then Jetstream::CommitMessage
-        when 'id' then Jetstream::IdentityMessage
+        when 'id'  then Jetstream::IdentityMessage
         else Jetstream::UnknownMessage
       end
 
@@ -28,7 +28,8 @@ module Skyfall
       message
     end
 
-    def initialize(json)
+    def initialize(type, json)
+      @type = type
       @json = json
       @did = @json['did']
       @seq = @json['time_us']
