@@ -1,5 +1,5 @@
 require_relative '../jetstream'
-require_relative '../operation'
+require_relative 'operation'
 
 module Skyfall
   class Jetstream::CommitMessage < Jetstream::Message
@@ -11,17 +11,8 @@ module Skyfall
       :commit
     end
 
-    def raw_record_for_operation(op)
-      json['commit']['record']
-    end
-
     def operations
-      @operations ||= begin
-        [Operation.new(self, {
-          'path' => "#{json['commit']['collection']}/#{json['commit']['rkey']}",
-          'action' => { 'c' => 'create', 'u' => 'update', 'd' => 'delete' }[json['commit']['type']]
-        })]
-      end
+      @operations ||= [Jetstream::Operation.new(self, json['commit'])]
     end
   end
 end

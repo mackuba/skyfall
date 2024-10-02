@@ -1,7 +1,7 @@
 require_relative '../car_archive'
 require_relative '../cid'
 require_relative '../firehose'
-require_relative '../operation'
+require_relative 'operation'
 
 module Skyfall
   class Firehose::CommitMessage < Firehose::Message
@@ -18,7 +18,7 @@ module Skyfall
     end
 
     def operations
-      @operations ||= @data_object['ops'].map { |op| Operation.new(self, op) }
+      @operations ||= @data_object['ops'].map { |op| Firehose::Operation.new(self, op) }
     end
 
     def raw_record_for_operation(op)
