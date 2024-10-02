@@ -40,7 +40,7 @@ module Skyfall
     end
 
     def time
-      @time ||= @json['time_us'] && Time.at(@json['time_us'] / 1000.0)
+      @time ||= @json['time_us'] && Time.at(@json['time_us'] / 1_000_000.0)
     end
   end
 end
