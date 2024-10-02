@@ -5,5 +5,9 @@ module Skyfall
     def initialize(json)
       super(:identity, json)
     end
+
+    def handle
+      @json['identity']['handle']
+    end
   end
 end
