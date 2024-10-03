@@ -10,9 +10,12 @@ module Skyfall
     require_relative 'identity_message'
     require_relative 'unknown_message'
 
-    attr_reader :did, :type, :json, :time_us
+    attr_reader :did, :type, :time_us
     alias repo did
     alias seq time_us
+
+    # :nodoc: - consider this as semi-private API
+    attr_reader :json
 
     def self.new(data)
       json = JSON.parse(data)
