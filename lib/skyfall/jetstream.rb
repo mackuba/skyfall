@@ -13,6 +13,8 @@ module Skyfall
       instance
     end
 
+    attr_accessor :cursor
+
     def initialize(server, params = {})
       require_relative 'jetstream/message'
       super(server)
