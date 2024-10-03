@@ -10,8 +10,9 @@ module Skyfall
     require_relative 'identity_message'
     require_relative 'unknown_message'
 
-    attr_reader :did, :json, :seq, :type
+    attr_reader :did, :type, :json, :time_us
     alias repo did
+    alias seq time_us
 
     def self.new(data)
       json = JSON.parse(data)
@@ -32,7 +33,7 @@ module Skyfall
       @type = type
       @json = json
       @did = @json['did']
-      @seq = @json['time_us']
+      @time_us = @json['time_us']
     end
 
     def operations
