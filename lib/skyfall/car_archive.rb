@@ -11,11 +11,15 @@ require 'stringio'
 
 module Skyfall
   class CarSection
-    attr_reader :cid, :body
+    attr_reader :cid
 
-    def initialize(cid, body)
+    def initialize(cid, body_data)
       @cid = cid
-      @body = body
+      @body_data = body_data
+    end
+
+    def body
+      @body ||= CarArchive.convert_data(CBOR.decode(@body_data))
     end
   end
 
@@ -37,9 +41,7 @@ module Skyfall
       section && section.body
     end
 
-    private
-
-    def convert_data(object)
+    def self.convert_data(object)
       if object.is_a?(Hash)
         object.each do |k, v|
           if v.is_a?(Hash) || v.is_a?(Array)
@@ -65,13 +67,15 @@ module Skyfall
       end
     end
 
-    def make_cid_link(cid)
+    def self.make_cid_link(cid)
       { '$link' => CID.from_cbor_tag(cid) }
     end
 
-    def make_bytes(data)
+    def self.make_bytes(data)
       { '$bytes' => Base64.encode64(data).chomp.gsub(/=+$/, '') }
     end
+
+    private
 
     def read_header(buffer)
       len = buffer.read_varint
@@ -112,10 +116,7 @@ module Skyfall
       cid = CID.new(prefix + cid_data)
 
       body_data = sbuffer.read
-      body = CBOR.decode(body_data)
-      convert_data(body)
-
-      @sections << CarSection.new(cid, body)
+      @sections << CarSection.new(cid, body_data)
     end
   end
 end
