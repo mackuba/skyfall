@@ -1,3 +1,16 @@
+## [Unreleased]
+
+Jetstream support! You can now connect to Jetstream sources using `Skyfall::Jetstream` (see readme).
+
+This required some breaking changes in the existing API:
+
+- `Skyfall::Stream` has been renamed to `Skyfall::Firehose`, `Skyfall::Stream` is now a base class of both `Firehose` and `Jetstream`; the existing `Skyfall::Stream` constructor works for now but will be removed soon
+- `Skyfall::WebsocketMessage` and its subclasses have been separated into two parallel families under `Skyfall::Firehose` and `Skyfall::Jetstream`, with the base classes just named `Message`
+- same thing happened with `Skyfall::Operation`
+- `data_object` and `type_object` properties are considered semi-private API now ("nodoc")
+
+In most cases, you should only need to update the class name in the constructor. If you've referenced message classes like `Skyfall::CommitMessage` directly, it's probably better to just check the `#type` property instead.
+
 ## [0.4.1] - 2024-10-04
 
 - performance fix - don't decode CAR sections which aren't needed, which is most of them; this cuts the amount of memory that GC has to free up by about one third, and should speed up processing by around ~10%
