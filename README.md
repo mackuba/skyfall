@@ -290,6 +290,12 @@ sky = Skyfall::Jetstream.new('jetstream.atproto.tools', {
 })
 ```
 
+For collections, you can also use the symbol codes used in `Operation#type`, e.g. `:bsky_post`:
+
+```rb
+sky = Skyfall::Jetstream.new('jetstream.atproto.tools', { wanted_collections: [:bsky_post] })
+```
+
 See [Jetstream docs](https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream) for more info on available filters.
 
 > [!NOTE]

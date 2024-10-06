@@ -91,12 +91,16 @@ module Skyfall
     def check_wanted_collections(list)
       list = [list] unless list.is_a?(Array)
 
-      if x = list.detect { |c| !c.is_a?(String) }
-        raise ArgumentError.new("Invalid collection argument: #{x.inspect}")
+      list.map do |c|
+        if c.is_a?(String)
+          # TODO: more validation
+          c
+        elsif c.is_a?(Symbol)
+          Collection.from_short_code(c) or raise ArgumentError.new("Unknown collection symbol: #{c.inspect}")
+        else
+          raise ArgumentError.new("Invalid collection argument: #{c.inspect}")
+        end
       end
-
-      # TODO: more validation
-      list
     end
 
     def check_wanted_dids(list)

@@ -17,25 +17,30 @@ module Skyfall
 
     BSKY_CHAT_DECLARATION = "chat.bsky.actor.declaration"
 
+    SHORT_CODES = {
+      BSKY_BLOCK       => :bsky_block,
+      BSKY_FEED        => :bsky_feed,
+      BSKY_FOLLOW      => :bsky_follow,
+      BSKY_LABELER     => :bsky_labeler,
+      BSKY_LIKE        => :bsky_like,
+      BSKY_LIST        => :bsky_list,
+      BSKY_LISTBLOCK   => :bsky_listblock,
+      BSKY_LISTITEM    => :bsky_listitem,
+      BSKY_POST        => :bsky_post,
+      BSKY_POSTGATE    => :bsky_postgate,
+      BSKY_PROFILE     => :bsky_profile,
+      BSKY_REPOST      => :bsky_repost,
+      BSKY_STARTERPACK => :bsky_starterpack,
+      BSKY_THREADGATE  => :bsky_threadgate,
+      BSKY_CHAT_DECLARATION => :bsky_chat_declaration,
+    }
+
     def self.short_code(collection)
-      case collection
-      when BSKY_BLOCK       then :bsky_block
-      when BSKY_FEED        then :bsky_feed
-      when BSKY_FOLLOW      then :bsky_follow
-      when BSKY_LABELER     then :bsky_labeler
-      when BSKY_LIKE        then :bsky_like
-      when BSKY_LIST        then :bsky_list
-      when BSKY_LISTBLOCK   then :bsky_listblock
-      when BSKY_LISTITEM    then :bsky_listitem
-      when BSKY_POST        then :bsky_post
-      when BSKY_POSTGATE    then :bsky_postgate
-      when BSKY_PROFILE     then :bsky_profile
-      when BSKY_REPOST      then :bsky_repost
-      when BSKY_STARTERPACK then :bsky_starterpack
-      when BSKY_THREADGATE  then :bsky_threadgate
-      when BSKY_CHAT_DECLARATION then :bsky_chat_declaration
-      else :unknown
-      end
+      SHORT_CODES[collection] || :unknown
+    end
+
+    def self.from_short_code(code)
+      SHORT_CODES.detect { |k, v| v == code }&.first
     end
   end
 end
