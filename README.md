@@ -150,7 +150,6 @@ All properties except `type` may be nil for some message types that aren't relat
 Commit messages additionally have:
 
 - `commit` - CID of the commit
-- `prev` - CID of the previous commit in that repo
 - `operations` - list of operations (usually one)
 
 Handle and Identity messages additionally have:

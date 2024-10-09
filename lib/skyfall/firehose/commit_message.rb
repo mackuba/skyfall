@@ -10,6 +10,7 @@ module Skyfall
     end
 
     def prev
+      STDERR.puts "Warning: `prev` property has been deprecated and will be removed in a future version."
       @prev ||= @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
     end
 
