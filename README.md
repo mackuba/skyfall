@@ -80,7 +80,7 @@ Alternatively, you can connect to a [Jetstream](https://github.com/bluesky-socia
 Jetstream connections are made using a `Skyfall::Jetstream` instance, which has more or less the same API as `Skyfall::Firehose`, so it should be possible to switch between those by just changing the line that creates the client instance:
 
 ```rb
-sky = Skyfall::Jetstream.new('jetstream.atproto.tools')
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network')
 
 sky.on_message { |msg| ... }
 sky.on_error { |e| ... }
@@ -113,7 +113,7 @@ Jetstream has a similar mechanism, except the cursor is the event's timestamp in
 ```rb
 cursor = load_cursor
 
-sky = Skyfall::Jetstream.new('jetstream.atproto.tools', { cursor: cursor })
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', { cursor: cursor })
 sky.on_message do |msg|
   save_cursor(msg.seq)
   process_message(msg)
@@ -284,7 +284,7 @@ Jetstream allows you to specify [filters](https://github.com/bluesky-social/jets
 To use these filters, pass the "wantedCollections" and/or "wantedDids" parameters in the options hash when initializing `Skyfall::Jetstream`. You can use the original JavaScript param names, or a more Ruby-like snake_case form:
 
 ```rb
-sky = Skyfall::Jetstream.new('jetstream.atproto.tools', {
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', {
   wanted_collections: 'app.bsky.feed.post',
   wanted_dids: @dids
 })
@@ -293,7 +293,7 @@ sky = Skyfall::Jetstream.new('jetstream.atproto.tools', {
 For collections, you can also use the symbol codes used in `Operation#type`, e.g. `:bsky_post`:
 
 ```rb
-sky = Skyfall::Jetstream.new('jetstream.atproto.tools', { wanted_collections: [:bsky_post] })
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', { wanted_collections: [:bsky_post] })
 ```
 
 See [Jetstream docs](https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream) for more info on available filters.
