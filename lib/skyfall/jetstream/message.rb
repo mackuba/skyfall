@@ -20,10 +20,10 @@ module Skyfall
     def self.new(data)
       json = JSON.parse(data)
 
-      message_class = case json['type']
-        when 'acc' then Jetstream::AccountMessage
-        when 'com' then Jetstream::CommitMessage
-        when 'id'  then Jetstream::IdentityMessage
+      message_class = case json['kind']
+        when 'account'  then Jetstream::AccountMessage
+        when 'commit'   then Jetstream::CommitMessage
+        when 'identity' then Jetstream::IdentityMessage
         else Jetstream::UnknownMessage
       end
 
@@ -32,9 +32,9 @@ module Skyfall
       message
     end
 
-    def initialize(type, json)
-      @type = type
+    def initialize(json)
       @json = json
+      @type = @json['kind'].to_sym
       @did = @json['did']
       @time_us = @json['time_us']
     end

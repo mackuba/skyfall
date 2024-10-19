@@ -5,8 +5,7 @@ module Skyfall
   class Jetstream::AccountMessage < Jetstream::Message
     def initialize(json)
       raise DecodeError.new("Missing event details") if json['account'].nil?
-
-      super(:account, json)
+      super
     end
 
     def active?

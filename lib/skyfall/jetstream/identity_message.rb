@@ -5,8 +5,7 @@ module Skyfall
   class Jetstream::IdentityMessage < Jetstream::Message
     def initialize(json)
       raise DecodeError.new("Missing event details") if json['identity'].nil?
-
-      super(:identity, json)
+      super
     end
 
     def handle

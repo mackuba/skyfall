@@ -3,8 +3,6 @@ require_relative '../jetstream'
 
 module Skyfall
   class Jetstream::Operation
-    ACTIONS = { 'c' => :create, 'u' => :update, 'd' => :delete }
-
     def initialize(message, json)
       @message = message
       @json = json
@@ -21,7 +19,7 @@ module Skyfall
     end
 
     def action
-      ACTIONS[@json['type']]
+      @json['operation'].to_sym
     end
 
     def collection

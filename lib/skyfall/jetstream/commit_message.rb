@@ -6,8 +6,7 @@ module Skyfall
   class Jetstream::CommitMessage < Jetstream::Message
     def initialize(json)
       raise DecodeError.new("Missing event details") if json['commit'].nil?
-
-      super(:commit, json)
+      super
     end
 
     def operations
