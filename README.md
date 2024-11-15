@@ -44,7 +44,7 @@ Next, set up event listeners to handle incoming messages and get notified of err
 # this gives you a parsed message object, one of subclasses of Skyfall::Firehose::Message
 sky.on_message { |msg| p msg }
 
-# this gives you raw data as received from the websocket
+# this gives you raw binary data as received from the websocket
 sky.on_raw_message { |data| p data }
 
 # lifecycle events
@@ -159,7 +159,7 @@ Handle and Identity messages additionally have:
 Account messages additionally have:
 
 - `active?` - whether the account is active, or inactive for any reason
-- `status` - if not active, shows the status of the account (`"deactivated"`, `"deleted"`, `"takendown"`)
+- `status` - if not active, shows the status of the account (`:deactivated`, `:deleted`, `:takendown`)
 
 Info messages additionally have:
 
@@ -278,7 +278,7 @@ sky.user_agent = "NewsBot (@news.bot) #{sky.version_string}"
 
 ### Jetstream filters
 
-Jetstream allows you to specify [filters](https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream) of collection types and/or tracked DIDs when you connect, so it will send you only the events you're interested in. You can e.g. only ask for posts and ignore likes, or only profile events and ignore everything else, or only listen for posts from a few specific accounts.
+Jetstream allows you to specify [filters](https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream) of collection types and/or tracked DIDs when you connect, so it will send you only the events you're interested in. You can e.g. ask only for posts and ignore likes, or only profile events and ignore everything else, or only listen for posts from a few specific accounts.
 
 To use these filters, pass the "wantedCollections" and/or "wantedDids" parameters in the options hash when initializing `Skyfall::Jetstream`. You can use the original JavaScript param names, or a more Ruby-like snake_case form:
 
@@ -292,7 +292,9 @@ sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', {
 For collections, you can also use the symbol codes used in `Operation#type`, e.g. `:bsky_post`:
 
 ```rb
-sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', { wanted_collections: [:bsky_post] })
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', {
+  wanted_collections: [:bsky_post]
+})
 ```
 
 See [Jetstream docs](https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream) for more info on available filters.
