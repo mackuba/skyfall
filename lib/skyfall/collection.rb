@@ -16,5 +16,31 @@ module Skyfall
     BSKY_LABELER     = "app.bsky.labeler.service"
 
     BSKY_CHAT_DECLARATION = "chat.bsky.actor.declaration"
+
+    SHORT_CODES = {
+      BSKY_BLOCK       => :bsky_block,
+      BSKY_FEED        => :bsky_feed,
+      BSKY_FOLLOW      => :bsky_follow,
+      BSKY_LABELER     => :bsky_labeler,
+      BSKY_LIKE        => :bsky_like,
+      BSKY_LIST        => :bsky_list,
+      BSKY_LISTBLOCK   => :bsky_listblock,
+      BSKY_LISTITEM    => :bsky_listitem,
+      BSKY_POST        => :bsky_post,
+      BSKY_POSTGATE    => :bsky_postgate,
+      BSKY_PROFILE     => :bsky_profile,
+      BSKY_REPOST      => :bsky_repost,
+      BSKY_STARTERPACK => :bsky_starterpack,
+      BSKY_THREADGATE  => :bsky_threadgate,
+      BSKY_CHAT_DECLARATION => :bsky_chat_declaration,
+    }
+
+    def self.short_code(collection)
+      SHORT_CODES[collection] || :unknown
+    end
+
+    def self.from_short_code(code)
+      SHORT_CODES.detect { |k, v| v == code }&.first
+    end
   end
 end

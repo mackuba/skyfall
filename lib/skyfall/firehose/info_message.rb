@@ -1,5 +1,7 @@
+require_relative '../firehose'
+
 module Skyfall
-  class InfoMessage < WebsocketMessage
+  class Firehose::InfoMessage < Firehose::Message
     attr_reader :name, :message
 
     OUTDATED_CURSOR = "OutdatedCursor"

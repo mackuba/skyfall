@@ -1,14 +1,16 @@
 require_relative '../car_archive'
 require_relative '../cid'
-require_relative '../operation'
+require_relative '../firehose'
+require_relative 'operation'
 
 module Skyfall
-  class CommitMessage < WebsocketMessage
+  class Firehose::CommitMessage < Firehose::Message
     def commit
       @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
     end
 
     def prev
+      STDERR.puts "Warning: `prev` property has been deprecated and will be removed in a future version."
       @prev ||= @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
     end
 
@@ -17,7 +19,11 @@ module Skyfall
     end
 
     def operations
-      @operations ||= @data_object['ops'].map { |op| Operation.new(self, op) }
+      @operations ||= @data_object['ops'].map { |op| Firehose::Operation.new(self, op) }
+    end
+
+    def raw_record_for_operation(op)
+      op.cid && blocks.section_with_cid(op.cid)
     end
   end
 end

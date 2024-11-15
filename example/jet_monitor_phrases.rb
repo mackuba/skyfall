@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Example: monitor new posts for mentions of one or more words or phrases (e.g. anyone mentioning your name or the name
-# of your company, project etc.).
+# of your company, project etc.). This example uses a Jetstream connection.
 
 # load skyfall from a local folder - you normally won't need this
 $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
@@ -17,7 +17,8 @@ if terms.empty?
   exit 1
 end
 
-sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
+# tell Jetstream to send us only post records
+sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', { wanted_collections: [:bsky_post] })
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages

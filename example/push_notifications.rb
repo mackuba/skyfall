@@ -45,7 +45,7 @@ class NotificationEngine
   end
 
   def connect
-    @sky = Skyfall::Stream.new('bsky.network', :subscribe_repos)
+    @sky = Skyfall::Firehose.new('bsky.network', :subscribe_repos)
 
     @sky.on_connect { puts "Connected, monitoring #{@user_did}" }
     @sky.on_disconnect { puts "Disconnected" }

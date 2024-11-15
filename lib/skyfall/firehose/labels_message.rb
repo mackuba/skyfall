@@ -1,8 +1,8 @@
-require_relative 'websocket_message'
+require_relative '../firehose'
 require_relative '../label'
 
 module Skyfall
-  class LabelsMessage
+  class Firehose::LabelsMessage
     using Skyfall::Extensions
 
     attr_reader :type_object, :data_object
