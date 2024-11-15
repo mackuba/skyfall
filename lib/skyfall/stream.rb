@@ -116,6 +116,10 @@ module Skyfall
     alias close disconnect
 
     def default_user_agent
+      version_string
+    end
+
+    def version_string
       "Skyfall/#{Skyfall::VERSION}"
     end
 

@@ -273,7 +273,7 @@ Skyfall sends a user agent header when making a connection. This is set by defau
 You can also append your user agent info to the default value like this:
 
 ```rb
-sky.user_agent = "NewsBot (@news.bot) #{sky.default_user_agent}"
+sky.user_agent = "NewsBot (@news.bot) #{sky.version_string}"
 ```
 
 ### Jetstream filters
