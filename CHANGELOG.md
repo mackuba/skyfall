@@ -1,15 +1,17 @@
-## [Unreleased]
+## [0.5.0] - 2024-11-15
 
-Jetstream support! You can now connect to Jetstream sources using `Skyfall::Jetstream` (see readme).
+Jetstream support! You can now connect to [Jetstream](https://github.com/bluesky-social/jetstream) sources using `Skyfall::Jetstream` (see readme).
 
 This required some breaking changes in the existing API:
 
 - `Skyfall::Stream` has been renamed to `Skyfall::Firehose`, `Skyfall::Stream` is now a base class of both `Firehose` and `Jetstream`; the existing `Skyfall::Stream` constructor works for now but will be removed soon
 - `Skyfall::WebsocketMessage` and its subclasses have been separated into two parallel families under `Skyfall::Firehose` and `Skyfall::Jetstream`, with the base classes just named `Message`
 - same thing happened with `Skyfall::Operation`
-- `data_object` and `type_object` properties are considered semi-private API now ("nodoc")
+- `data_object` and `type_object` properties in `WebsocketMessage` are considered semi-private API now ("nodoc")
 
-In most cases, you should only need to update the class name in the constructor. If you've referenced message classes like `Skyfall::CommitMessage` directly, it's probably better to just check the `#type` property instead.
+In most cases, you should only need to update the `Skyfall::Stream` class name in the constructor. If you've referenced message classes like `Skyfall::CommitMessage` directly, it's probably better to just check the `#type` property instead.
+
+Also, small change to the user agent API: `Skyfall::Stream` now has an additional metod `version_string`, which will always return `Skyfall/0.x.y` - it's recommended to use that instead of `default_user_agent` to build your own user agent string that includes the library version. `default_user_agent` now passes through to `version_string`, but it could be changed in future to return something else.
 
 ## [0.4.1] - 2024-10-04
 
