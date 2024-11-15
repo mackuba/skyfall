@@ -18,7 +18,7 @@ if terms.empty?
 end
 
 # tell Jetstream to send us only post records
-sky = Skyfall::Jetstream.new('jetstream1.us-east.bsky.network', { wanted_collections: [:bsky_post] })
+sky = Skyfall::Jetstream.new('jetstream2.us-east.bsky.network', { wanted_collections: [:bsky_post] })
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages
