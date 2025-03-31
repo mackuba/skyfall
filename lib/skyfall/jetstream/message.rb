@@ -39,6 +39,10 @@ module Skyfall
       @time_us = @json['time_us']
     end
 
+    def unknown?
+      self.is_a?(Jetstream::UnknownMessage)
+    end
+
     def operations
       []
     end

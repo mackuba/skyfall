@@ -56,6 +56,10 @@ module Skyfall
       []
     end
 
+    def unknown?
+      self.is_a?(Firehose::UnknownMessage)
+    end
+
     def time
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
