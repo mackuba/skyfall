@@ -15,6 +15,7 @@ module Skyfall
     require_relative 'identity_message'
     require_relative 'info_message'
     require_relative 'labels_message'
+    require_relative 'sync_message'
     require_relative 'tombstone_message'
     require_relative 'unknown_message'
 
@@ -34,6 +35,7 @@ module Skyfall
         when '#identity'  then Firehose::IdentityMessage
         when '#info'      then Firehose::InfoMessage
         when '#labels'    then Firehose::LabelsMessage
+        when '#sync'      then Firehose::SyncMessage
         when '#tombstone' then Firehose::TombstoneMessage
         else Firehose::UnknownMessage
       end
