@@ -55,7 +55,7 @@ module Skyfall
           @handlers[:error]&.call(e)
         end
 
-        @ws = Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }})
+        @ws = build_websocket_client(url)
 
         @ws.on(:open) do |e|
           @handlers[:connect]&.call
@@ -183,6 +183,10 @@ module Skyfall
       else
         [2 ** (@connection_attempts - 1), MAX_RECONNECT_INTERVAL].min
       end
+    end
+
+    def build_websocket_client(url)
+      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }})
     end
 
     def build_websocket_url
