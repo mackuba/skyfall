@@ -2,6 +2,8 @@ require 'eventmachine'
 require 'faye/websocket'
 require 'uri'
 
+require_relative 'version'
+
 module Skyfall
   class Stream
     EVENTS = %w(message raw_message connecting connect disconnect reconnect error timeout)
