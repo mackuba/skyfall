@@ -1,6 +1,7 @@
 module Skyfall
   module Collection
     BSKY_PROFILE      = "app.bsky.actor.profile"
+    BSKY_ACTOR_STATUS = "app.bsky.actor.status"
     BSKY_FEED         = "app.bsky.feed.generator"
     BSKY_LIKE         = "app.bsky.feed.like"
     BSKY_POST         = "app.bsky.feed.post"
@@ -19,6 +20,7 @@ module Skyfall
     BSKY_CHAT_DECLARATION = "chat.bsky.actor.declaration"
 
     SHORT_CODES = {
+      BSKY_ACTOR_STATUS => :bsky_actor_status,
       BSKY_BLOCK        => :bsky_block,
       BSKY_FEED         => :bsky_feed,
       BSKY_FOLLOW       => :bsky_follow,
