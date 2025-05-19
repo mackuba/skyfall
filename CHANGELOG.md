@@ -1,3 +1,10 @@
+## [0.5.1] - 2025-05-18
+
+- added support for the new `#sync` message type
+- added `#unknown?` helper in `Skyfall::Firehose::Message` and `Skyfall::Jetstream::Message`, which returns true if the message type is `UnknownMessage`
+- added `:bsky_verification` and `:bsky_actor_status` lexicon type and shortcode
+- added one missing require
+
 ## [0.5.0] - 2024-11-15
 
 Jetstream support! You can now connect to [Jetstream](https://github.com/bluesky-social/jetstream) sources using `Skyfall::Jetstream` (see readme).
