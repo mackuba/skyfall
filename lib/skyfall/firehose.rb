@@ -34,7 +34,7 @@ module Skyfall
     end
 
     def handle_message(msg)
-      data = msg.data.pack('C*')
+      data = msg.data
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
