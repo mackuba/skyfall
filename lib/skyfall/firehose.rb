@@ -13,13 +13,6 @@ module Skyfall
 
     attr_accessor :cursor
 
-    def self.new(server, endpoint, cursor = nil)
-      # to be removed in 0.6
-      instance = self.allocate
-      instance.send(:initialize, server, endpoint, cursor)
-      instance
-    end
-
     def initialize(server, endpoint, cursor = nil)
       require_relative 'firehose/message'
       super(server)

@@ -12,18 +12,6 @@ module Skyfall
     attr_accessor :auto_reconnect, :last_update, :user_agent
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
-    def self.new(server, endpoint = nil, cursor = nil)
-      # to be removed in 0.6
-      if endpoint || cursor
-        STDERR.puts "Warning: Skyfall::Stream has been renamed to Skyfall::Firehose. This initializer will be removed in the next version."
-        Firehose.new(server, endpoint, cursor)
-      else
-        instance = self.allocate
-        instance.send(:initialize, server)
-        instance
-      end
-    end
-
     def initialize(service)
       @root_url = build_root_url(service)
 

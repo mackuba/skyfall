@@ -6,13 +6,6 @@ require 'uri'
 
 module Skyfall
   class Jetstream < Stream
-    def self.new(server, params = {})
-      # to be removed in 0.6
-      instance = self.allocate
-      instance.send(:initialize, server, params)
-      instance
-    end
-
     attr_accessor :cursor
 
     def initialize(server, params = {})
