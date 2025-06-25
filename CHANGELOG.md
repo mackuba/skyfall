@@ -1,3 +1,8 @@
+## [0.6.0] - 2025-06-25
+
+- significantly speeded up reading of events from the binary firehose (`Skyfall::Firehose`) - up to 4-5x faster than before
+- removed the `Skyfall::Stream.new` constructor deprecated in 0.5.0
+
 ## [0.5.1] - 2025-05-18
 
 - added support for the new `#sync` message type
