@@ -17,7 +17,8 @@ module Skyfall
     BSKY_VERIFICATION = "app.bsky.graph.verification"
     BSKY_LABELER      = "app.bsky.labeler.service"
 
-    BSKY_CHAT_DECLARATION = "chat.bsky.actor.declaration"
+    BSKY_NOTIF_DECLARATION = "app.bsky.notification.declaration"
+    BSKY_CHAT_DECLARATION  = "chat.bsky.actor.declaration"
 
     SHORT_CODES = {
       BSKY_ACTOR_STATUS => :bsky_actor_status,
@@ -37,6 +38,7 @@ module Skyfall
       BSKY_THREADGATE   => :bsky_threadgate,
       BSKY_VERIFICATION => :bsky_verification,
       BSKY_CHAT_DECLARATION => :bsky_chat_declaration,
+      BSKY_NOTIF_DECLARATION => :bsky_notif_declaration
     }
 
     def self.short_code(collection)
