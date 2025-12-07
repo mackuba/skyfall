@@ -129,7 +129,7 @@ class NotificationEngine
 
     if facets = data['facets']
       # check for mentions
-      if facets.any? { |f| f['features'] && f['features'].any? { |x| x['did'] == @user_did }}
+      if facets.any? { |f| f['features']&.any? { |x| x['did'] == @user_did }}
         send_mention_notification(msg, op)
       end
     end
@@ -226,12 +226,14 @@ class NotificationEngine
 
 
   #
-  # Note: in this example, we're calling the Bluesky AppView to get details about the person interacting with the user
-  # and the post/feed that was liked/reposted etc. In a real app, you might run into rate limits if you do that,
-  # because these requests will all be sent from the server's IP.
+  # Note: in this example, we're calling the Bluesky AppView to get details about the
+  # person interacting with the user and the post/feed that was liked/reposted etc.
+  # In a real app, you might run into rate limits if you do that, because these requests
+  # will all be sent from the server's IP.
   #
-  # So you might need to take a different route and send just the info that you have here in the push notification data
-  # (the AT URI / DID) and fetch the details on the client side, e.g. in a Notification Service Extension on iOS.
+  # So you might need to take a different route and send just the info that you have
+  # here in the push notification data (the AT URI / DID) and fetch the details on the
+  # client side, e.g. in a Notification Service Extension on iOS.
   #
 
   def get_user_handle(did)
