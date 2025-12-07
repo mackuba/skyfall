@@ -1,13 +1,16 @@
 #!/usr/bin/env ruby
 
 # Example: print the date and text of every new post made on the network as they appear.
+# Pass a hostname of a single PDS as the argument to only stream new posts from that PDS.
 
 # load skyfall from a local folder - you normally won't need this
 $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
 
 require 'skyfall'
 
-sky = Skyfall::Firehose.new('bsky.network', :subscribe_repos)
+firehose_host = ARGV[0] || 'bsky.network'
+
+sky = Skyfall::Firehose.new(firehose_host, :subscribe_repos)
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages
@@ -23,7 +26,7 @@ sky.on_message do |msg|
   end
 end
 
-sky.on_connect { puts "Connected" }
+sky.on_connect { puts "Connected to #{firehose_host}" }
 sky.on_disconnect { puts "Disconnected" }
 sky.on_reconnect { puts "Reconnecting..." }
 sky.on_error { |e| puts "ERROR: #{e}" }

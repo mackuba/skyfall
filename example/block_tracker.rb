@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# Example: monitor the network for people blocking your account or adding you to mute lists.
+# Example: monitor the network for people blocking your account or adding you to lists.
 
 # load skyfall from a local folder - you normally won't need this
 $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
@@ -21,10 +21,10 @@ end
 
 sky = Skyfall::Firehose.new('bsky.network', :subscribe_repos)
 
-sky.on_connect { puts "Connected, monitoring #{$monitored_did}" }
-sky.on_disconnect { puts "Disconnected" }
-sky.on_reconnect { puts "Reconnecting..." }
-sky.on_error { |e| puts "ERROR: #{e}" }
+sky.on_connect { log "Connected, monitoring #{$monitored_did}" }
+sky.on_disconnect { log "Disconnected" }
+sky.on_reconnect { log "Reconnecting..." }
+sky.on_error { |e| log "ERROR: #{e}" }
 
 sky.on_message do |msg|
   # we're only interested in repo commit messages
@@ -41,15 +41,19 @@ sky.on_message do |msg|
         process_list_item(msg, op)
       end
     rescue StandardError => e
-      puts "Error: #{e}"
+      log "Error: #{e}"
     end
   end
+end
+
+def log(msg)
+  puts "[#{Time.now}] #{msg}"
 end
 
 def process_block(msg, op)
   if op.raw_record['subject'] == $monitored_did
     owner_handle = get_user_handle(op.repo)
-    puts "@#{owner_handle} has blocked you! (#{msg.time.getlocal})"
+    log "@#{owner_handle} has blocked you! (#{msg.time.getlocal})"
   end
 end
 
@@ -60,7 +64,7 @@ def process_list_item(msg, op)
     list_uri = op.raw_record['list']
     list_name = get_list_name(list_uri)
 
-    puts "@#{owner_handle} has added you to list \"#{list_name}\" (#{msg.time.getlocal})"
+    log "@#{owner_handle} has added you to list \"#{list_name}\" (#{msg.time.getlocal})"
   end
 end
 
