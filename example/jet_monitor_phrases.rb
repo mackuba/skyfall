@@ -38,9 +38,15 @@ sky.on_message do |msg|
 end
 
 def get_user_handle(did)
-  url = "https://plc.directory/#{did}"
-  json = JSON.parse(URI.open(url).read)
-  json['alsoKnownAs'][0].gsub('at://', '')
+  # note: in practice it's better to use the 'didkit' gem for this
+  url = if did.start_with?('did:plc')
+    "https://plc.directory/#{did}"
+  else
+    "https://#{did.split(':')[2]}/.well-known/did.json"
+  end
+
+  doc = JSON.parse(URI.open(url).read)
+  doc['alsoKnownAs'][0].gsub('at://', '')
 end
 
 sky.on_connect { puts "Connected" }

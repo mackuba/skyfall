@@ -64,18 +64,37 @@ def process_list_item(msg, op)
   end
 end
 
+def get_did_doc(did)
+  # note: in practice it's better to use the 'didkit' gem for this
+  url = if did.start_with?('did:plc')
+    "https://plc.directory/#{did}"
+  else
+    "https://#{did.split(':')[2]}/.well-known/did.json"
+  end
+
+  JSON.parse(URI.open(url).read)
+end
+
 def get_user_handle(did)
-  url = "https://plc.directory/#{did}"
-  json = JSON.parse(URI.open(url).read)
-  json['alsoKnownAs'][0].gsub('at://', '')
+  doc = get_did_doc(did)
+  doc['alsoKnownAs'][0].gsub('at://', '')
 end
 
 def get_list_name(list_uri)
-  repo, type, rkey = list_uri.gsub('at://', '').split('/')
-  url = "https://bsky.social/xrpc/com.atproto.repo.getRecord?repo=#{repo}&collection=#{type}&rkey=#{rkey}"
+  # the listitem record only have an URI of the list, so we need to find the record
+  repo, collection, rkey = list_uri.gsub('at://', '').split('/')
 
-  json = JSON.parse(URI.open(url).read)
-  json['value']['name']
+  # get DID document to find out what their PDS is
+  # you can also use a combination of didkit + minisky gems
+  doc = get_did_doc(repo)
+  pds = doc['service'].detect { |x| x['id'] == '#atproto_pds' }['serviceEndpoint']
+
+  # load the list record from their PDS
+  params = "repo=#{repo}&collection=#{collection}&rkey=#{rkey}"
+  url = "#{pds}/xrpc/com.atproto.repo.getRecord?#{params}"
+
+  record = JSON.parse(URI.open(url).read)
+  record['value']['name']
 end
 
 # close the connection cleanly on Ctrl+C
