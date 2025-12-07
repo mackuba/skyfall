@@ -98,8 +98,8 @@ class NotificationEngine
 
     if reply = data['reply']
       # check for replies (direct only)
-      if reply['parent'] && reply['parent']['uri']
-        parent_uri = AtURI.new(reply['parent']['uri'])
+      if uri = reply.dig('parent', 'uri')
+        parent_uri = AtURI.new(uri)
 
         if parent_uri.did == @user_did
           send_reply_notification(msg, op)
@@ -109,8 +109,8 @@ class NotificationEngine
 
     if embed = data['embed']
       # check for quotes
-      if embed['record'] && embed['record']['uri']
-        quoted_uri = AtURI.new(embed['record']['uri'])
+      if uri = embed.dig('record', 'uri')
+        quoted_uri = AtURI.new(uri)
 
         if quoted_uri.did == @user_did
           send_quote_notification(msg, op)
@@ -118,8 +118,8 @@ class NotificationEngine
       end
 
       # second type of quote (recordWithMedia)
-      if embed['record'] && embed['record']['record'] && embed['record']['record']['uri']
-        quoted_uri = AtURI.new(embed['record']['record']['uri'])
+      if uri = embed.dig('record', 'record', 'uri')
+        quoted_uri = AtURI.new(uri)
 
         if quoted_uri.did == @user_did
           send_quote_notification(msg, op)
@@ -159,8 +159,8 @@ class NotificationEngine
   def process_like(msg, op)
     data = op.raw_record
 
-    if data['subject'] && data['subject']['uri']
-      liked_uri = AtURI.new(data['subject']['uri'])
+    if uri = data.dig('subject', 'uri')
+      liked_uri = AtURI.new(uri)
 
       if liked_uri.did == @user_did
         case liked_uri.collection
@@ -193,8 +193,8 @@ class NotificationEngine
   def process_repost(msg, op)
     data = op.raw_record
 
-    if data['subject'] && data['subject']['uri']
-      reposted_uri = AtURI.new(data['subject']['uri'])
+    if uri = data.dig('subject', 'uri')
+      reposted_uri = AtURI.new(uri)
 
       if reposted_uri.did == @user_did && reposted_uri.collection == 'app.bsky.feed.post'
         send_repost_notification(msg, reposted_uri)
