@@ -21,7 +21,7 @@ From the command line:
 
 Or, add this to your `Gemfile`:
 
-    gem 'skyfall', '~> 0.5'
+    gem 'skyfall', '~> 0.6'
 
 
 ## Usage
