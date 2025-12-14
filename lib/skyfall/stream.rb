@@ -33,10 +33,13 @@ module Skyfall
       url = build_websocket_url
 
       @handlers[:connecting]&.call(url)
-      @engines_on = true
 
       @reconnect_timer&.cancel
       @reconnect_timer = nil
+
+      raise ReactorActiveError if existing_reactor?
+
+      @engines_on = true
 
       EM.run do
         EventMachine.error_handler do |e|
@@ -81,6 +84,10 @@ module Skyfall
           end
         end
       end
+    end
+
+    def existing_reactor?
+      EM.reactor_running? && !@engines_on
     end
 
     def handle_message(msg)

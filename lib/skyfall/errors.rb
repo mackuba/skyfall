@@ -5,6 +5,15 @@ module Skyfall
   class UnsupportedError < StandardError
   end
 
+  class ReactorActiveError < StandardError
+    def initialize
+      super(
+        "An EventMachine reactor thread is already running, but it seems to have been launched by another Stream. " +
+        "Skyfall doesn't currently support running two different Stream instances in a single process."
+      )
+    end
+  end
+
   class SubscriptionError < StandardError
     attr_reader :error_type, :error_message
 
