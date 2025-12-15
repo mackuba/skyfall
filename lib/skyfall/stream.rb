@@ -12,8 +12,8 @@ module Skyfall
     attr_accessor :auto_reconnect, :last_update, :user_agent
     attr_accessor :heartbeat_timeout, :heartbeat_interval, :check_heartbeat
 
-    def initialize(service)
-      @root_url = build_root_url(service)
+    def initialize(server)
+      @root_url = build_root_url(server)
 
       @handlers = {}
       @auto_reconnect = true
@@ -188,22 +188,34 @@ module Skyfall
       @root_url
     end
 
-    def build_root_url(service)
-      if service.is_a?(String)
-        if service.include?('/')
-          uri = URI(service)
-          if uri.scheme != 'ws' && uri.scheme != 'wss'
-            raise ArgumentError, "Service parameter should be a hostname or a ws:// or wss:// URL"
-          end
-          uri.to_s
-        else
-          service = "wss://#{service}"
-          uri = URI(service) # raises if invalid
-          service
-        end
-      else
-        raise ArgumentError, "Service parameter should be a string"
+    def build_root_url(server)
+      if !server.is_a?(String)
+        raise ArgumentError, "Server parameter should be a string"
       end
+
+      if server.include?('://')
+        uri = URI(server)
+
+        if uri.scheme != 'ws' && uri.scheme != 'wss'
+          raise ArgumentError, "Server parameter should be a hostname or a ws:// or wss:// URL"
+        end
+
+        uri.to_s
+      else
+        server = "wss://#{server}"
+        uri = URI(server) # raises if invalid
+        server
+      end
+    end
+
+    def ensure_empty_path(url)
+      url = url.chomp('/')
+
+      if URI(url).path != ''
+        raise ArgumentError, "Server URL should only include a hostname, without any path"
+      end
+
+      url
     end
   end
 end

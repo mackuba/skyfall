@@ -19,11 +19,7 @@ module Skyfall
 
       @endpoint = check_endpoint(endpoint)
       @cursor = check_cursor(cursor)
-      @root_url = @root_url.chomp('/')
-
-      if URI(@root_url).path != ''
-        raise ArgumentError, "Server parameter should not include any path"
-      end
+      @root_url = ensure_empty_path(@root_url)
     end
 
     def handle_message(msg)

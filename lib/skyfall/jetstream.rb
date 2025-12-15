@@ -12,14 +12,9 @@ module Skyfall
       require_relative 'jetstream/message'
       super(server)
 
-      @root_url = @root_url.chomp('/')
-
-      if URI(@root_url).path != ''
-        raise ArgumentError, "Server parameter should not include any path"
-      end
-
       @params = check_params(params)
       @cursor = @params.delete(:cursor)
+      @root_url = ensure_empty_path(@root_url)
     end
 
     def handle_message(msg)
