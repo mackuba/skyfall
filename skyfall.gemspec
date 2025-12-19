@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["jakub.suder@gmail.com"]
 
   spec.summary = "A Ruby gem for streaming data from the Bluesky/AtProto firehose"
-  spec.homepage = "https://github.com/mackuba/skyfall"
+  spec.homepage = "https://ruby.sdk.blue"
 
   spec.description = %(
     Skyfall is a Ruby library for connecting to the "firehose" of the Bluesky social network, i.e. a websocket which
@@ -22,9 +22,9 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.6.0"
 
   spec.metadata = {
-    "bug_tracker_uri"   => "https://github.com/mackuba/skyfall/issues",
-    "changelog_uri"     => "https://github.com/mackuba/skyfall/blob/master/CHANGELOG.md",
-    "source_code_uri"   => "https://github.com/mackuba/skyfall",
+    "bug_tracker_uri"   => "https://tangled.org/mackuba.eu/skyfall/issues",
+    "changelog_uri"     => "https://tangled.org/mackuba.eu/skyfall/blob/master/CHANGELOG.md",
+    "source_code_uri"   => "https://tangled.org/mackuba.eu/skyfall",
   }
 
   spec.files = Dir.chdir(__dir__) do
