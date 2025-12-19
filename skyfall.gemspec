@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Kuba Suder"]
   spec.email = ["jakub.suder@gmail.com"]
 
-  spec.summary = "A Ruby gem for streaming data from the Bluesky/AtProto firehose"
+  spec.summary = "A Ruby gem for streaming data from the Bluesky/ATProto firehose"
   spec.homepage = "https://ruby.sdk.blue"
 
   spec.description = %(
