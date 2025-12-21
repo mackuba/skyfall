@@ -170,6 +170,17 @@ module Skyfall
     end
 
 
+    protected
+
+    def socket
+      @ws
+    end
+
+    def send_data(data)
+      @ws.send(data)
+    end
+
+
     private
 
     def reconnect_delay
