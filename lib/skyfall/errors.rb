@@ -1,11 +1,14 @@
 module Skyfall
-  class DecodeError < StandardError
+  class Error < StandardError
   end
 
-  class UnsupportedError < StandardError
+  class DecodeError < Error
   end
 
-  class ReactorActiveError < StandardError
+  class UnsupportedError < Error
+  end
+
+  class ReactorActiveError < Error
     def initialize
       super(
         "An EventMachine reactor thread is already running, but it seems to have been launched by another Stream. " +
@@ -14,7 +17,7 @@ module Skyfall
     end
   end
 
-  class SubscriptionError < StandardError
+  class SubscriptionError < Error
     attr_reader :error_type, :error_message
 
     def initialize(error_type, error_message = nil)
