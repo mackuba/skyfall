@@ -172,6 +172,10 @@ module Skyfall
 
     protected
 
+    def request_headers
+      {}
+    end
+
     def socket
       @ws
     end
@@ -193,10 +197,6 @@ module Skyfall
 
     def build_websocket_client(url)
       Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }.merge(request_headers) })
-    end
-
-    def request_headers
-      {}
     end
 
     def build_websocket_url
