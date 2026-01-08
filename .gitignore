@@ -1,4 +1,6 @@
 .bundle
 .DS_Store
 .rspec_status
+.yardoc
+doc
 Gemfile.lock
