@@ -1,3 +1,10 @@
+## [0.6.1] - 2026-01-08
+
+- added `:bsky_notif_declaration` shortcode for `app.bsky.notification.declaration` collection
+- throw error when trying to run two streams in one process (see b4a1514f5da28983205765e55724b5c4abe6c5e4 for details)
+- added protected `#send_data` and `#socket` methods in `Stream` for use in `Stream` subclasses (currently for the Tapfall gem)
+- added a way to customize headers sent when connecting in `Stream` subclasses through the `#request_headers` method
+
 ## [0.6.0] - 2025-06-25
 
 - significantly speeded up reading of events from the binary firehose (`Skyfall::Firehose`) - up to 4-5x faster than before
