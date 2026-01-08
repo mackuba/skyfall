@@ -86,10 +86,6 @@ module Skyfall
       end
     end
 
-    def existing_reactor?
-      EM.reactor_running? && !@engines_on
-    end
-
     def handle_message(msg)
       data = msg.data
       @handlers[:raw_message]&.call(data)
@@ -186,6 +182,10 @@ module Skyfall
 
 
     private
+
+    def existing_reactor?
+      EM.reactor_running? && !@engines_on
+    end
 
     def reconnect_delay
       if @connection_attempts == 0
