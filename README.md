@@ -130,13 +130,9 @@ Each message passed to `on_message` is an instance of a subclass of either `Skyf
 - `CommitMessage` (`#commit`) - represents a change in a user's repo; most messages are of this type
 - `IdentityMessage` (`#identity`) - notifies about a change in user's DID document, e.g. a handle change or a migration to a new PDS
 - `AccountMessage` (`#account`) - notifies about a change of an account's status (de/activation, suspension, deletion)
-- `HandleMessage` (`#handle` - deprecated) - when a different handle is assigned to a user's DID
-- `TombstoneMessage` (`#tombstone` - deprecated) - when an account is deleted
 - `LabelsMessage` (`#labels`) - only used in `subscribe_labels` endpoint
 - `InfoMessage` (`#info`) - a protocol error message, e.g. about an invalid cursor parameter
 - `UnknownMessage` is used for other unrecognized message types
-
-`#handle` and `#tombstone` events are considered deprecated, replaced by `#identity` and `#account` respectively. They are still being emitted at the moment (in parallel with the newer event types), but they might stop being sent at any moment, so it's recommended that you don't rely on those.
 
 `Skyfall::Firehose::Message` and `Skyfall::Jetstream::Message` variants of message classes should have more or less the same interface, except when a given field is not included in one of the formats.
 

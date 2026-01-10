@@ -11,12 +11,10 @@ module Skyfall
 
     require_relative 'account_message'
     require_relative 'commit_message'
-    require_relative 'handle_message'
     require_relative 'identity_message'
     require_relative 'info_message'
     require_relative 'labels_message'
     require_relative 'sync_message'
-    require_relative 'tombstone_message'
     require_relative 'unknown_message'
 
     attr_reader :type, :did, :seq
@@ -31,12 +29,10 @@ module Skyfall
       message_class = case type_object['t']
         when '#account'   then Firehose::AccountMessage
         when '#commit'    then Firehose::CommitMessage
-        when '#handle'    then Firehose::HandleMessage
         when '#identity'  then Firehose::IdentityMessage
         when '#info'      then Firehose::InfoMessage
         when '#labels'    then Firehose::LabelsMessage
         when '#sync'      then Firehose::SyncMessage
-        when '#tombstone' then Firehose::TombstoneMessage
         else Firehose::UnknownMessage
       end
 
