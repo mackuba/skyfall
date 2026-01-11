@@ -156,9 +156,6 @@ module Skyfall
       end
     end
 
-    def inspectable_variables
-      instance_variables - [:@handlers, :@ws]
-    end
 
     def inspect
       vars = inspectable_variables.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
@@ -178,6 +175,10 @@ module Skyfall
 
     def send_data(data)
       @ws.send(data)
+    end
+
+    def inspectable_variables
+      instance_variables - [:@handlers, :@ws]
     end
 
 

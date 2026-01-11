@@ -17,6 +17,8 @@ module Skyfall
       (@name || "InfoMessage") + (@message ? ": #{@message}" : "")
     end
 
+    protected
+
     def inspectable_variables
       super - [:@did, :@seq]
     end

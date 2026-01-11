@@ -62,14 +62,18 @@ module Skyfall
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
 
-    def inspectable_variables
-      instance_variables - [:@type_object, :@data_object, :@blocks]
-    end
-
     def inspect
       vars = inspectable_variables.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
       "#<#{self.class}:0x#{object_id} #{vars}>"
     end
+
+
+    protected
+
+    def inspectable_variables
+      instance_variables - [:@type_object, :@data_object, :@blocks]
+    end
+
 
     private
 
