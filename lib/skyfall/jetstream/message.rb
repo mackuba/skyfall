@@ -20,10 +20,6 @@ module Skyfall
   # the {Skyfall::Stream#on_raw_message} event handler.
 
   class Jetstream::Message
-    require_relative 'account_message'
-    require_relative 'commit_message'
-    require_relative 'identity_message'
-    require_relative 'unknown_message'
 
     # Type of the message (e.g. `:commit`, `:identity` etc.)
     # @return [Symbol]
@@ -129,3 +125,10 @@ module Skyfall
     end
   end
 end
+
+# need to be at the end because of a circular dependency
+
+require_relative 'account_message'
+require_relative 'commit_message'
+require_relative 'identity_message'
+require_relative 'unknown_message'

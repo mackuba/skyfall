@@ -24,14 +24,6 @@ module Skyfall
   class Firehose::Message
     using Skyfall::Extensions
 
-    require_relative 'account_message'
-    require_relative 'commit_message'
-    require_relative 'identity_message'
-    require_relative 'info_message'
-    require_relative 'labels_message'
-    require_relative 'sync_message'
-    require_relative 'unknown_message'
-
     # Type of the message (e.g. `:commit`, `:identity` etc.)
     # @return [Symbol]
     attr_reader :type
@@ -186,3 +178,13 @@ module Skyfall
     private_class_method :decode_cbor_objects
   end
 end
+
+# need to be at the end because of a circular dependency
+
+require_relative 'account_message'
+require_relative 'commit_message'
+require_relative 'identity_message'
+require_relative 'info_message'
+require_relative 'labels_message'
+require_relative 'sync_message'
+require_relative 'unknown_message'

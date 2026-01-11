@@ -1,4 +1,5 @@
 require_relative '../jetstream'
+require_relative 'message'
 
 module Skyfall
 

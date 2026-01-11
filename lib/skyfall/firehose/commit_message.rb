@@ -1,6 +1,7 @@
 require_relative '../car_archive'
 require_relative '../cid'
 require_relative '../firehose'
+require_relative 'message'
 require_relative 'operation'
 
 module Skyfall

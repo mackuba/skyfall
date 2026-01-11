@@ -1,5 +1,6 @@
 require_relative '../firehose'
 require_relative '../label'
+require_relative 'message'
 
 module Skyfall
 
