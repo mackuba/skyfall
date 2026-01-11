@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'faye/websocket'
 require 'uri'
 
+require_relative 'errors'
 require_relative 'events'
 require_relative 'version'
 
@@ -99,10 +100,15 @@ module Skyfall
     # once the connection is closed.
     #
     # @return [nil]
+    # @raise [ConfigError] if no message handler has been configured
     # @raise [ReactorActiveError] if another stream is already running
     #
     def connect
       return if @ws
+
+      if @handlers[:message].nil? && @handlers[:raw_message].nil?
+        raise ConfigError, "Either on_message or on_raw_message handler needs to be set"
+      end
 
       url = build_websocket_url
 

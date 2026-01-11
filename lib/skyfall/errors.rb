@@ -6,16 +6,15 @@ module Skyfall
   end
 
   #
-  # Raised when some part of the message being decoded has invalid format.
+  # Raised when some code is not configured or configured incorrectly.
   #
-  class DecodeError < Error
+  class ConfigError < Error
   end
 
   #
-  # Raised when the server sends a message which is formatted correctly, but written in a version
-  # that's not supported by this library.
+  # Raised when some part of the message being decoded has invalid format.
   #
-  class UnsupportedError < Error
+  class DecodeError < Error
   end
 
   #
@@ -60,5 +59,12 @@ module Skyfall
 
       super("Subscription error: #{error_type}" + (error_message ? " (#{error_message})" : ""))
     end
+  end
+
+  #
+  # Raised when the server sends a message which is formatted correctly, but written in a version
+  # that's not supported by this library.
+  #
+  class UnsupportedError < Error
   end
 end
