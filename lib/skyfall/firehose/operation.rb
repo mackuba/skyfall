@@ -68,7 +68,7 @@ module Skyfall
 
     # @return [String] full AT URI of the record
     def uri
-      "at://#{repo}/#{path}"
+      "at://#{repo}/#{@json['path']}"
     end
 
     # @return [CID, nil] CID (Content Identifier) of the record (nil for delete operations)
