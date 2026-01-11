@@ -41,6 +41,7 @@ module Skyfall
 
     alias repo did
     alias seq time_us
+    alias kind type
 
     # The raw JSON of the message as parsed from the websocket packet.
     attr_reader :json

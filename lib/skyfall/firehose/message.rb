@@ -45,6 +45,7 @@ module Skyfall
     attr_reader :seq
 
     alias repo did
+    alias kind type
 
     # First of the two CBOR objects forming the message payload, which mostly just includes the type field.
     # @api private
