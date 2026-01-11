@@ -21,6 +21,7 @@ module Skyfall
   # 
   # @example
   #   client = Skyfall::Firehose.new('bsky.network', :subscribe_repos, last_cursor)
+  #   # or: client = Skyfall::Firehose.new('bsky.network', last_cursor)
   #
   #   client.on_message do |msg|
   #     next unless msg.type == :commit
@@ -64,20 +65,38 @@ module Skyfall
     attr_accessor :cursor
 
     #
-    # @param server [String] Address of the server to connect to.
-    #   Expects a string with either just a hostname, or a ws:// or wss:// URL with no path.
+    # @overload initialize(server, endpoint, cursor = nil)
+    #   Returns a new instance of a firehose client connecting to a given endpoint.
     #
-    # @param endpoint [Symbol, String] XRPC method name.
-    #   Pass either a full NSID, or a symbol shorthand from {NAMED_ENDPOINTS}
+    #   @param server [String]
+    #     Address of the server to connect to.
+    #     Expects a string with either just a hostname, or a ws:// or wss:// URL with no path.
+    #   @param endpoint [Symbol, String]
+    #     XRPC method name.
+    #     Pass either a full NSID, or a symbol shorthand from {NAMED_ENDPOINTS}
+    #   @param cursor [Integer, String, nil]
+    #     sequence number from which to resume
+    #   @raise [ArgumentError] if any of the parameters is invalid
     #
-    # @param cursor [Integer, String, nil] sequence number from which to resume
+    # @overload initialize(server, cursor = nil)
+    #   Returns a new instance of a firehose client connecting to `subscribeRepos`.
     #
-    # @raise [ArgumentError] if any of the parameters is invalid
+    #   @param server [String]
+    #     Address of the server to connect to.
+    #     Expects a string with either just a hostname, or a ws:// or wss:// URL with no path.
+    #   @param cursor [Integer, String, nil]
+    #     sequence number from which to resume
+    #   @raise [ArgumentError] if any of the parameters is invalid
     #
 
-    def initialize(server, endpoint, cursor = nil)
+    def initialize(server, endpoint = nil, cursor = nil)
       require_relative 'firehose/message'
       super(server)
+
+      if cursor.nil? && (endpoint.nil? || endpoint.to_s =~ /\A\d+\z/)
+        cursor = endpoint
+        endpoint = :subscribe_repos
+      end
 
       @endpoint = check_endpoint(endpoint)
       @cursor = check_cursor(cursor)
