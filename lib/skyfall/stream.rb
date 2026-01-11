@@ -126,26 +126,6 @@ module Skyfall
       end
     end
 
-    def start_heartbeat_timer
-      return if !@check_heartbeat || @heartbeat_interval.to_f <= 0 || @heartbeat_timeout.to_f <= 0
-      return if @heartbeat_timer
-
-      @heartbeat_timer = EM::PeriodicTimer.new(@heartbeat_interval) do
-        next if @ws.nil? || @heartbeat_timeout.to_f <= 0
-        time_passed = Time.now - @last_update
-
-        if time_passed > @heartbeat_timeout
-          @handlers[:timeout]&.call
-          reconnect
-        end
-      end
-    end
-
-    def stop_heartbeat_timer
-      @heartbeat_timer&.cancel
-      @heartbeat_timer = nil
-    end
-
     EVENTS.each do |event|
       define_method "on_#{event}" do |&block|
         @handlers[event.to_sym] = block
@@ -186,6 +166,26 @@ module Skyfall
 
     def existing_reactor?
       EM.reactor_running? && !@engines_on
+    end
+
+    def start_heartbeat_timer
+      return if !@check_heartbeat || @heartbeat_interval.to_f <= 0 || @heartbeat_timeout.to_f <= 0
+      return if @heartbeat_timer
+
+      @heartbeat_timer = EM::PeriodicTimer.new(@heartbeat_interval) do
+        next if @ws.nil? || @heartbeat_timeout.to_f <= 0
+        time_passed = Time.now - @last_update
+
+        if time_passed > @heartbeat_timeout
+          @handlers[:timeout]&.call
+          reconnect
+        end
+      end
+    end
+
+    def stop_heartbeat_timer
+      @heartbeat_timer&.cancel
+      @heartbeat_timer = nil
     end
 
     def reconnect_delay
