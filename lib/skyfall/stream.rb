@@ -69,7 +69,7 @@ module Skyfall
     # and different from a potential `created_at` saved in the record.
     #
     # @return [Time, nil]
-    attr_accessor :last_update
+    attr_reader :last_update
 
     #
     # @param server [String] Address of the server to connect to.
