@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'faye/websocket'
 require 'uri'
 
+require_relative 'events'
 require_relative 'version'
 
 module Skyfall
@@ -14,7 +15,8 @@ module Skyfall
   # custom client for a websocket API that isn't supported yet.
 
   class Stream
-    EVENTS = %w(message raw_message connecting connect disconnect reconnect error timeout)
+    extend Events
+
     MAX_RECONNECT_INTERVAL = 300
 
     # If enabled, the client will try to reconnect if the connection is closed unexpectedly.
@@ -209,15 +211,83 @@ module Skyfall
       end
     end
 
-    EVENTS.each do |event|
-      define_method "on_#{event}" do |&block|
-        @handlers[event.to_sym] = block
-      end
 
-      define_method "on_#{event}=" do |block|
-        @handlers[event.to_sym] = block
-      end
-    end
+    # @!method on_connecting(block)
+    #   Defines a callback to be run when the client tries to open a connection to the websocket.
+    #   Can be also run as a setter `on_connecting=`.
+    #   @param [Proc] block
+    #   @yieldparam [String] url URL to which the client is connecting
+    #   @return [nil]
+
+    event_handler :connecting
+
+    # @!method on_connect(block)
+    #   Defines a callback to be run after a connection to the websocket is opened.
+    #   Can be also run as a setter `on_connect=`.
+    #   @param [Proc] block
+    #   @return [nil]
+
+    event_handler :connect
+
+    # @!method on_raw_message(block)
+    #   Defines a callback to be run when a message is received, passing a raw data packet as
+    #   received from the websocket (plain text or binary). Can be also run as a setter `on_raw_message=`.
+    #   @param [Proc] block
+    #   @yieldparam [String] data payload of the received message
+    #   @return [nil]
+
+    event_handler :raw_message
+
+    # @!method on_message(block)
+    #   Defines a callback to be run when a message is received, passing the message as a parsed
+    #   object of an appropriate message class. Can be also run as a setter `on_message=`.
+    #   @param [Proc] block
+    #   @yieldparam [Object] message parsed message of an appropriate class
+    #   @return [nil]
+
+    event_handler :message
+
+    # @!method on_disconnect(block)
+    #   Defines a callback to be run after a connection to the websocket is closed (and the client
+    #   does not reconnect). Can be also run as a setter `on_disconnect=`.
+    #
+    #   This callback is not run when `on_reconnect` fires.
+    #   @param [Proc] block
+    #   @return [nil]
+
+    event_handler :disconnect
+
+    # @!method on_reconnect(block)
+    #   Defines a callback to be run when a connection to the websocket is broken, but the client
+    #   initiates or schedules a reconnect (which may happen after a delay). Can be also run as
+    #   a setter `on_reconnect=`.
+    #   @param [Proc] block
+    #   @return [nil]
+
+    event_handler :reconnect
+
+    # @!method on_timeout(block)
+    #   Defines a callback to be run when the heartbeat timer forces a reconnect. A reconnect is
+    #   triggered after not receiving any messages for a period of time specified in {#heartbeat_timeout}
+    #   (if {#check_heartbeat} is enabled). Can be also run as a setter `on_timeout=`.
+    #
+    #   This callback is also followed by `on_reconnect`.
+    #   @param [Proc] block
+    #   @return [nil]
+
+    event_handler :timeout
+
+    # @!method on_error(block)
+    #   Defines a callback to be run when the websocket connection returns an error. Can be also
+    #   run as a setter `on_error=`.
+    #
+    #   Default handler prints the error to stdout.
+    #
+    #   @param [Proc] block
+    #   @yieldparam [Exception] error the received error
+    #   @return [nil]
+
+    event_handler :error
 
 
     # Returns a string with a representation of the object for debugging purposes.
