@@ -72,8 +72,11 @@ module Skyfall
 
     #
     # @param json [Hash] message JSON decoded from the websocket message
+    # @raise [DecodeError] if the message doesn't include required data
     #
     def initialize(json)
+      %w(kind did time_us).each { |f| raise DecodeError.new("Missing event details (#{f})") if json[f].nil? }
+
       @json = json
       @type = @json['kind'].to_sym
       @did = @json['did']
@@ -122,7 +125,7 @@ module Skyfall
     # @return [Time]
     #
     def time
-      @time ||= @json['time_us'] && Time.at(@json['time_us'] / 1_000_000.0)
+      @time ||= Time.at(@time_us / 1_000_000.0)
     end
   end
 end

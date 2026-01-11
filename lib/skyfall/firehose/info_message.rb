@@ -30,9 +30,11 @@ module Skyfall
     # @private
     # @param type_object [Hash] first decoded CBOR frame with metadata
     # @param data_object [Hash] second decoded CBOR frame with payload
+    # @raise [DecodeError] if the message doesn't include required data
     #
     def initialize(type_object, data_object)
       super
+      check_if_not_nil :name
 
       @name = @data_object['name']
       @message = @data_object['message']

@@ -21,7 +21,7 @@ module Skyfall
     # @raise [DecodeError] if the message doesn't include required data
     #
     def initialize(json)
-      raise DecodeError.new("Missing event details") if json['identity'].nil?
+      raise DecodeError.new("Missing event details (identity)") if json['identity'].nil?
       super
     end
 

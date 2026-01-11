@@ -21,7 +21,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      raise DecodeError.new("Missing event details") if @data_object['active'].nil?
+      check_if_not_nil :seq, :did, :time, :active
 
       @active = @data_object['active']
       @status = @data_object['status']&.to_sym

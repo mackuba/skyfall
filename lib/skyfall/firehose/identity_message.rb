@@ -15,9 +15,20 @@ module Skyfall
 
   class Firehose::IdentityMessage < Firehose::Message
 
-    # @return [String, nil] current handle assigned to the DID
-    def handle
-      @data_object['handle']
+    #
+    # @private
+    # @param type_object [Hash] first decoded CBOR frame with metadata
+    # @param data_object [Hash] second decoded CBOR frame with payload
+    # @raise [DecodeError] if the message doesn't include required data
+    #
+    def initialize(type_object, data_object)
+      super
+      check_if_not_nil :seq, :did, :time
+
+      @handle = @data_object['handle']
     end
+
+    # @return [String, nil] current handle assigned to the DID
+    attr_reader :handle
   end
 end

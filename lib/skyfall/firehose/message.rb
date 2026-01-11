@@ -145,6 +145,15 @@ module Skyfall
       instance_variables - [:@type_object, :@data_object, :@blocks]
     end
 
+    # Checks if all required fields are set in the data object.
+    # @param fields [Array<Symbol, String>] list of fields to check
+    # @raise [DecodeError] if any of the fields is nil or not set
+    def check_if_not_nil(*fields)
+      missing = fields.select { |f| @data_object[f.to_s].nil? }
+
+      raise DecodeError.new("Missing event details (#{missing.map(&:to_s).join(', ')})") if missing.length > 0
+    end
+
 
     private
 
@@ -163,11 +172,13 @@ module Skyfall
         raise SubscriptionError.new(data['error'], data['message'])
       end
 
-      raise DecodeError.new("Invalid object type: #{type}") unless type.is_a?(Hash)
-      raise UnsupportedError.new("Unexpected CBOR object: #{type}") unless type['op'] == 1
-      raise DecodeError.new("Missing data: #{type} #{objects.inspect}") unless type['op'] && type['t']
-      raise DecodeError.new("Invalid message type: #{type['t']}") unless type['t'].start_with?('#')
-      raise DecodeError.new("Invalid object type: #{data}") unless data.is_a?(Hash)
+      raise DecodeError.new("Invalid object type: #{type.inspect}") unless type.is_a?(Hash)
+      raise DecodeError.new("Missing data: #{type.inspect}") unless type['op'] && type['t']
+      raise DecodeError.new("Invalid object type: #{type['op'].inspect}") unless type['op'].is_a?(Integer)
+      raise DecodeError.new("Invalid object type: #{type['t'].inspect}") unless type['t'].is_a?(String)
+      raise DecodeError.new("Invalid message type: #{type['t'].inspect}") unless type['t'].start_with?('#')
+      raise UnsupportedError.new("Unsupported version: #{type['op']}") unless type['op'] == 1
+      raise DecodeError.new("Invalid object type: #{data.inspect}") unless data.is_a?(Hash)
 
       [type, data]
     end

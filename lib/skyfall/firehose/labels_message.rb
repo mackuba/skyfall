@@ -23,7 +23,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      raise DecodeError.new("Missing event details") unless @data_object['labels'].is_a?(Array)
+      check_if_not_nil :seq, :labels
 
       @labels = @data_object['labels'].map { |x| Label.new(x) }
     end

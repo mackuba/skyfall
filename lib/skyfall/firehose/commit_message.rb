@@ -15,9 +15,20 @@ module Skyfall
 
   class Firehose::CommitMessage < Firehose::Message
 
+    #
+    # @private
+    # @param type_object [Hash] first decoded CBOR frame with metadata
+    # @param data_object [Hash] second decoded CBOR frame with payload
+    # @raise [DecodeError] if the message doesn't include required data
+    #
+    def initialize(type_object, data_object)
+      super
+      check_if_not_nil :seq, :repo, :commit, :blocks, :ops, :time
+    end
+
     # @return [CID] CID (Content Identifier) of the commit
     def commit
-      @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
+      @commit ||= CID.from_cbor_tag(@data_object['commit'])
     end
 
     # @return [Skyfall::CarArchive] commit data in the form of a parsed CAR archive
