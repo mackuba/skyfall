@@ -9,11 +9,6 @@ module Skyfall
       @commit ||= @data_object['commit'] && CID.from_cbor_tag(@data_object['commit'])
     end
 
-    def prev
-      STDERR.puts "Warning: `prev` property has been deprecated and will be removed in a future version."
-      @prev ||= @data_object['prev'] && CID.from_cbor_tag(@data_object['prev'])
-    end
-
     def blocks
       @blocks ||= CarArchive.new(@data_object['blocks'])
     end
