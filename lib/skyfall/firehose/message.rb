@@ -6,6 +6,21 @@ require 'cbor'
 require 'time'
 
 module Skyfall
+
+  # @abstract
+  # Abstract base class representing a CBOR firehose message.
+  #
+  # Actual messages are returned as instances of one of the subclasses of this class,
+  # depending on the type of message, most commonly as {Skyfall::Firehose::CommitMessage}.
+  #
+  # The {new} method is overridden here so that it can be called with a binary data message
+  # from the websocket, and it parses the type from the appropriate frame and builds an
+  # instance of a matching subclass.
+  # 
+  # You normally don't need to call this class directly, unless you're building a custom
+  # subclass of {Skyfall::Stream}, or reading raw data packets from the websocket through
+  # the {Skyfall::Stream#on_raw_message} event handler.
+
   class Firehose::Message
     using Skyfall::Extensions
 
@@ -17,12 +32,41 @@ module Skyfall
     require_relative 'sync_message'
     require_relative 'unknown_message'
 
-    attr_reader :type, :did, :seq
+    # Type of the message (e.g. `:commit`, `:identity` etc.)
+    # @return [Symbol]
+    attr_reader :type
+
+    # DID of the account (repo) that the event is sent by.
+    # @return [String, nil]
+    attr_reader :did
+
+    # Sequential number of the message, to be used as a cursor when reconnecting.
+    # @return [Integer, nil]
+    attr_reader :seq
+
     alias repo did
 
-    # :nodoc: - consider this as semi-private API
-    attr_reader :type_object, :data_object
+    # First of the two CBOR objects forming the message payload, which mostly just includes the type field.
+    # @api private
+    # @return [Hash]
+    attr_reader :type_object
 
+    # Second of the two CBOR objects forming the message payload, which contains the rest of the data.
+    # @api private
+    # @return [Hash]
+    attr_reader :data_object
+
+    #
+    # Parses the CBOR objects from the binary data and returns an instance of an appropriate subclass.
+    # 
+    # {Skyfall::Firehose::UnknownMessage} is returned if the message type is not recognized.
+    #
+    # @param data [String] binary payload of a firehose websocket message
+    # @return [Skyfall::Firehose::Message]
+    # @raise [Skyfall::DecodeError] if the structure of the message is invalid
+    # @raise [Skyfall::UnsupportedError] if the message has an unknown future version
+    # @raise [Skyfall::SubscriptionError] if the data contains an error message from the server
+    #
     def self.new(data)
       type_object, data_object = decode_cbor_objects(data)
 
@@ -41,6 +85,11 @@ module Skyfall
       message
     end
 
+    #
+    # @private
+    # @param type_object [Hash] first decoded CBOR frame with metadata
+    # @param data_object [Hash] second decoded CBOR frame with payload
+    #
     def initialize(type_object, data_object)
       @type_object = type_object
       @data_object = data_object
@@ -50,18 +99,38 @@ module Skyfall
       @seq = @data_object['seq']
     end
 
+    #
+    # List of operations on records included in the message. Only `#commit` messages include
+    # operations, but for convenience the method is declared here and returns an empty array
+    # in other messages.
+    # @return [Array<Firehose::Operation>]
+    #
     def operations
       []
     end
 
+    #
+    # @return [Boolean] true if the message is {Firehose::UnknownMessage} (of unrecognized type)
+    #
     def unknown?
       self.is_a?(Firehose::UnknownMessage)
     end
 
+    #
+    # Timestamp decoded from the message.
+    #
+    # Note: this represents the time when the message was emitted from the original PDS, which
+    # might differ a lot from the `created_at` time saved in the record data, e.g. if user's local
+    # time is set incorrectly, or if an archive of existing posts was imported from another platform.
+    #
+    # @return [Time, nil]
+    #
     def time
       @time ||= @data_object['time'] && Time.parse(@data_object['time'])
     end
 
+    # Returns a string with a representation of the object for debugging purposes.
+    # @return [String]
     def inspect
       vars = inspectable_variables.map { |v| "#{v}=#{instance_variable_get(v).inspect}" }.join(", ")
       "#<#{self.class}:0x#{object_id} #{vars}>"
@@ -70,6 +139,7 @@ module Skyfall
 
     protected
 
+    # @return [Array<Symbol>] list of instance variables to be printed in the {#inspect} output
     def inspectable_variables
       instance_variables - [:@type_object, :@data_object, :@blocks]
     end

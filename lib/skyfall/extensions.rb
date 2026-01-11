@@ -2,6 +2,8 @@ require 'cbor'
 require 'stringio'
 
 module Skyfall
+
+  # @private
   module Extensions
 
     refine StringIO do
