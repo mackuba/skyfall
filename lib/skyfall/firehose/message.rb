@@ -100,5 +100,7 @@ module Skyfall
 
       [type, data]
     end
+
+    private_class_method :decode_cbor_objects
   end
 end
