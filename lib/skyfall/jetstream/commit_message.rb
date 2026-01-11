@@ -9,8 +9,14 @@ module Skyfall
       super
     end
 
+    def operation
+      @operation ||= Jetstream::Operation.new(self, json['commit'])
+    end
+
+    alias op operation
+
     def operations
-      @operations ||= [Jetstream::Operation.new(self, json['commit'])]
+      [operation]
     end
   end
 end

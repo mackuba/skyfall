@@ -43,6 +43,12 @@ module Skyfall
       self.is_a?(Jetstream::UnknownMessage)
     end
 
+    def operation
+      nil
+    end
+
+    alias op operation
+
     def operations
       []
     end
