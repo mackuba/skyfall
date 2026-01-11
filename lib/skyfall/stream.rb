@@ -86,11 +86,6 @@ module Skyfall
       end
     end
 
-    def handle_message(msg)
-      data = msg.data
-      @handlers[:raw_message]&.call(data)
-    end
-
     def reconnect
       @reconnecting = true
       @connection_attempts = 0
@@ -145,6 +140,19 @@ module Skyfall
 
     protected
 
+    def build_websocket_url
+      @root_url
+    end
+
+    def build_websocket_client(url)
+      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }.merge(request_headers) })
+    end
+
+    def handle_message(msg)
+      data = msg.data
+      @handlers[:raw_message]&.call(data)
+    end
+
     def request_headers
       {}
     end
@@ -194,14 +202,6 @@ module Skyfall
       else
         [2 ** (@connection_attempts - 1), MAX_RECONNECT_INTERVAL].min
       end
-    end
-
-    def build_websocket_client(url)
-      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }.merge(request_headers) })
-    end
-
-    def build_websocket_url
-      @root_url
     end
 
     def build_root_url(server)

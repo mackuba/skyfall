@@ -17,6 +17,16 @@ module Skyfall
       @root_url = ensure_empty_path(@root_url)
     end
 
+
+    protected
+
+    def build_websocket_url
+      params = @cursor ? @params.merge(cursor: @cursor) : @params
+      query = URI.encode_www_form(params)
+
+      @root_url + "/subscribe" + (query.length > 0 ? "?#{query}" : '')
+    end
+
     def handle_message(msg)
       data = msg.data
       @handlers[:raw_message]&.call(data)
@@ -30,14 +40,8 @@ module Skyfall
       end
     end
 
+
     private
-
-    def build_websocket_url
-      params = @cursor ? @params.merge(cursor: @cursor) : @params
-      query = URI.encode_www_form(params)
-
-      @root_url + "/subscribe" + (query.length > 0 ? "?#{query}" : '')
-    end
 
     def check_params(params)
       params ||= {}

@@ -22,6 +22,13 @@ module Skyfall
       @root_url = ensure_empty_path(@root_url)
     end
 
+
+    protected
+
+    def build_websocket_url
+      @root_url + "/xrpc/" + @endpoint + (@cursor ? "?cursor=#{@cursor}" : "")
+    end
+
     def handle_message(msg)
       data = msg.data
       @handlers[:raw_message]&.call(data)
@@ -37,10 +44,6 @@ module Skyfall
 
 
     private
-
-    def build_websocket_url
-      @root_url + "/xrpc/" + @endpoint + (@cursor ? "?cursor=#{@cursor}" : "")
-    end
 
     def check_cursor(cursor)
       if cursor.nil?
