@@ -2,5 +2,6 @@
 .DS_Store
 .rspec_status
 .yardoc
+coverage
 doc
 Gemfile.lock
