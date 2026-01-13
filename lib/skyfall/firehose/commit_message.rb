@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../car_archive'
 require_relative '../cid'
 require_relative '../firehose'

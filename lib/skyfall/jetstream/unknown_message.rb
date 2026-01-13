@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../jetstream'
 require_relative 'message'
 

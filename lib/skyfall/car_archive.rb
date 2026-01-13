@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'cid'
 require_relative 'errors'
 require_relative 'extensions'

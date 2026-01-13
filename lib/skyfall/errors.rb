@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Skyfall
   #
   # Wrapper base class for Skyfall error classes.
