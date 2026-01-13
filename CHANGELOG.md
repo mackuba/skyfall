@@ -1,3 +1,38 @@
+## Unreleased
+
+The main change in this version is that inline YARD documentation has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to a 1.0.
+
+New APIs:
+
+- added `Skyfall::Jetstream::CommitMessage#operation` (aliased as `op`) which returns the (always single) operation in the `operations` array
+- added `#kind` as alias for `#type` in both `Message` classes
+- added a base class for error types, `Skyfall::Error`
+
+Deprecated & removed APIs:
+
+- removed deprecated `HandleMessage` and `TombstoneMessage` message classes
+- removed deprecated `CommitMessage#prev`
+- deprecated `#path` in both `Operation` classes
+
+Access level changes:
+
+- restricted `Stream#start_heartbeat_timer` & `Stream#stop_heartbeat_timer` methods access to private
+- restricted `Stream#handle_message` method access to protected
+- restricted `Stream#last_update` to read-only access
+- restricted `#inspectable_variables` methods access to either private or protected
+- relaxed `Stream#build_websocket_url` & `Stream#build_websocket_client` methods access from private to protected
+- fixed private class method `Skyfall::Firehose::Message.decode_cbor_objects` which wasn't actually private
+
+Additional validations and other changes:
+
+- `Stream#connect` throws an error if neither `on_message` nor `on_raw_message` handlers have been configured
+- `Message` subclasses do additional checks if the fields they require to not be nil aren't nil
+- `Message` subclasses raise an error if `.new` is called on a subclass (and not on the base `Message`) passing the data of a wrong kind of message (instead of returning e.g. a `CommitMessage` from `AccountMessage.new` as it worked previously)
+- made `LabelsMessage` a subclass of `Firehose::Message`
+- fixed the `require`s config in some files so they can be loaded in any order
+- added `frozen_string_literal: true` in all files to reduce garbage collection
+
+
 ## [0.6.1] - 2026-01-08
 
 - added `:bsky_notif_declaration` shortcode for `app.bsky.notification.declaration` collection
