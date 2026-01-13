@@ -63,6 +63,11 @@ module Skyfall
         else Jetstream::UnknownMessage
       end
 
+      if self != Jetstream::Message && self != message_class
+        expected_type = self.name.split('::').last.gsub(/Message$/, '').downcase
+        raise DecodeError, "Expected '#{expected_type}' message, got '#{json['kind']}'"
+      end
+
       message = message_class.allocate
       message.send(:initialize, json)
       message

@@ -75,6 +75,11 @@ module Skyfall
         else Firehose::UnknownMessage
       end
 
+      if self != Firehose::Message && self != message_class
+        expected_type = self.name.split('::').last.gsub(/Message$/, '').downcase
+        raise DecodeError, "Expected ##{expected_type} message, got #{type_object['t']}"
+      end
+
       message = message_class.allocate
       message.send(:initialize, type_object, data_object)
       message
