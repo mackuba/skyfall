@@ -37,7 +37,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil :name
+      check_if_not_nil %w(name)
 
       @name = @data_object['name']
       @message = @data_object['message']

@@ -24,7 +24,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil :seq, :did, :time, :active
+      check_if_not_nil %w(seq did time active)
 
       @active = @data_object['active']
       @status = @data_object['status']&.to_sym

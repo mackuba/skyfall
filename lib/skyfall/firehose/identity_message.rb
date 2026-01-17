@@ -26,7 +26,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil :seq, :did, :time
+      check_if_not_nil %w(seq did time)
 
       @handle = @data_object['handle']
     end

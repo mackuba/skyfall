@@ -145,10 +145,10 @@ module Skyfall
     end
 
     # Checks if all required fields are set in the data object.
-    # @param fields [Array<Symbol, String>] list of fields to check
+    # @param fields [Array<String>] list of fields to check
     # @raise [DecodeError] if any of the fields is nil or not set
-    def check_if_not_nil(*fields)
-      missing = fields.select { |f| @data_object[f.to_s].nil? }
+    def check_if_not_nil(fields)
+      missing = fields.select { |f| @data_object[f].nil? }
 
       raise DecodeError.new("Missing event details (#{missing.map(&:to_s).join(', ')})") if missing.length > 0
     end

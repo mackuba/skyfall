@@ -26,7 +26,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil :seq, :labels
+      check_if_not_nil %w(seq labels)
 
       @labels = @data_object['labels'].map { |x| Label.new(x) }
     end
