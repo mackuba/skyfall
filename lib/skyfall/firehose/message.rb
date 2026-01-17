@@ -126,7 +126,15 @@ module Skyfall
     # @return [Time, nil]
     #
     def time
-      @time ||= @data_object['time'] && Time.parse(@data_object['time'])
+      @time ||= @data_object['time'] && Time.iso8601(@data_object['time'])
+    end
+
+    # Much faster version for Ruby 3.2+
+
+    if Gem::Version.new(RUBY_VERSION) >= '3.2'
+      def time
+        @time ||= @data_object['time'] && Time.new(@data_object['time'])
+      end
     end
 
     # Returns a string with a representation of the object for debugging purposes.
