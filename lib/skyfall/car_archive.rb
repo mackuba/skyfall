@@ -32,15 +32,25 @@ module Skyfall
 
     def initialize(data)
       @sections = []
+      @buffer = StringIO.new(data)
 
-      buffer = StringIO.new(data)
-      read_header(buffer)
-      read_section(buffer) until buffer.eof?
+      read_header(@buffer)
     end
 
     def section_with_cid(cid)
-      section = @sections.detect { |s| s.cid == cid }
-      section && section.body
+      if section = @sections.detect { |s| s.cid == cid }
+        return section.body
+      end
+
+      if @buffer
+        while !@buffer.eof?
+          section = read_section(@buffer)
+          return section.body if section.cid == cid
+        end
+      end
+
+      @buffer = nil
+      nil
     end
 
     def self.convert_data(object)
@@ -118,7 +128,10 @@ module Skyfall
       cid = CID.new(prefix + cid_data)
 
       body_data = sbuffer.read
-      @sections << CarSection.new(cid, body_data)
+      new_section = CarSection.new(cid, body_data)
+
+      @sections << new_section
+      new_section
     end
   end
 end
