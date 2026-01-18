@@ -152,17 +152,24 @@ module Skyfall
       instance_variables - [:@type_object, :@data_object, :@blocks]
     end
 
-    # Checks if all required fields are set in the data object.
-    # @param fields [Array<String>] list of fields to check
-    # @raise [DecodeError] if any of the fields is nil or not set
-    def check_if_not_nil(fields)
-      missing = fields.select { |f| @data_object[f].nil? }
-
-      raise DecodeError.new("Missing event details (#{missing.map(&:to_s).join(', ')})") if missing.length > 0
-    end
-
 
     private
+
+    # Note: this method is written this way as an optimization
+    def check_if_not_nil(a, b = nil, c = nil, d = nil, e = nil, f = nil)
+      ok =   @data_object.has_key?(a)
+      ok &&= @data_object.has_key?(b) if b
+      ok &&= @data_object.has_key?(c) if c
+      ok &&= @data_object.has_key?(d) if d
+      ok &&= @data_object.has_key?(e) if e
+      ok &&= @data_object.has_key?(f) if f
+
+      if !ok
+        expected_fields = [a, b, c, d, e, f].compact
+        missing_fields = expected_fields.select { |x| @data_object[x].nil? }
+        raise DecodeError.new("Missing event details (#{missing_fields.map(&:to_s).join(', ')})")
+      end
+    end
 
     def self.decode_cbor_objects(data)
       objects = CBOR.decode_sequence(data)

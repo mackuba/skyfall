@@ -26,7 +26,7 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil %w(seq repo commit blocks ops time)
+      check_if_not_nil 'seq', 'repo', 'commit', 'blocks', 'ops', 'time'
     end
 
     # @return [CID] CID (Content Identifier) of the commit
