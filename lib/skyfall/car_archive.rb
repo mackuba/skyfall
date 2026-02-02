@@ -53,6 +53,15 @@ module Skyfall
       nil
     end
 
+    def sections
+      if @buffer
+        read_section(@buffer) while !@buffer.eof?
+        @buffer = nil
+      end
+
+      @sections
+    end
+
     def self.convert_data(object)
       if object.is_a?(Hash)
         object.each do |k, v|
@@ -85,6 +94,18 @@ module Skyfall
 
     def self.make_bytes(data)
       { '$bytes' => Base64.encode64(data).chomp.gsub(/=+$/, '') }
+    end
+
+    def inspect
+      vars = instance_variables.map { |v|
+        if v == :@sections && @buffer
+          "#{v}=[...]"
+        else
+          "#{v}=#{instance_variable_get(v).inspect}"
+        end
+      }
+
+      "#<#{self.class}:0x#{object_id} #{vars.join(", ")}>"
     end
 
     private
