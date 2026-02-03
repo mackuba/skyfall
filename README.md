@@ -130,6 +130,7 @@ Each message passed to `on_message` is an instance of a subclass of either `Skyf
 - `CommitMessage` (`#commit`) - represents a change in a user's repo; most messages are of this type
 - `IdentityMessage` (`#identity`) - notifies about a change in user's DID document, e.g. a handle change or a migration to a new PDS
 - `AccountMessage` (`#account`) - notifies about a change of an account's status (de/activation, suspension, deletion)
+- `SyncMessage` (`#sync`) - updates repository state, can be used to trigger account resynchronization
 - `LabelsMessage` (`#labels`) - only used in `subscribe_labels` endpoint
 - `InfoMessage` (`#info`) - a protocol error message, e.g. about an invalid cursor parameter
 - `UnknownMessage` is used for other unrecognized message types

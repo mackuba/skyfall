@@ -7,6 +7,7 @@ New APIs:
 - added `Skyfall::Jetstream::CommitMessage#operation` (aliased as `op`) which returns the (always single) operation in the `operations` array
 - added `#kind` as alias for `#type` in both `Message` classes
 - added a base class for error types, `Skyfall::Error`
+- added `#blocks` to `SyncMessage`
 
 Deprecated & removed APIs:
 
@@ -23,6 +24,12 @@ Access level changes:
 - relaxed `Stream#build_websocket_url` & `Stream#build_websocket_client` methods access from private to protected
 - fixed private class method `Skyfall::Firehose::Message.decode_cbor_objects` which wasn't actually private
 
+Optimizations:
+
+- much faster `Skyfall::Firehose::Message#time` parsing on Ruby 3.2+
+- lazy decoding of sections in `CarArchive` – saves quite a lot of work if sections are only accessed through `Operation#raw_record`
+- added `frozen_string_literal: true` in all files to reduce garbage collection
+
 Additional validations and other changes:
 
 - `Stream#connect` throws an error if neither `on_message` nor `on_raw_message` handlers have been configured
@@ -30,7 +37,6 @@ Additional validations and other changes:
 - `Message` subclasses raise an error if `.new` is called on a subclass (and not on the base `Message`) passing the data of a wrong kind of message (instead of returning e.g. a `CommitMessage` from `AccountMessage.new` as it worked previously)
 - made `LabelsMessage` a subclass of `Firehose::Message`
 - fixed the `require`s config in some files so they can be loaded in any order
-- added `frozen_string_literal: true` in all files to reduce garbage collection
 
 
 ## [0.6.1] - 2026-01-08
@@ -42,7 +48,7 @@ Additional validations and other changes:
 
 ## [0.6.0] - 2025-06-25
 
-- significantly speeded up reading of events from the binary firehose (`Skyfall::Firehose`) - up to 4-5x faster than before
+- significantly speeded up reading of events from the binary firehose (`Skyfall::Firehose`) – up to 4-5x faster than before
 - removed the `Skyfall::Stream.new` constructor deprecated in 0.5.0
 
 ## [0.5.1] - 2025-05-18
@@ -65,11 +71,11 @@ This required some breaking changes in the existing API:
 
 In most cases, you should only need to update the `Skyfall::Stream` class name in the constructor. If you've referenced message classes like `Skyfall::CommitMessage` directly, it's probably better to just check the `#type` property instead.
 
-Also, small change to the user agent API: `Skyfall::Stream` now has an additional metod `version_string`, which will always return `Skyfall/0.x.y` - it's recommended to use that instead of `default_user_agent` to build your own user agent string that includes the library version. `default_user_agent` now passes through to `version_string`, but it could be changed in future to return something else.
+Also, small change to the user agent API: `Skyfall::Stream` now has an additional metod `version_string`, which will always return `Skyfall/0.x.y` – it's recommended to use that instead of `default_user_agent` to build your own user agent string that includes the library version. `default_user_agent` now passes through to `version_string`, but it could be changed in future to return something else.
 
 ## [0.4.1] - 2024-10-04
 
-- performance fix - don't decode CAR sections which aren't needed, which is most of them; this cuts the amount of memory that GC has to free up by about one third, and should speed up processing by around ~10%
+- performance fix – don't decode CAR sections which aren't needed, which is most of them; this cuts the amount of memory that GC has to free up by about one third, and should speed up processing by around ~10%
 
 ## [0.4.0] - 2024-09-23
 
@@ -83,15 +89,15 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 - added `#account` event type (`AccountMessage`)
 - added `handle` field to `IdentityMessage`
 - fixed param validation on `Stream` initialization
-- reverted the change that added Ruby stdlib dependencies explicitly to the gemspec, since this causes more problems than it's worth - only `base64` is left there, since it's the one now required to be listed
+- reverted the change that added Ruby stdlib dependencies explicitly to the gemspec, since this causes more problems than it's worth – only `base64` is left there, since it's the one now required to be listed
 
 ## [0.3.0] - 2024-03-21
 
 - added support for labeller firehose, served by labeller services at the `com.atproto.label.subscribeLabels` endpoint (aliased as `:subscribe_labels`)
 - the `#labels` messages from the labeller firehose are parsed into a `LabelsMessage`, which includes a `labels` array of `Label` objects
 - `Stream` callbacks can now also be assigned via setters, e.g. `stream.on_message = proc { ... }`
-- added default error handler to `Stream` which logs the error to `$stdout` - set `stream.on_error = nil` to disable
-- added Ruby stdlib dependencies explicitly to the gemspec - fixes a warning in Ruby 3.3 when requiring `base64`, which will be extracted as an optional gem in 3.4
+- added default error handler to `Stream` which logs the error to `$stdout` – set `stream.on_error = nil` to disable
+- added Ruby stdlib dependencies explicitly to the gemspec – fixes a warning in Ruby 3.3 when requiring `base64`, which will be extracted as an optional gem in 3.4
 
 ## [0.2.5] - 2024-03-14
 
@@ -118,7 +124,7 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 
 ## [0.2.1] - 2023-08-19
 
-- optimized `WebsocketMessage` parsing performance - lazy parsing of most properties (message decoding should be over 50% faster on average)
+- optimized `WebsocketMessage` parsing performance – lazy parsing of most properties (message decoding should be over 50% faster on average)
 - added separate subclasses of `WebsocketMessage` for different message types
 - added support for `#handle`, `#info` and `#tombstone` message types
 - `UnknownMessage` is returned for unrecognized message types
@@ -126,13 +132,13 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 ## [0.2.0] - 2023-07-24
 
 - switched the websocket library from `websocket-client-simple` to `faye-websocket`, which should make event parsing up to ~30× faster (!)
-- added `auto_reconnect` property to `Stream` (on by default) - if true, it will try to reconnect with an exponential backoff when the websocket disconnects, until you call `Stream#disconnect`
+- added `auto_reconnect` property to `Stream` (on by default) – if true, it will try to reconnect with an exponential backoff when the websocket disconnects, until you call `Stream#disconnect`
 
 Note:
 
-- calling `sleep` is no longer needed after connecting - call `connect` on a new thread instead to get previously default behavior of running the event loop asynchronously
+- calling `sleep` is no longer needed after connecting – call `connect` on a new thread instead to get previously default behavior of running the event loop asynchronously
 - the disconnect event no longer passes an error object in the argument
-- there is currently no "heartbeat" feature as in 0.1.x that checks for a stuck connection - but it doesn't seem to be needed
+- there is currently no "heartbeat" feature as in 0.1.x that checks for a stuck connection – but it doesn't seem to be needed
 
 ## [0.1.3] - 2023-07-04
 
