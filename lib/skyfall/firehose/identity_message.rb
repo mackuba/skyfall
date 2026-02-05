@@ -8,7 +8,7 @@ module Skyfall
   #
   # Firehose message sent when a new DID is created or when the details of someone's DID document
   # are changed (usually either a handle change or a migration to a different PDS). The message
-  # should include currently assigned handle (though the field is not required).
+  # may include currently assigned handle, though it's not required that this field is set.
   #
   # Note: the message is originally emitted from the account's PDS and is passed as is by relays,
   # which means you can't fully trust that the handle is actually correctly assigned to the DID
