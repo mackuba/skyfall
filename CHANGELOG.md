@@ -7,13 +7,20 @@ New APIs:
 - added `Skyfall::Jetstream::CommitMessage#operation` (aliased as `op`) which returns the (always single) operation in the `operations` array
 - added `#kind` as alias for `#type` in both `Message` classes
 - added a base class for error types, `Skyfall::Error`
-- added `#blocks` to `SyncMessage`
+- added `#blocks` to `Skyfall::Firehose::SyncMessage`
+- added `#rev`, `#since` and `#prev_data` to `Skyfall::Firehose::CommitMessage`
 
 Deprecated & removed APIs:
 
 - removed deprecated `HandleMessage` and `TombstoneMessage` message classes
 - removed deprecated `CommitMessage#prev`
 - deprecated `#path` in both `Operation` classes
+
+Optimizations:
+
+- much faster `Skyfall::Firehose::Message#time` parsing on Ruby 3.2+
+- lazy decoding of sections in `CarArchive` – saves quite a lot of work if sections are only accessed through `Operation#raw_record`
+- added `frozen_string_literal: true` in all files to reduce garbage collection
 
 Access level changes:
 
@@ -23,12 +30,6 @@ Access level changes:
 - restricted `#inspectable_variables` methods access to either private or protected
 - relaxed `Stream#build_websocket_url` & `Stream#build_websocket_client` methods access from private to protected
 - fixed private class method `Skyfall::Firehose::Message.decode_cbor_objects` which wasn't actually private
-
-Optimizations:
-
-- much faster `Skyfall::Firehose::Message#time` parsing on Ruby 3.2+
-- lazy decoding of sections in `CarArchive` – saves quite a lot of work if sections are only accessed through `Operation#raw_record`
-- added `frozen_string_literal: true` in all files to reduce garbage collection
 
 Additional validations and other changes:
 

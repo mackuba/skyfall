@@ -26,7 +26,22 @@ module Skyfall
     #
     def initialize(type_object, data_object)
       super
-      check_if_not_nil 'seq', 'repo', 'commit', 'blocks', 'ops', 'time'
+      check_if_not_nil 'seq', 'repo', 'commit', 'blocks', 'ops', 'time', 'rev'
+    end
+
+    # @return [String] current revision of the repo
+    def rev
+      @data_object['rev']
+    end
+
+    # @return [String, nil] revision of the previous commit in the repo
+    def since
+      @data_object['since']
+    end
+
+    # @return [CID, nil] CID (Content Identifier) of data of the previous commit in the repo
+    def prev_data
+      @prev_data ||= CID.from_cbor_tag(@data_object['prevData'])
     end
 
     # @return [CID] CID (Content Identifier) of the commit

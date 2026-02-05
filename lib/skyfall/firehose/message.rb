@@ -156,16 +156,17 @@ module Skyfall
     private
 
     # Note: this method is written this way as an optimization
-    def check_if_not_nil(a, b = nil, c = nil, d = nil, e = nil, f = nil)
+    def check_if_not_nil(a, b = nil, c = nil, d = nil, e = nil, f = nil, g = nil)
       ok =   @data_object.has_key?(a)
       ok &&= @data_object.has_key?(b) if b
       ok &&= @data_object.has_key?(c) if c
       ok &&= @data_object.has_key?(d) if d
       ok &&= @data_object.has_key?(e) if e
       ok &&= @data_object.has_key?(f) if f
+      ok &&= @data_object.has_key?(g) if g
 
       if !ok
-        expected_fields = [a, b, c, d, e, f].compact
+        expected_fields = [a, b, c, d, e, f, g].compact
         missing_fields = expected_fields.select { |x| @data_object[x].nil? }
         raise DecodeError.new("Missing event details (#{missing_fields.map(&:to_s).join(', ')})")
       end
