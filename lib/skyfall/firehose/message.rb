@@ -131,7 +131,7 @@ module Skyfall
 
     # Much faster version for Ruby 3.2+
 
-    if Gem::Version.new(RUBY_VERSION) >= '3.2'
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.2')
       def time
         @time ||= @data_object['time'] && Time.new(@data_object['time'])
       end
