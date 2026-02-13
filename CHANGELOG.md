@@ -1,9 +1,10 @@
-## Unreleased
+## [0.7.0] - 2026-02-13
 
-The main change in this version is that inline YARD documentation has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to a 1.0.
+The main change in this version is that inline YARD documentation has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to 1.0.
 
 New APIs:
 
+- the `Skyfall::Firehose` initializer now allows skipping `:subscribe_repos`, i.e. `.new(host)` or `.new(host, cursor)`
 - added `Skyfall::Jetstream::CommitMessage#operation` (aliased as `op`) which returns the (always single) operation in the `operations` array
 - added `#kind` as alias for `#type` in both `Message` classes
 - added a base class for error types, `Skyfall::Error`
@@ -24,11 +25,11 @@ Optimizations:
 
 Access level changes:
 
-- restricted `Stream#start_heartbeat_timer` & `Stream#stop_heartbeat_timer` methods access to private
+- restricted `Stream#start_heartbeat_timer` & `Stream#stop_heartbeat_timer` methods' access to private
 - restricted `Stream#handle_message` method access to protected
 - restricted `Stream#last_update` to read-only access
-- restricted `#inspectable_variables` methods access to either private or protected
-- relaxed `Stream#build_websocket_url` & `Stream#build_websocket_client` methods access from private to protected
+- restricted `#inspectable_variables` access to either private or protected
+- relaxed `Stream#build_websocket_url` & `Stream#build_websocket_client` access from private to protected
 - fixed private class method `Skyfall::Firehose::Message.decode_cbor_objects` which wasn't actually private
 
 Additional validations and other changes:
