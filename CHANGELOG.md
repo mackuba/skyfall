@@ -1,6 +1,6 @@
 ## [0.7.0] - 2026-02-13
 
-The main change in this version is that inline YARD documentation has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to 1.0.
+The main change in this version is that inline [YARD documentation](https://rubydoc.info/gems/skyfall/) has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to 1.0.
 
 New APIs:
 
