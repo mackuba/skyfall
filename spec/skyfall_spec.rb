@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe Skyfall do
-  it "has a version number" do
-    expect(Skyfall::VERSION).not_to be nil
+describe Skyfall do
+  it "should have a version number" do
+    Skyfall::VERSION.should_not be_nil
   end
 end
