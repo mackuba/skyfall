@@ -302,6 +302,13 @@ See [Jetstream docs](https://github.com/bluesky-social/jetstream?tab=readme-ov-f
 > The `compress` and `requireHello` options (and zstd compression) are not available at the moment. Also the "subscriber sourced messages" aren't implemented yet.
 
 
+## Other resources
+
+- [YARD API documentation](https://rubydoc.info/gems/skyfall) at rubydoc.info
+- [ruby.sdk.blue](https://ruby.sdk.blue)
+- [Example scripts](https://ruby.sdk.blue/examples/)
+- [bluesky-feeds-rb](https://tangled.org/mackuba.eu/bluesky-feeds-rb) – feed generator template project
+
 ## Credits
 
 Copyright © 2026 Kuba Suder ([@mackuba.eu](https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr)).
