@@ -1,5 +1,7 @@
 # Skyfall
 
+[![Gem Version](https://badge.fury.io/rb/skyfall.svg?icon=si%3Arubygems&icon_color=%23ff6251)](https://rubygems.org/gems/skyfall) [![YARD Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://rubydoc.info/gems/skyfall)
+
 A Ruby gem for streaming data from the Bluesky/ATProto firehose 🦋
 
 > [!NOTE]
