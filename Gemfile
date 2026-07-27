@@ -13,5 +13,5 @@ gem 'rdoc'
 gem 'yard'
 
 gem 'mocha'
-gem 'simplecov'
+gem 'simplecov', require: false
 gem 'webmock'
