@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'errors'
+require 'oxygene'
 require 'time'
 
 module Skyfall
@@ -60,9 +61,9 @@ module Skyfall
       @data['uri']
     end
 
-    # @return [CID, nil] CID of the specific version of the subject that this label applies to
+    # @return [Oxygene::CID, nil] CID of the specific version of the subject that this label applies to
     def cid
-      @cid ||= @data['cid'] && CID.from_json(@data['cid'])
+      @cid ||= @data['cid'] && Oxygene::CID.from_json(@data['cid'])
     end
 
     # @return [String] label value

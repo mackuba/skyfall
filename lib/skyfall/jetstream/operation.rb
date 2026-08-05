@@ -2,6 +2,7 @@
 
 require_relative '../collection'
 require_relative '../jetstream'
+require 'oxygene'
 
 module Skyfall
 
@@ -73,9 +74,9 @@ module Skyfall
       "at://#{repo}/#{collection}/#{rkey}"
     end
 
-    # @return [CID, nil] CID (Content Identifier) of the record (nil for delete operations)
+    # @return [Oxygene::CID, nil] CID (Content Identifier) of the record (nil for delete operations)
     def cid
-      @cid ||= @json['cid'] && CID.from_json(@json['cid'])
+      @cid ||= @json['cid'] && Oxygene::CID.from_json(@json['cid'])
     end
 
     # @return [Hash, nil] record data as a plain Ruby Hash (nil for delete operations)

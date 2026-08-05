@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require_relative '../errors'
-require_relative '../extensions'
 require_relative '../firehose'
 
 require 'cbor'
+require 'oxygene'
 require 'time'
 
 module Skyfall
@@ -24,7 +24,7 @@ module Skyfall
   # the {Skyfall::Stream#on_raw_message} event handler.
 
   class Firehose::Message
-    using Skyfall::Extensions
+    using Oxygene::Extensions
 
     # Type of the message (e.g. `:commit`, `:identity` etc.)
     # @return [Symbol]

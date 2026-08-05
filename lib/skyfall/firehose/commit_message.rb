@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../car_archive'
-require_relative '../cid'
 require_relative '../firehose'
 require_relative 'message'
 require_relative 'operation'
+require 'oxygene'
 
 module Skyfall
 
@@ -39,19 +38,19 @@ module Skyfall
       @data_object['since']
     end
 
-    # @return [CID, nil] CID (Content Identifier) of data of the previous commit in the repo
+    # @return [Oxygene::CID, nil] CID (Content Identifier) of data of the previous commit in the repo
     def prev_data
-      @prev_data ||= CID.from_cbor_tag(@data_object['prevData'])
+      @prev_data ||= Oxygene::CID.from_cbor_tag(@data_object['prevData'])
     end
 
-    # @return [CID] CID (Content Identifier) of the commit
+    # @return [Oxygene::CID] CID (Content Identifier) of the commit
     def commit
-      @commit ||= CID.from_cbor_tag(@data_object['commit'])
+      @commit ||= Oxygene::CID.from_cbor_tag(@data_object['commit'])
     end
 
-    # @return [Skyfall::CarArchive] commit data in the form of a parsed CAR archive
+    # @return [Oxygene::CARArchive] commit data in the form of a parsed CAR archive
     def blocks
-      @blocks ||= CarArchive.new(@data_object['blocks'])
+      @blocks ||= Oxygene::CARArchive.new(@data_object['blocks'])
     end
 
     # @return [Array<Firehose::Operation>] record operations (usually one) included in the commit
