@@ -48,6 +48,8 @@ module Skyfall
       @commit ||= Oxygene::CID.from_cbor_tag(@data_object['commit'])
     end
 
+    alias cid commit
+
     # @return [Oxygene::CARArchive] commit data in the form of a parsed CAR archive
     def blocks
       @blocks ||= Oxygene::CARArchive.new(@data_object['blocks'])
