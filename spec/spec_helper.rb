@@ -9,6 +9,7 @@ unless ENV["GITHUB_ACTIONS"] == "true"
   end
 end
 
+require 'cbor'
 require 'skyfall'
 require 'webmock/rspec'
 
@@ -24,3 +25,7 @@ RSpec.configure do |config|
 end
 
 WebMock.enable!
+
+def cbor_sequence(*objects)
+  objects.map { |o| CBOR.encode(o) }.join
+end

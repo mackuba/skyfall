@@ -28,7 +28,10 @@ module Skyfall
       super
       check_if_not_nil 'seq', 'labels'
 
-      @labels = @data_object['labels'].map { |x| Label.new(x) }
+      label_data = @data_object['labels']
+      raise DecodeError.new("Invalid labels field") unless label_data.is_a?(Array)
+
+      @labels = label_data.map { |x| Label.new(x) }
     end
 
     protected

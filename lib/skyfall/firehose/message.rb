@@ -183,10 +183,6 @@ module Skyfall
 
       type, data = objects
 
-      if data['error']
-        raise SubscriptionError.new(data['error'], data['message'])
-      end
-
       raise DecodeError.new("Invalid object type: #{type.inspect}") unless type.is_a?(Hash)
       raise DecodeError.new("Missing data: #{type.inspect}") unless type['op'] && type['t']
       raise DecodeError.new("Invalid object type: #{type['op'].inspect}") unless type['op'].is_a?(Integer)
@@ -194,6 +190,10 @@ module Skyfall
       raise DecodeError.new("Invalid message type: #{type['t'].inspect}") unless type['t'].start_with?('#')
       raise UnsupportedError.new("Unsupported version: #{type['op']}") unless type['op'] == 1
       raise DecodeError.new("Invalid object type: #{data.inspect}") unless data.is_a?(Hash)
+
+      if data['error']
+        raise SubscriptionError.new(data['error'], data['message'])
+      end
 
       [type, data]
     end

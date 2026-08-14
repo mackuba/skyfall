@@ -1,3 +1,8 @@
+## Unreleased
+
+- fixed `CommitMessage#prev_data` throwing an error if `prevData` is nil
+- updated Firehose message constructors to verify that required fields aren't nil (not only that they're present), and for `LabelsMessage` that `labels` is an array
+
 ## [0.7.1] - 2026-08-05
 
 - extracted `CID` and `CarArchive` to a new gem "oxygene"

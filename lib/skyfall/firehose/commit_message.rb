@@ -40,7 +40,7 @@ module Skyfall
 
     # @return [Oxygene::CID, nil] CID (Content Identifier) of data of the previous commit in the repo
     def prev_data
-      @prev_data ||= Oxygene::CID.from_cbor_tag(@data_object['prevData'])
+      @prev_data ||= @data_object['prevData'] && Oxygene::CID.from_cbor_tag(@data_object['prevData'])
     end
 
     # @return [Oxygene::CID] CID (Content Identifier) of the commit
