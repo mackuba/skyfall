@@ -42,15 +42,7 @@ module Skyfall
     alias did repo
 
     # @return [String] path part of the record URI (collection + rkey)
-    # @deprecated Use {#collection} + {#rkey}
     def path
-      @@path_warning_printed ||= false
-
-      unless @@path_warning_printed
-        $stderr.puts "Warning: Skyfall::Firehose::Operation#path is deprecated - use #collection + #rkey"
-        @@path_warning_printed = true
-      end
-
       @json['path']
     end
 
@@ -71,7 +63,7 @@ module Skyfall
 
     # @return [String] full AT URI of the record
     def uri
-      "at://#{repo}/#{@json['path']}"
+      "at://#{repo}/#{path}"
     end
 
     # @return [Oxygene::CID, nil] CID (Content Identifier) of the record (nil for delete operations)

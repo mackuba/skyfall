@@ -42,16 +42,8 @@ module Skyfall
     alias did repo
 
     # @return [String] path part of the record URI (collection + rkey)
-    # @deprecated Use {#collection} + {#rkey}
     def path
-      @@path_warning_printed ||= false
-
-      unless @@path_warning_printed
-        $stderr.puts "Warning: Skyfall::Jetstream::Operation#path is deprecated - use #collection + #rkey"
-        @@path_warning_printed = true
-      end
-
-      @json['collection'] + '/' + @json['rkey']
+      @path ||= "#{@json['collection']}/#{@json['rkey']}"
     end
 
     # @return [Symbol] type of the operation (`:create`, `:update` or `:delete`)

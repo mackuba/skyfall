@@ -41,6 +41,7 @@ describe Skyfall::Firehose::Operation do
     op.rkey.should == "3mt37ifa2ev2f"
     op.path.should == "app.bsky.feed.post/3mt37ifa2ev2f"
     op.uri.should == "at://did:plc:qwerty/app.bsky.feed.post/3mt37ifa2ev2f"
+    op.path.should == "app.bsky.feed.post/3mt37ifa2ev2f"
     op.action.should == :create
 
     op.cid.should be_a(Oxygene::CID)
