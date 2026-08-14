@@ -157,13 +157,13 @@ module Skyfall
 
     # Note: this method is written this way as an optimization
     def check_if_not_nil(a, b = nil, c = nil, d = nil, e = nil, f = nil, g = nil)
-      ok =   @data_object.has_key?(a)
-      ok &&= @data_object.has_key?(b) if b
-      ok &&= @data_object.has_key?(c) if c
-      ok &&= @data_object.has_key?(d) if d
-      ok &&= @data_object.has_key?(e) if e
-      ok &&= @data_object.has_key?(f) if f
-      ok &&= @data_object.has_key?(g) if g
+      ok =   !@data_object[a].nil?
+      ok &&= !@data_object[b].nil? if b
+      ok &&= !@data_object[c].nil? if c
+      ok &&= !@data_object[d].nil? if d
+      ok &&= !@data_object[e].nil? if e
+      ok &&= !@data_object[f].nil? if f
+      ok &&= !@data_object[g].nil? if g
 
       if !ok
         expected_fields = [a, b, c, d, e, f, g].compact
