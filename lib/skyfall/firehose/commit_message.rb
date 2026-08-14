@@ -64,7 +64,8 @@ module Skyfall
     # @param op [Firehose::Operation]
     # @return [Hash, nil]
     def raw_record_for_operation(op)
-      op.cid && blocks.section_with_cid(op.cid)
+      cid = op.cid
+      cid && blocks.section_with_cid(cid)
     end
   end
 end

@@ -73,4 +73,20 @@ describe Skyfall::Firehose::Operation do
       op.cid.should be_nil
     end
   end
+
+  context "if operation path doesn't contain a slash" do
+    before do
+      commit_data[1]['ops'][0]['path'] = 'post123'
+    end
+
+    it 'should raise a DecodeError in #collection' do
+      op = described_class.new(commit, commit_data[1]['ops'][0])
+      expect { op.collection }.to raise_error(Skyfall::DecodeError)
+    end
+
+    it 'should raise a DecodeError in #rkey' do
+      op = described_class.new(commit, commit_data[1]['ops'][0])
+      expect { op.rkey }.to raise_error(Skyfall::DecodeError)
+    end
+  end
 end

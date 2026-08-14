@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../collection'
+require_relative '../errors'
 require_relative '../firehose'
 require 'oxygene'
 
@@ -48,22 +49,34 @@ module Skyfall
 
     # @return [Symbol] type of the operation (`:create`, `:update` or `:delete`)
     def action
-      @json['action'].to_sym
+      @action ||= @json['action'].to_sym
     end
 
     # @return [String] record collection NSID
     def collection
-      @json['path'].split('/')[0]
+      @collection ||= begin
+        path = @json['path']
+        slash = path.index('/')
+        raise DecodeError, "Path doesn't contain a /: #{path}" if slash.nil?
+
+        path[0...slash]
+      end
     end
 
     # @return [String] record rkey
     def rkey
-      @json['path'].split('/')[1]
+      @rkey ||= begin
+        path = @json['path']
+        slash = path.index('/')
+        raise DecodeError, "Path doesn't contain a /: #{path}" if slash.nil?
+
+        path[(slash + 1)..-1]
+      end
     end
 
     # @return [String] full AT URI of the record
     def uri
-      "at://#{repo}/#{path}"
+      @uri ||= "at://#{repo}/#{path}"
     end
 
     # @return [Oxygene::CID, nil] CID (Content Identifier) of the record (nil for delete operations)
