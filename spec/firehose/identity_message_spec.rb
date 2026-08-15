@@ -68,6 +68,7 @@ describe Skyfall::Firehose::IdentityMessage do
     it 'should have an operations field that returns []' do
       message = build_message(cbor)
       message.operations.should == []
+      message.ops.should == []
     end
   end
 

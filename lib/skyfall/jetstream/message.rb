@@ -114,6 +114,8 @@ module Skyfall
       []
     end
 
+    alias ops operations
+
     #
     # Timestamp decoded from the message.
     #

@@ -60,6 +60,8 @@ module Skyfall
       @operations ||= @data_object['ops'].map { |op| Firehose::Operation.new(self, op) }
     end
 
+    alias ops operations
+
     # Looks up record data assigned to a given operation in the commit's CAR archive.
     # @param op [Firehose::Operation]
     # @return [Hash, nil]

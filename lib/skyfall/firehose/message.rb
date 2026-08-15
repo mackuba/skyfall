@@ -109,6 +109,8 @@ module Skyfall
       []
     end
 
+    alias ops operations
+
     #
     # @return [Boolean] true if the message is {Firehose::UnknownMessage} (of unrecognized type)
     #

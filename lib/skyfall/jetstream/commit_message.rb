@@ -45,5 +45,7 @@ module Skyfall
     def operations
       [operation]
     end
+
+    alias ops operations
   end
 end

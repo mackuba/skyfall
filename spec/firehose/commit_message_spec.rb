@@ -90,6 +90,8 @@ describe Skyfall::Firehose::CommitMessage do
       message.operations[0].collection.should == "app.bsky.feed.post"
       message.operations[0].rkey.should == "3mt37ifa2ev2f"
       message.operations[0].action.should == :create
+
+      message.ops.should equal(message.operations)
     end
 
     it 'should parse blocks' do
