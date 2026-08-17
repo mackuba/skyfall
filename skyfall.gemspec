@@ -36,5 +36,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'eventmachine', '~> 1.2', '>= 1.2.7'
   spec.add_dependency 'faye-websocket', '~> 0.12'
-  spec.add_dependency 'oxygene', '>= 0.0.1'
+  spec.add_dependency 'oxygene', '~> 0.1.0'
 end
