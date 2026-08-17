@@ -69,7 +69,7 @@ shared_examples_for "invalid firehose message" do
     it "should raise an error if type object's op is not equal 1" do
       data[0]['op'] = 2
 
-      expect { build_message(cbor) }.to raise_error(Skyfall::UnsupportedError, /Unsupported version/)
+      expect { build_message(cbor) }.to raise_error(Skyfall::UnsupportedError, /Unexpected version/)
     end
   end
 end
