@@ -1,9 +1,14 @@
-## Unreleased
+## [0.7.2] - 2026.08-17
 
+- bumped up Oxygene dependency (see below under 0.7.1) to 0.1, with a stricter dependency rule
+  - includes various performance improvements for Base 32 en/decoding, CID & CAR parsing
+  - commit message decoding can be around 30% faster
 - un-deprecated `#path` in both `Operation` classes (marked deprecated in 0.7.0)
 - added `#ops` as alias for `#operations` in all message classes
 - fixed `CommitMessage#prev_data` throwing an error if `prevData` is nil
 - updated Firehose message constructors to verify that required fields aren't nil (not only that they're present), and for `LabelsMessage` that `labels` is an array
+- some minor optimizations
+- added some unit tests
 
 ## [0.7.1] - 2026-08-05
 
