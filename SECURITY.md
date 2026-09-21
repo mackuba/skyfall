@@ -6,9 +6,9 @@ If you find a potential vulnerability in one of my projects, it's recommended no
 
 You can use one of these to contact me instead:
 
-- [@mackuba.eu on Bluesky](https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr) (my DMs should be open, or mention me discretely with a request for contact)
-- [@mackuba@martianbase.net on Mastodon](https://martianbase.net/@mackuba) (my personal instance)
-- email: mackuba `@` protonmail `.` ch (optionally with [this PGP key](https://mail-api.proton.me/pks/lookup?op=get&search=mackuba@protonmail.ch))
+- [@mackuba.eu](https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr) on Bluesky (my DMs should be open, or mention me discretely with a request for contact)
+- [@mackuba@martianbase.net](https://martianbase.net/@mackuba) on Mastodon (my personal instance)
+- email: mackuba `@` protonmail.ch (optionally with [this PGP key](https://mail-api.proton.me/pks/lookup?op=get&search=mackuba@protonmail.ch))
 - ["Report a vulnerability"](https://github.com/mackuba/skyfall/security/advisories/new) form on GitHub
 
 I do not check my Twitter/X or LinkedIn accounts regularly.
