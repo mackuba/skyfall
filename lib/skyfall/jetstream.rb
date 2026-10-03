@@ -181,8 +181,10 @@ module Skyfall
     def check_wanted_dids(list)
       list = [list] unless list.is_a?(Array)
 
-      if x = list.detect { |c| !c.is_a?(String) || c !~ /\Adid:[a-z]+:/ }
-        raise ArgumentError.new("Invalid DID argument: #{x.inspect}")
+      list.each do |did|
+        unless did.is_a?(String) && did =~ /\Adid:[a-z]+:/
+          raise ArgumentError.new("Invalid DID argument: #{did.inspect}")
+        end
       end
 
       # TODO: more validation
