@@ -129,7 +129,7 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        atp_message = Message.new(data)
+        atp_message = Firehose::Message.new(data)
         @cursor = atp_message.cursor
         @handlers[:message].call(atp_message)
       else

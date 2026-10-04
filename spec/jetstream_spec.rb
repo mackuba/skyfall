@@ -92,12 +92,6 @@ describe Skyfall::Jetstream do
     stream.send(:build_websocket_url).should == expected_url
   end
 
-  it "should omit params with nil value" do
-    stream = described_class.new("example.com", wanted_dids: nil, wanted_collections: nil, cursor: nil)
-
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe"
-  end
-
   it "should reject unknown params" do
     expect { described_class.new("example.com", unknown: true) }.to raise_error(ArgumentError, "Unknown option: :unknown")
   end
@@ -118,12 +112,20 @@ describe Skyfall::Jetstream do
     end
   end
 
+  it "should reject the unsupported 'kinds' option" do
+    [:kinds, 'kinds'].each do |k|
+      expect { described_class.new("example.com", k => :commit) }.to raise_error(
+        ArgumentError, "The :kinds option is only supported in Jetstream v2"
+      )
+    end
+  end
+
   it "should reject invalid dids" do
     expect { described_class.new("example.com", wanted_dids: ["bad"]) }.to raise_error(ArgumentError)
   end
 
   it "should reject non-string dids" do
-    [:alice, 42, true, false, {}].each do |did|
+    [:alice, 42, true, false, nil, {}].each do |did|
       expect { described_class.new("example.com", wanted_dids: did) }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
@@ -135,7 +137,7 @@ describe Skyfall::Jetstream do
   end
 
   it "should reject collection values that are neither symbols nor strings" do
-    [42, true, false, {}].each do |collection|
+    [42, true, false, nil, {}].each do |collection|
       expect { described_class.new("example.com", wanted_collections: collection) }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )

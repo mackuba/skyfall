@@ -18,8 +18,8 @@ module Skyfall
   #
   # To connect to a Jetstream websocket, you need to:
   #
-  # * create an instance of Jetstream, passing it the hostname/URL of the server, and optionally
-  #   parameters such as cursor or collection/DID filters
+  # * create an instance of {Skyfall::Jetstream}, passing it the hostname/URL of the server,
+  #   and optionally parameters such as cursor or collection/DID filters
   # * set up callbacks to be run when connecting, disconnecting, when a message is received etc.
   #   (you need to set at least a message handler)
   # * call {#connect} to start the connection
@@ -118,7 +118,7 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        jet_message = Message.new(data)
+        jet_message = Jetstream::Message.new(data)
         @cursor = jet_message.cursor
         @handlers[:message].call(jet_message)
       else
@@ -136,31 +136,36 @@ module Skyfall
       raise ArgumentError.new("Params should be a hash") unless params.is_a?(Hash)
 
       params.each do |k, v|
-        next if v.nil?
-
-        if k.is_a?(Symbol)
-          k = k.to_s
-        elsif !k.is_a?(String)
-          raise ArgumentError.new("Invalid params key: #{k.inspect}")
-        end
-
-        k = k.gsub(/_([a-zA-Z])/) { $1.upcase }.to_sym
-        processed[k] = check_option(k, v)
+        k = normalize_params_key(k)
+        k, v = check_option(k, v)
+        processed[k] = v
       end
 
       processed
     end
 
+    def normalize_params_key(key)
+      if key.is_a?(Symbol)
+        key = key.to_s
+      elsif !key.is_a?(String)
+        raise ArgumentError.new("Invalid params key: #{key.inspect}")
+      end
+
+      key.gsub(/_([a-zA-Z])/) { $1.upcase }.to_sym
+    end
+
     def check_option(k, v)
       case k
       when :wantedCollections
-        check_wanted_collections(v)
+        [:wantedCollections, check_wanted_collections(v)]
       when :wantedDids
-        check_wanted_dids(v)
+        [:wantedDids, check_wanted_dids(v)]
       when :cursor
-        check_cursor(v)
+        [:cursor, check_cursor(v)]
       when :compress, :requireHello
         raise ArgumentError.new("Skyfall::Jetstream doesn't support the #{k.inspect} option yet")
+      when :kinds
+        raise ArgumentError.new("The :kinds option is only supported in Jetstream v2")
       else
         raise ArgumentError.new("Unknown option: #{k.inspect}")
       end
@@ -168,21 +173,22 @@ module Skyfall
 
     def check_wanted_collections(list)
       list = [list] unless list.is_a?(Array)
+      list.map { |c| check_collection_param(c) }
+    end
 
-      list.map do |c|
-        if c.is_a?(String)
-          # TODO: more validation
-          c
-        elsif c.is_a?(Symbol)
-          Collection.from_short_code(c) or raise ArgumentError.new("Unknown collection symbol: #{c.inspect}")
-        else
-          raise ArgumentError.new("Invalid collection argument: #{c.inspect}")
-        end
+    def check_collection_param(value)
+      if value.is_a?(String)
+        # TODO: more validation
+        value
+      elsif value.is_a?(Symbol)
+        Collection.from_short_code(value) or raise ArgumentError.new("Unknown collection symbol: #{value.inspect}")
+      else
+        raise ArgumentError.new("Invalid collection argument: #{value.inspect}")
       end
     end
 
-    def check_wanted_dids(list)
-      list = [list] unless list.is_a?(Array)
+    def check_wanted_dids(value)
+      list = value.is_a?(Array) ? value : [value]
 
       list.each do |did|
         unless did.is_a?(String) && did =~ /\Adid:[a-z]+:/
@@ -195,7 +201,7 @@ module Skyfall
     end
 
     def check_cursor(cursor)
-      cursor.to_i
+      cursor&.to_i
     end
   end
 end
