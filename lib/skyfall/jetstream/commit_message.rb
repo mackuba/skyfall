@@ -22,9 +22,14 @@ module Skyfall
     def initialize(json)
       raise DecodeError.new("Missing event details (commit)") if json['commit'].nil?
 
-      %w(collection rkey operation).each { |f| raise DecodeError.new("Missing event details (#{f})") if json['commit'][f].nil? }
+      %w(collection rkey operation rev).each { |f| raise DecodeError.new("Missing event details (#{f})") if json['commit'][f].nil? }
 
       super
+    end
+
+    # @return [String] current revision of the repo
+    def rev
+      json['commit']['rev']
     end
 
     # Returns the record operation included in the commit.
