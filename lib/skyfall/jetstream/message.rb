@@ -31,18 +31,37 @@ module Skyfall
     # @return [String]
     attr_reader :did
 
-    # Server timestamp of the message (in Unix time microseconds), which serves as a cursor
-    # when reconnecting; an equivalent of {Skyfall::Firehose::Message#seq} in CBOR firehose
-    # messages.
+    # Server timestamp of the message in Unix microseconds.
+    #
+    # This field generally serves as a cursor when reconnecting in Jetstream v1; however,
+    # when connecting to v2 sources through the v1 compatibility API, an additional `cursor`
+    # field is added which holds a sequential number, and that value is used instead as the cursor.
+    # Use {#seq} or {#cursor} to always get the recommended value to use for reconnecting
+    # (although the v1 compatibility API accepts both a seq cursor and a time_us cursor).
+    #
     # @return [Integer]
+    #
     attr_reader :time_us
 
     alias repo did
-    alias seq time_us
     alias kind type
 
     # The raw JSON of the message as parsed from the websocket packet.
     attr_reader :json
+
+    # Cursor value of the event to be used when reconnecting.
+    #
+    # Normally in Jetstream v1, the cursor is the {#time_us} field. However, when connecting
+    # to a Jetstream v2 service through the v1 compatibility API, it includes an additional
+    # `cursor` field with a sequential number, so in this case that value is returned here instead.
+    # The v1 compatibility API accepts both the seq cursor and the {#time_us} value as a cursor
+    # when reconnecting.
+    #
+    # @return [Integer]
+    #
+    def seq
+      @json['cursor'] || time_us
+    end
 
     alias cursor seq
 
@@ -122,8 +141,7 @@ module Skyfall
     # Timestamp decoded from the message.
     #
     # Note: the time is read from the {#time_us} field, which stores the event time as an integer in
-    # Unix time microseconds, and which is used as an equivalent of {Skyfall::Firehose::Message#seq}
-    # in CBOR firehose messages. This timestamp represents the time when the message was received
+    # Unix time microseconds. This timestamp represents the time when the message was received
     # and stored by Jetstream, which might differ a lot from the `created_at` time saved in the
     # record data, e.g. if user's local time is set incorrectly or if an archive of existing posts
     # was imported from another platform. It will also differ (usually only slightly) from the

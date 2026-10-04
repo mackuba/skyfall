@@ -57,8 +57,11 @@ module Skyfall
 
   class Jetstream < Stream
 
-    # Current cursor (time of the last seen message)
+    # Current cursor (time in microseconds of the last seen message, or a
+    # sequential number on a v2 server using the v1 compatibility API).
+    #
     # @return [Integer, nil]
+    #
     attr_accessor :cursor
 
     #
@@ -67,7 +70,7 @@ module Skyfall
     # @param params [Hash] options, see below:
     #
     # @option params [Integer] :cursor
-    #   cursor from which to resume
+    #   cursor from which to resume (seq number or time in microseconds)
     #
     # @option params [Array<String>] :wanted_dids
     #   DID filter to pass to the server (`:wantedDids` is also accepted);
@@ -103,8 +106,8 @@ module Skyfall
 
     # Processes a single message received from the websocket. Passes the received data to the
     # {#on_raw_message} handler, builds a {Skyfall::Jetstream::Message} object, and passes it to
-    # the {#on_message} handler (if defined). Also updates the {#cursor} to this message's
-    # microsecond timestamp (note: this is skipped if {#on_message} is not set).
+    # the {#on_message} handler (if defined). Also updates the {#cursor} to the `cursor` or `time_us`
+    # value of this message (note: this is skipped if {#on_message} is not set).
     #
     # @param msg
     #   {https://rubydoc.info/gems/faye-websocket/Faye/WebSocket/API/MessageEvent Faye::WebSocket::API::MessageEvent}
