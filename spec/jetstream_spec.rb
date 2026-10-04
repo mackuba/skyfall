@@ -34,8 +34,10 @@ describe Skyfall::Jetstream do
   {
     "snake_case symbols" => [:wanted_dids, :wanted_collections],
     "camelCase symbols" => [:wantedDids, :wantedCollections],
+    "v2 name symbols" => [:dids, :collections],
     "snake_case strings" => ["wanted_dids", "wanted_collections"],
-    "camelCase strings" => ["wantedDids", "wantedCollections"]
+    "camelCase strings" => ["wantedDids", "wantedCollections"],
+    "v2 name strings" => ['dids', 'collections'],
   }.each do |key_format, param_names|
     it "should accept #{key_format} as param keys" do
       dids_key, collections_key = param_names
