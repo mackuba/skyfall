@@ -61,6 +61,19 @@ describe Skyfall::Jetstream do
     stream.send(:build_websocket_url).should == expected_url
   end
 
+  it "should accept dids and collections arrays using v2 names on the v1 endpoint" do
+    stream = described_class.new("example.com", {
+      dids: ["did:plc:alice", "did:plc:bob"],
+      collections: [:bsky_post, "app.bsky.feed.like"]
+    })
+
+    expected_url = "wss://example.com/subscribe?" +
+      "wantedDids=did%3Aplc%3Aalice&wantedDids=did%3Aplc%3Abob&" +
+      "wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like"
+
+    stream.send(:build_websocket_url).should == expected_url
+  end
+
   it "should include multiple dids as repeated query parameters" do
     stream = described_class.new("example.com", wanted_dids: ["did:plc:alice", "did:web:example.com"])
 

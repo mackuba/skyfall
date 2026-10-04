@@ -69,6 +69,15 @@ describe Skyfall::Firehose::InfoMessage do
       message.operations.should == []
       message.ops.should == []
     end
+
+    it 'should return nil for seq, cursor, time and time_us' do
+      info = build_message(cbor_sequence({ 'op' => 1, 't' => '#info' }, { 'name' => 'OutdatedCursor' }))
+
+      info.seq.should be_nil
+      info.cursor.should be_nil
+      info.time.should be_nil
+      info.time_us.should be_nil
+    end
   end
 
   describe '#message' do
