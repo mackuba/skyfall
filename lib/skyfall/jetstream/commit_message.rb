@@ -20,7 +20,7 @@ module Skyfall
     # @raise [DecodeError] if the message doesn't include required data
     #
     def initialize(json)
-      raise DecodeError.new("Missing event details (commit)") if json['commit'].nil?
+      raise DecodeError.new("Missing event details (commit)") unless json['commit'].is_a?(Hash)
 
       %w(collection rkey operation rev).each { |f| raise DecodeError.new("Missing event details (#{f})") if json['commit'][f].nil? }
 

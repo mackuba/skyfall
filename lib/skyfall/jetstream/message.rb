@@ -3,6 +3,7 @@
 require_relative '../errors'
 require_relative '../jetstream'
 
+require 'json'
 require 'time'
 
 module Skyfall
@@ -76,6 +77,7 @@ module Skyfall
     #
     def self.new(data)
       json = JSON.parse(data)
+      raise DecodeError, "Expected a JSON object" unless json.is_a?(Hash)
 
       message_class = case json['kind']
         when 'account'  then Jetstream::AccountMessage
@@ -92,6 +94,8 @@ module Skyfall
       message = message_class.allocate
       message.send(:initialize, json)
       message
+    rescue JSON::ParserError => e
+      raise DecodeError, "Invalid JSON message: #{e.message}"
     end
 
     #
