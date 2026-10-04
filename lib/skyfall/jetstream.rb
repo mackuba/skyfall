@@ -72,13 +72,13 @@ module Skyfall
     # @option params [Integer] :cursor
     #   cursor from which to resume (seq number or time in microseconds)
     #
-    # @option params [Array<String>] :wanted_dids
+    # @option params [String, Array<String>] :wanted_dids
     #   DID filter to pass to the server (`:wantedDids` or `:dids` is also accepted);
     #   value should be a DID string or an array of those
     #
-    # @option params [Array<String, Symbol>] :wanted_collections
+    # @option params [String, Symbol, Array<String, Symbol>] :wanted_collections
     #   collection filter to pass to the server (`:wantedCollections` or `:collections` is also accepted);
-    #   value should be an NSID string or a symbol shorthand, or an array of those
+    #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand, or an array of those
     #
     # @raise [ArgumentError] if the server parameter or the options are invalid
     #

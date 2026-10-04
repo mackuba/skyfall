@@ -28,11 +28,16 @@ module Skyfall
       check_if_not_nil 'seq', 'did', 'blocks', 'rev', 'time'
     end
 
+    # @return [String] current revision of the repo
     def rev
       @rev ||= @data_object['rev']
     end
 
     # @return [Oxygene::CARArchive] commit data in the form of a parsed CAR archive
+    #
+    # @raise [Oxygene::DecodeError] if the archive header has missing or invalid fields
+    # @raise [Oxygene::UnsupportedError] if the archive uses an unsupported CAR version
+    #
     def blocks
       @blocks ||= Oxygene::CARArchive.new(@data_object['blocks'])
     end

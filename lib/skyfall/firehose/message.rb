@@ -126,6 +126,10 @@ module Skyfall
     # might differ a lot from the `created_at` time saved in the record data, e.g. if user's local
     # time is set incorrectly, or if an archive of existing posts was imported from another platform.
     #
+    # If streaming from a relay, this timestamp might also differ a lot from the time when the relay
+    # received and stored the event, e.g. if the PDS has streamed some events buffered on its side
+    # after a period of being disconnected from the relay.
+    #
     # @return [Time, nil]
     #
     def time

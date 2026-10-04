@@ -48,6 +48,7 @@ module Skyfall
     alias kind type
 
     # The raw JSON of the message as parsed from the websocket packet.
+    # @return [Hash]
     attr_reader :json
 
     # Cursor value of the event to be used when reconnecting.
@@ -73,7 +74,7 @@ module Skyfall
     #
     # @param data [String] plain text payload of a Jetstream websocket message
     # @return [Skyfall::Jetstream::Message]
-    # @raise [DecodeError] if the message doesn't include required data
+    # @raise [DecodeError] if the message is malformed or doesn't include required data
     #
     def self.new(data)
       json = JSON.parse(data)
@@ -130,8 +131,8 @@ module Skyfall
     alias op operation
 
     # List of operations on records included in the message. Only `:commit` messages include
-    # operations, but for convenience the method is declared here and returns an empty array
-    # in other messages.
+    # an operation and only one, but for symmetry with {Skyfall::Firehose::Message} the array method is
+    # also included here and returns either a one-item array in commit messages or an empty array in others.
     #
     # @return [Array<Jetstream::Operation>]
     #

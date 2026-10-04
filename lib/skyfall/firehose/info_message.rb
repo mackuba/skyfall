@@ -45,7 +45,7 @@ module Skyfall
 
     # @return [String] a formatted summary
     def to_s
-      (@name || "InfoMessage") + (@message ? ": #{@message}" : "")
+      @message ? "#{@name}: #{@message}" : @name
     end
 
     protected
