@@ -154,7 +154,7 @@ module Skyfall
     # @return [Time]
     #
     def time
-      @time ||= Time.at(@time_us / 1_000_000.0)
+      @time ||= Time.at(@time_us / 1_000_000, @time_us % 1_000_000)
     end
   end
 end
