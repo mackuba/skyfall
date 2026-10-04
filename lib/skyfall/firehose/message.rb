@@ -140,6 +140,15 @@ module Skyfall
       end
     end
 
+    # Timestamp of the event in Unix microseconds. Added for symmetry with {Skyfall::Jetstream::Message},
+    # although here it doesn't serve a role of a cursor.
+    #
+    # @return [Integer, nil]
+    #
+    def time_us
+      time && (time.to_r * 1_000_000).to_i
+    end
+
     # Returns a string with a representation of the object for debugging purposes.
     # @return [String]
     def inspect
