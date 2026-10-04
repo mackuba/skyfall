@@ -38,6 +38,7 @@ module Skyfall
     # @return [Integer, nil]
     attr_reader :seq
 
+    alias cursor seq
     alias repo did
     alias kind type
 

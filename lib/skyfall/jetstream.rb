@@ -116,7 +116,7 @@ module Skyfall
 
       if @handlers[:message]
         jet_message = Message.new(data)
-        @cursor = jet_message.time_us
+        @cursor = jet_message.cursor
         @handlers[:message].call(jet_message)
       else
         @cursor = nil

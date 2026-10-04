@@ -130,7 +130,7 @@ module Skyfall
 
       if @handlers[:message]
         atp_message = Message.new(data)
-        @cursor = atp_message.seq
+        @cursor = atp_message.cursor
         @handlers[:message].call(atp_message)
       else
         @cursor = nil

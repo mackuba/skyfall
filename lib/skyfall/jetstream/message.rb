@@ -44,6 +44,8 @@ module Skyfall
     # The raw JSON of the message as parsed from the websocket packet.
     attr_reader :json
 
+    alias cursor seq
+
     #
     # Parses the JSON data from a websocket message and returns an instance of an appropriate subclass.
     # 
