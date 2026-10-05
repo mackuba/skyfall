@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'ex_invalid_message'
 
 describe Skyfall::Firehose::SyncMessage do

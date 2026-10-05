@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Skyfall::Firehose::Message do
   let(:type) {{ 'op' => 1, 't' => '#account' }}
   let(:data) {{ 'seq' => 2222, 'did' => 'did:plc:foobar', 'time' => '2023-11-14T22:13:20.000008Z', 'active' => true }}

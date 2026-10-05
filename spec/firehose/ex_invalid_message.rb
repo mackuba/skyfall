@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_examples_for "invalid firehose message" do
   context 'with invalid data' do
     it 'should raise an error if there are less than 2 cbor objects' do

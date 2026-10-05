@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Skyfall::Firehose do
   it 'should build a websocket URL from hostname and endpoint' do
     firehose = Skyfall::Firehose.new('bsky.relay', 'com.atproto.sync.subscribeSomething')
