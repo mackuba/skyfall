@@ -63,7 +63,7 @@ module Skyfall
 
     # @return [String] full AT URI of the record
     def uri
-      "at://#{repo}/#{collection}/#{rkey}"
+      @uri ||= "at://#{repo}/#{collection}/#{rkey}"
     end
 
     # @return [Oxygene::CID, nil] CID (Content Identifier) of the record (nil for delete operations)
