@@ -25,6 +25,9 @@ module Skyfall
   # * call {#connect} to start the connection
   # * handle the received messages
   #
+  # Note: The Jetstream server starts streaming from the passed cursor *inclusively*,
+  # so the first event you receive will likely be one you've already processed before.
+  #
   # @example
   #   client = Skyfall::Jetstream.new('jetstream2.us-east.bsky.network', {
   #     wanted_collections: 'app.bsky.feed.post',

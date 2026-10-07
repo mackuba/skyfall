@@ -24,6 +24,9 @@ module Skyfall
   # Other differences from {Skyfall::Jetstream}:
   #
   # * the `kinds` option
+  # * `:sync` and `:info` message types
+  # * `msg.cursor` is always a sequential number
+  # * Jetstream v2 can also return protocol error frames, which are represented as {Skyfall::SubscriptionError}
   #
   # To connect to a Jetstream v2 websocket, you need to:
   #
@@ -33,6 +36,9 @@ module Skyfall
   #   (you need to set at least a message handler)
   # * call {#connect} to start the connection
   # * handle the received messages
+  #
+  # Note: The Jetstream server starts streaming from the passed cursor *inclusively*,
+  # so the first event you receive will likely be one you've already processed before.
   #
   # @example
   #   client = Skyfall::JetstreamV2.new('jetstream.us-east.bsky.network', {
