@@ -39,14 +39,41 @@ describe Skyfall::Firehose::UnknownMessage do
 
       message.repo.should be_nil
       message.did.should be_nil
+
       message.seq.should be_nil
+      message.cursor.should be_nil
+
       message.time.should be_nil
+      message.time_us.should be_nil
     end
 
     it 'should have an operations field that returns []' do
       message = build_message(cbor)
       message.operations.should == []
       message.ops.should == []
+    end
+
+    it 'should work when created using the UnknownMessage constructor' do
+      message = Skyfall::Firehose::UnknownMessage.new(cbor)
+      message.should be_a(Skyfall::Firehose::UnknownMessage)
+    end
+
+    it "should throw an error when created using a different message's constructor" do
+      expect { Skyfall::Firehose::AccountMessage.new(cbor) }.to raise_error(Skyfall::DecodeError)
+    end
+
+    it "should throw an error when parsing a message of a different known type" do
+      cbor = cbor_sequence(
+        { 'op' => 1, 't' => '#identity' },
+        {
+          'seq' => 3333,
+          'did' => 'did:plc:foobar',
+          'time' => '2025-02-01T00:00:00Z',
+          'handle' => 'alice.test'
+        }
+      )
+
+      expect { Skyfall::Firehose::UnknownMessage.new(cbor) }.to raise_error(Skyfall::DecodeError)
     end
   end
 end

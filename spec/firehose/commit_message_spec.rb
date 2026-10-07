@@ -59,15 +59,24 @@ describe Skyfall::Firehose::CommitMessage do
 
       message.type.should == :commit
       message.kind.should == :commit
+
       message.repo.should == 'did:plc:qwerty'
       message.did.should == 'did:plc:qwerty'
+
       message.seq.should == 1024
+      message.cursor.should == 1024
+
       message.should_not be_unknown
     end
 
     it 'should parse the timestamp' do
       message = build_message(cbor)
       message.time.should == Time.parse('2024-06-24T01:59:05.668Z')
+    end
+
+    it 'should have a time_us method that returns the timestamp in microseconds' do
+      message = build_message(cbor)
+      message.time_us.should == 1_719_194_345_668_000
     end
 
     it 'should parse rev' do

@@ -28,11 +28,11 @@ module Skyfall
 
     #
     # @param message [Skyfall::Firehose::Message] commit message the operation is included in
-    # @param json [Hash] operation data
+    # @param data [Hash] operation data
     #
-    def initialize(message, json)
+    def initialize(message, data)
       @message = message
-      @json = json
+      @data = data
     end
 
     # @return [String] DID of the account/repository in which the operation happened
@@ -44,18 +44,18 @@ module Skyfall
 
     # @return [String] path part of the record URI (collection + rkey)
     def path
-      @json['path']
+      @data['path']
     end
 
     # @return [Symbol] type of the operation (`:create`, `:update` or `:delete`)
     def action
-      @action ||= @json['action'].to_sym
+      @action ||= @data['action'].to_sym
     end
 
     # @return [String] record collection NSID
     def collection
       @collection ||= begin
-        path = @json['path']
+        path = @data['path']
         slash = path.index('/')
         raise DecodeError, "Path doesn't contain a /: #{path}" if slash.nil?
 
@@ -66,7 +66,7 @@ module Skyfall
     # @return [String] record rkey
     def rkey
       @rkey ||= begin
-        path = @json['path']
+        path = @data['path']
         slash = path.index('/')
         raise DecodeError, "Path doesn't contain a /: #{path}" if slash.nil?
 
@@ -81,7 +81,7 @@ module Skyfall
 
     # @return [Oxygene::CID, nil] CID (Content Identifier) of the record (nil for delete operations)
     def cid
-      @cid ||= @json['cid'] && Oxygene::CID.from_cbor_tag(@json['cid'])
+      @cid ||= @data['cid'] && Oxygene::CID.from_cbor_tag(@data['cid'])
     end
 
     # @return [Hash, nil] record data as a plain Ruby Hash (nil for delete operations)

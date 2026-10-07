@@ -62,8 +62,12 @@ describe Skyfall::Firehose::InfoMessage do
 
       message.repo.should be_nil
       message.did.should be_nil
+
       message.seq.should be_nil
+      message.cursor.should be_nil
+
       message.time.should be_nil
+      message.time_us.should be_nil
     end
 
     it 'should have an operations field that returns []' do

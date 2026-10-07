@@ -53,7 +53,10 @@ describe Skyfall::Firehose::LabelsMessage do
 
       message.type.should == :labels
       message.kind.should == :labels
+
       message.seq.should == 4444
+      message.cursor.should == 4444
+
       message.should_not be_unknown
     end
 
@@ -80,7 +83,9 @@ describe Skyfall::Firehose::LabelsMessage do
 
       message.repo.should be_nil
       message.did.should be_nil
+
       message.time.should be_nil
+      message.time_us.should be_nil
     end
 
     it 'should have an operations field that returns []' do

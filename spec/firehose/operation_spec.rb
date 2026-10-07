@@ -41,7 +41,6 @@ describe Skyfall::Firehose::Operation do
     op.rkey.should == "3mt37ifa2ev2f"
     op.path.should == "app.bsky.feed.post/3mt37ifa2ev2f"
     op.uri.should == "at://did:plc:qwerty/app.bsky.feed.post/3mt37ifa2ev2f"
-    op.path.should == "app.bsky.feed.post/3mt37ifa2ev2f"
     op.action.should == :create
 
     op.cid.should be_a(Oxygene::CID)
@@ -52,6 +51,17 @@ describe Skyfall::Firehose::Operation do
     it 'should return a symbolic shortcode of the record collection' do
       op = described_class.new(commit, commit_data[1]['ops'][0])
       op.type.should == :bsky_post
+    end
+
+    context 'with an unrecognized collection' do
+      before do
+        commit_data[1]['ops'][0]['path'] = "sh.tangled.repo/3mt37ifa2ev2f"
+      end
+
+      it 'should return :unknown' do
+        op = described_class.new(commit, commit_data[1]['ops'][0])
+        op.type.should == :unknown
+      end
     end
   end
 
@@ -87,6 +97,14 @@ describe Skyfall::Firehose::Operation do
     it 'should raise a DecodeError in #rkey' do
       op = described_class.new(commit, commit_data[1]['ops'][0])
       expect { op.rkey }.to raise_error(Skyfall::DecodeError)
+    end
+  end
+
+  describe '#inspect' do
+    it 'should not include the message object' do
+      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op.inspect.should_not include('@message')
+      op.inspect.should include('@data')
     end
   end
 end

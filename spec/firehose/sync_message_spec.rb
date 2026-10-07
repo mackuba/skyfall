@@ -49,9 +49,13 @@ describe Skyfall::Firehose::SyncMessage do
 
       message.type.should == :sync
       message.kind.should == :sync
+
       message.repo.should == 'did:plc:foobar'
       message.did.should == 'did:plc:foobar'
+
       message.seq.should == 5555
+      message.cursor.should == 5555
+
       message.rev.should == '3me4sottxa22d'
       message.should_not be_unknown
     end
@@ -59,6 +63,11 @@ describe Skyfall::Firehose::SyncMessage do
     it 'should parse the timestamp' do
       message = build_message(cbor)
       message.time.should == Time.parse('2025-04-01T00:00:00Z')
+    end
+
+    it 'should have a time_us method that returns the timestamp in microseconds' do
+      message = build_message(cbor)
+      message.time_us.should == 1_743_465_600_000_000
     end
 
     it 'should parse blocks' do

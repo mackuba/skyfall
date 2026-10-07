@@ -47,15 +47,24 @@ describe Skyfall::Firehose::AccountMessage do
 
       message.type.should == :account
       message.kind.should == :account
+
       message.repo.should == 'did:plc:foobar'
       message.did.should == 'did:plc:foobar'
+
       message.seq.should == 2222
+      message.cursor.should == 2222
+
       message.should_not be_unknown
     end
 
     it 'should parse the timestamp' do
       message = build_message(cbor)
       message.time.should == Time.parse('2025-01-01T00:00:00Z')
+    end
+
+    it 'should have a time_us method that returns the timestamp in microseconds' do
+      message = build_message(cbor)
+      message.time_us.should == 1_735_689_600_000_000
     end
 
     it 'should work when created using the AccountMessage constructor' do

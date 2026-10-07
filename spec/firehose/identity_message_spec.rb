@@ -47,15 +47,24 @@ describe Skyfall::Firehose::IdentityMessage do
 
       message.type.should == :identity
       message.kind.should == :identity
+
       message.repo.should == 'did:plc:foobar'
       message.did.should == 'did:plc:foobar'
+
       message.seq.should == 3333
+      message.cursor.should == 3333
+
       message.should_not be_unknown
     end
 
     it 'should parse the timestamp' do
       message = build_message(cbor)
       message.time.should == Time.parse('2025-02-01T00:00:00Z')
+    end
+
+    it 'should have a time_us method that returns the timestamp in microseconds' do
+      message = build_message(cbor)
+      message.time_us.should == 1_738_368_000_000_000
     end
 
     it 'should work when created using the IdentityMessage constructor' do
