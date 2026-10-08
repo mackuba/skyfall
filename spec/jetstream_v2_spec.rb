@@ -1,60 +1,60 @@
 # frozen_string_literal: true
 
-describe Skyfall::Jetstream do
+describe Skyfall::JetstreamV2 do
   it "should build a subscribe url without params if no params are passed" do
     stream = described_class.new("example.com")
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
   end
 
   it "should accept nil params as no filters" do
     stream = described_class.new("example.com", nil)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
   end
 
   it "should include params as GET query parameters" do
-    stream = described_class.new("example.com", { wanted_collections: :bsky_post, cursor: 42 })
+    stream = described_class.new("example.com", { collections: :bsky_post, cursor: 42 })
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&cursor=42"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&cursor=42"
   end
 
   it "should build a subscribe url with only a cursor" do
     stream = described_class.new("example.com", cursor: 42)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?cursor=42"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=42"
   end
 
   it "should accept cursor param name as string" do
     stream = described_class.new("example.com", 'cursor' => 400)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?cursor=400"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=400"
   end
 
   it "should accept cursor value as string" do
     stream = described_class.new("example.com", cursor: '100')
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?cursor=100"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=100"
   end
 
   it "should omit a nil cursor" do
     stream = described_class.new("example.com", cursor: nil)
     stream.cursor.should be_nil
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
   end
 
   it "should preserve a zero cursor" do
     stream = described_class.new("example.com", cursor: 0)
     stream.cursor.should == 0
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?cursor=0"
+    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=0"
   end
 
   {
-    "snake_case symbols" => [:wanted_dids, :wanted_collections],
-    "camelCase symbols" => [:wantedDids, :wantedCollections],
+    "v1 snake_case symbols" => [:wanted_dids, :wanted_collections],
+    "v1 camelCase symbols" => [:wantedDids, :wantedCollections],
     "v2 name symbols" => [:dids, :collections],
-    "snake_case strings" => ["wanted_dids", "wanted_collections"],
-    "camelCase strings" => ["wantedDids", "wantedCollections"],
+    "v1 snake_case strings" => ["wanted_dids", "wanted_collections"],
+    "v1 camelCase strings" => ["wantedDids", "wantedCollections"],
     "v2 name strings" => ['dids', 'collections'],
   }.each do |key_format, param_names|
     it "should accept #{key_format} as param keys" do
@@ -63,7 +63,7 @@ describe Skyfall::Jetstream do
       params = { dids_key => "did:plc:alice", collections_key => :bsky_post }
       stream = described_class.new("example.com", params)
 
-      expected_url = "wss://example.com/subscribe?wantedDids=did%3Aplc%3Aalice&wantedCollections=app.bsky.feed.post"
+      expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post"
       stream.send(:build_websocket_url).should == expected_url
     end
   end
@@ -71,55 +71,55 @@ describe Skyfall::Jetstream do
   it "should accept mixed param key formats (but please don't do this)" do
     stream = described_class.new("example.com", {
       "wantedDids" => "did:plc:alice",
-      :wanted_collections => "app.bsky.feed.post",
+      :collections => "app.bsky.feed.post",
       "cursor" => 42
     })
 
-    expected_url = "wss://example.com/subscribe?wantedDids=did%3Aplc%3Aalice&wantedCollections=app.bsky.feed.post&cursor=42"
+    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post&cursor=42"
     stream.send(:build_websocket_url).should == expected_url
   end
 
-  it "should accept dids and collections arrays using v2 names on the v1 endpoint" do
+  it "should accept dids and collections arrays using v2 names" do
     stream = described_class.new("example.com", {
       dids: ["did:plc:alice", "did:plc:bob"],
       collections: [:bsky_post, "app.bsky.feed.like"]
     })
 
-    expected_url = "wss://example.com/subscribe?" +
-      "wantedDids=did%3Aplc%3Aalice&wantedDids=did%3Aplc%3Abob&" +
-      "wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like"
+    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
+      "dids=did%3Aplc%3Aalice&dids=did%3Aplc%3Abob&" +
+      "collections=app.bsky.feed.post&collections=app.bsky.feed.like"
 
     stream.send(:build_websocket_url).should == expected_url
   end
 
   it "should include multiple dids as repeated query parameters" do
-    stream = described_class.new("example.com", wanted_dids: ["did:plc:alice", "did:web:example.com"])
+    stream = described_class.new("example.com", dids: ["did:plc:alice", "did:web:example.com"])
 
-    expected_url = "wss://example.com/subscribe?wantedDids=did%3Aplc%3Aalice&wantedDids=did%3Aweb%3Aexample.com"
+    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&dids=did%3Aweb%3Aexample.com"
     stream.send(:build_websocket_url).should == expected_url
   end
 
   it "should include multiple collections as repeated query parameters and expand shortcodes" do
-    stream = described_class.new("example.com", wanted_collections: [:bsky_post, "app.bsky.feed.like", :bsky_follow])
+    stream = described_class.new("example.com", collections: [:bsky_post, "app.bsky.feed.like", :bsky_follow])
 
-    expected_url = "wss://example.com/subscribe?" +
-      "wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like&wantedCollections=app.bsky.graph.follow"
+    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
+      "collections=app.bsky.feed.post&collections=app.bsky.feed.like&collections=app.bsky.graph.follow"
 
     stream.send(:build_websocket_url).should == expected_url
   end
 
   it "should accept multiple dids and collections together with a cursor" do
     stream = described_class.new("example.com", {
-      wanted_dids: ["did:plc:alice", "did:plc:bob"],
-      wanted_collections: [:bsky_post, :bsky_like],
+      dids: ["did:plc:alice", "did:plc:bob"],
+      collections: [:bsky_post, :bsky_like],
       cursor: 42
     })
 
-    expected_url = "wss://example.com/subscribe?" +
-      "wantedDids=did%3Aplc%3Aalice&" +
-      "wantedDids=did%3Aplc%3Abob&" +
-      "wantedCollections=app.bsky.feed.post&" +
-      "wantedCollections=app.bsky.feed.like&" +
+    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
+      "dids=did%3Aplc%3Aalice&" +
+      "dids=did%3Aplc%3Abob&" +
+      "collections=app.bsky.feed.post&" +
+      "collections=app.bsky.feed.like&" +
       "cursor=42"
 
     stream.send(:build_websocket_url).should == expected_url
@@ -129,7 +129,7 @@ describe Skyfall::Jetstream do
     stream = described_class.new("example.com", collections: ['app.bsky.*', 'app.bsky.feed.*'])
 
     stream.send(:build_websocket_url).should ==
-      "wss://example.com/subscribe?wantedCollections=app.bsky.*&wantedCollections=app.bsky.feed.*"
+      "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.*&collections=app.bsky.feed.*"
   end
 
   it "should reject unknown params" do
@@ -153,7 +153,7 @@ describe Skyfall::Jetstream do
   it "should reject the unsupported 'compress' option" do
     [:compress, 'compress'].each do |k|
       expect { described_class.new("example.com", k => true) }.to raise_error(
-        ArgumentError, "Skyfall::Jetstream doesn't support the :compress option yet"
+      ArgumentError, "The :compress option does not exist in Jetstream v2"
       )
     end
   end
@@ -161,30 +161,22 @@ describe Skyfall::Jetstream do
   it "should reject the unsupported 'requireHello' option" do
     [:requireHello, "requireHello", :require_hello, "require_hello"].each do |k|
       expect { described_class.new("example.com", k => true) }.to raise_error(
-        ArgumentError, "Skyfall::Jetstream doesn't support the :requireHello option yet"
-      )
-    end
-  end
-
-  it "should reject the unsupported 'kinds' option" do
-    [:kinds, 'kinds'].each do |k|
-      expect { described_class.new("example.com", k => :commit) }.to raise_error(
-        ArgumentError, "The :kinds option is only supported in Jetstream v2"
+        ArgumentError, "The :requireHello option does not exist in Jetstream v2"
       )
     end
   end
 
   it "should reject invalid dids" do
-    expect { described_class.new("example.com", wanted_dids: ["bad"]) }.to raise_error(ArgumentError)
+    expect { described_class.new("example.com", dids: ["lizard"]) }.to raise_error(ArgumentError)
   end
 
   it "should reject non-string dids" do
     [:alice, 42, true, false, nil, {}].each do |did|
-      expect { described_class.new("example.com", wanted_dids: did) }.to raise_error(
+      expect { described_class.new("example.com", dids: did) }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
 
-      expect { described_class.new("example.com", wanted_dids: ["did:plc:alice", did, "did:plc:bob"]) }.to raise_error(
+      expect { described_class.new("example.com", dids: ["did:plc:alice", did, "did:plc:bob"]) }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
     end
@@ -192,22 +184,22 @@ describe Skyfall::Jetstream do
 
   it "should reject collection values that are neither symbols nor strings" do
     [42, true, false, nil, {}].each do |collection|
-      expect { described_class.new("example.com", wanted_collections: collection) }.to raise_error(
+      expect { described_class.new("example.com", collections: collection) }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
 
-      expect { described_class.new("example.com", wanted_collections: [:bsky_post, collection, "app.bsky.feed.like"]) }.to raise_error(
+      expect { described_class.new("example.com", collections: [:bsky_post, collection, "app.bsky.feed.like"]) }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
     end
   end
 
   it "should reject unknown collection shortcodes" do
-    expect { described_class.new("example.com", wanted_collections: :unknown_collection) }.to raise_error(
+    expect { described_class.new("example.com", collections: :unknown_collection) }.to raise_error(
       ArgumentError, "Unknown collection symbol: :unknown_collection"
     )
 
-    expect { described_class.new("example.com", wanted_collections: [:bsky_post, :unknown_collection]) }.to raise_error(
+    expect { described_class.new("example.com", collections: [:bsky_post, :unknown_collection]) }.to raise_error(
       ArgumentError, "Unknown collection symbol: :unknown_collection"
     )
   end

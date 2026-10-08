@@ -160,10 +160,8 @@ module Skyfall
         [:cursor, check_cursor(v)]
       when :kinds
         [:kinds, check_kinds(v)]
-      when :compress
-        raise ArgumentError.new("Skyfall::JetstreamV2 doesn't support the #{k.inspect} option yet")
-      when :requireHello
-        raise ArgumentError.new("The :requireHello option does not exist in Jetstream v2")
+      when :compress, :requireHello
+        raise ArgumentError.new("The #{k.inspect} option does not exist in Jetstream v2")
       else
         raise ArgumentError.new("Unknown option: #{k.inspect}")
       end
