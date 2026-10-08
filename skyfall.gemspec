@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   }
 
   spec.files = Dir.chdir(__dir__) do
-    Dir['*.md'] + Dir['*.txt'] + Dir['lib/**/*'] + Dir['sig/**/*']
+    Dir['*.md'] + Dir['*.txt'] + Dir['data/**/*'] + Dir['lib/**/*'] + Dir['sig/**/*']
   end
 
   spec.require_paths = ["lib"]
@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'eventmachine', '~> 1.2', '>= 1.2.7'
   spec.add_dependency 'faye-websocket', '~> 0.12'
   spec.add_dependency 'oxygene', '~> 0.1.0'
+  spec.add_dependency 'zstd-ruby', '~> 2.0'
 end

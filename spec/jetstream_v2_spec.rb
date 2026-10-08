@@ -150,14 +150,6 @@ describe Skyfall::JetstreamV2 do
     end
   end
 
-  it "should reject the unsupported 'compress' option" do
-    [:compress, 'compress'].each do |k|
-      expect { described_class.new("example.com", k => true) }.to raise_error(
-      ArgumentError, "The :compress option does not exist in Jetstream v2"
-      )
-    end
-  end
-
   it "should reject the unsupported 'requireHello' option" do
     [:requireHello, "requireHello", :require_hello, "require_hello"].each do |k|
       expect { described_class.new("example.com", k => true) }.to raise_error(

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative 'jetstream'
+
+require 'net/http'
 require 'uri'
 
 module Skyfall
@@ -105,6 +107,12 @@ module Skyfall
     #   Jetstream v2 servers compare this against the *uncompressed* message size, while
     #   Jetstream v1 servers count the *compressed* message size.
     #
+    # @option params [Boolean] :compress
+    #   enable zstd compression (default: false); this option is not passed to the server in the URL,
+    #   but instead makes the client fetch the current Zstd compression dictionary first and then pass
+    #   its ID to the server when connecting. The dictionary is cached in memory for this stream's
+    #   subsequent connections.
+    #
     # @raise [ArgumentError] if the server parameter or the options are invalid
     #
     def initialize(server, params = {})
@@ -126,7 +134,14 @@ module Skyfall
     # @return [String]
 
     def build_websocket_url
-      params = @cursor ? @params.merge(cursor: @cursor) : @params
+      params = @params.dup
+      params[:cursor] = @cursor if @cursor
+
+      if @compress
+        fetch_zstd_dictionary unless @compression_dictionary_id
+        params[:zstdDictionary] = @compression_dictionary_id
+      end
+
       query = URI.encode_www_form(params)
 
       @root_url + "/xrpc/network.bsky.jetstream.subscribeEvents" + (query.length > 0 ? "?#{query}" : '')
@@ -146,12 +161,23 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        jet_message = JetstreamV2::Message.new(data)
+        jet_message = JetstreamV2::Message.new(decode_message_data(data))
         @cursor = jet_message.cursor if jet_message.cursor
         @handlers[:message].call(jet_message)
       else
         @cursor = nil
       end
+    end
+
+    # Returns the Zstd dictionary used for decompressing messages if :compress option is enabled.
+    #
+    # @return [Zstd::DDict]
+    # @raise [SubscriptionError] if the dictionary can't be fetched
+    # @raise [DecodeError] if the dictionary or its ID is invalid
+
+    def compression_dictionary
+      fetch_zstd_dictionary unless @compression_dictionary
+      @compression_dictionary
     end
 
 
@@ -169,7 +195,9 @@ module Skyfall
         [:maxMessageSizeBytes, check_max_message_size_bytes(v)]
       when :kinds
         [:kinds, check_kinds(v)]
-      when :compress, :requireHello
+      when :compress
+        [:compress, check_compress(v)]
+      when :requireHello
         raise ArgumentError.new("The #{k.inspect} option does not exist in Jetstream v2")
       else
         raise ArgumentError.new("Unknown option: #{k.inspect}")
@@ -188,6 +216,39 @@ module Skyfall
       }
 
       kinds.uniq
+    end
+
+    def fetch_zstd_dictionary
+      uri = URI(@root_url)
+      uri.scheme = (uri.scheme == 'wss') ? 'https' : 'http'
+      uri.path = '/xrpc/network.bsky.jetstream.getZstdDictionary'
+      uri = URI(uri.to_s)
+
+      request = Net::HTTP::Get.new(uri)
+      request['User-Agent'] = user_agent
+
+      opts = { use_ssl: uri.scheme == 'https', open_timeout: 10, read_timeout: 10 }
+
+      response = Net::HTTP.start(uri.host, uri.port, opts) { |http| http.request(request) }
+
+      unless response.is_a?(Net::HTTPSuccess)
+        raise DictionaryError, "Unable to fetch Jetstream zstd dictionary: HTTP #{response.code}"
+      end
+
+      dictionary_id = response['X-Zstd-Dictionary-Id']
+
+      unless dictionary_id && dictionary_id.match?(/\A[0-9]+\z/) && dictionary_id.to_i > 0
+        raise DictionaryError, "Invalid Jetstream zstd dictionary ID: #{dictionary_id.inspect}"
+      end
+
+      begin
+        dict = Zstd::DDict.new(response.body)
+      rescue RuntimeError => e
+        raise DictionaryError, "Invalid Jetstream zstd dictionary: #{e.message}"
+      end
+
+      @compression_dictionary_id = dictionary_id.to_i
+      @compression_dictionary = dict
     end
   end
 end

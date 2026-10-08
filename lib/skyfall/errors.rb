@@ -20,6 +20,12 @@ module Skyfall
   end
 
   #
+  # Raised when the Zstd compression dictionary used for Jetstream can't be loaded or is invalid.
+  #
+  class DictionaryError < Error
+  end
+
+  #
   # Raised when {Stream#connect} is called and there's already another instance of {Stream} or its
   # subclass like {Firehose} that's connected to another websocket.
   #

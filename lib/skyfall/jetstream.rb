@@ -5,6 +5,7 @@ require_relative 'stream'
 require 'json'
 require 'time'
 require 'uri'
+require 'zstd-ruby'
 
 module Skyfall
 
@@ -94,6 +95,9 @@ module Skyfall
     #   Jetstream v2 servers (both in the v2 API and the v1 compatibility API) count the
     #   *uncompressed* message size.
     #
+    # @option params [Boolean] :compress
+    #   enable zstd compression (default: false), using the bundled dictionary
+    #
     # @raise [ArgumentError] if the server parameter or the options are invalid
     #
     def initialize(server, params = {})
@@ -102,6 +106,7 @@ module Skyfall
 
       @params = check_params(params)
       @cursor = @params.delete(:cursor)
+      @compress = @params.delete(:compress)
       @root_url = ensure_empty_path(@root_url)
     end
 
@@ -112,7 +117,10 @@ module Skyfall
     # @return [String]
 
     def build_websocket_url
-      params = @cursor ? @params.merge(cursor: @cursor) : @params
+      params = @params.dup
+      params[:cursor] = @cursor if @cursor
+      params[:compress] = true if @compress
+
       query = URI.encode_www_form(params)
 
       @root_url + "/subscribe" + (query.length > 0 ? "?#{query}" : '')
@@ -132,12 +140,19 @@ module Skyfall
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
-        jet_message = Jetstream::Message.new(data)
+        jet_message = Jetstream::Message.new(decode_message_data(data))
         @cursor = jet_message.cursor
         @handlers[:message].call(jet_message)
       else
         @cursor = nil
       end
+    end
+
+    # Returns the Zstd dictionary used for decompressing messages if :compress option is enabled.
+    # @return [Zstd::DDict]
+
+    def compression_dictionary
+      @compression_dictionary ||= Zstd::DDict.new(File.binread(File.join(__dir__, '../../data/jetstream_zstd_dictionary')))
     end
 
 
@@ -178,7 +193,9 @@ module Skyfall
         [:cursor, check_cursor(v)]
       when :maxMessageSizeBytes
         [:maxMessageSizeBytes, check_max_message_size_bytes(v)]
-      when :compress, :requireHello
+      when :compress
+        [:compress, check_compress(v)]
+      when :requireHello
         raise ArgumentError.new("Skyfall::Jetstream doesn't support the #{k.inspect} option yet")
       when :kinds
         raise ArgumentError.new("The :kinds option is only supported in Jetstream v2")
@@ -218,6 +235,26 @@ module Skyfall
 
     def check_cursor(cursor)
       cursor&.to_i
+    end
+
+    def check_compress(value)
+      unless value == true || value == false
+        raise ArgumentError, "Invalid compress argument: #{value.inspect} (expected true or false)"
+      end
+
+      value
+    end
+
+    def decode_message_data(data)
+      return data unless @compress
+
+      dictionary = compression_dictionary
+
+      begin
+        Zstd.decompress(data, dict: dictionary)
+      rescue RuntimeError => e
+        raise DecodeError, "Zstd decompression failed: #{e.message}"
+      end
     end
 
     def check_max_message_size_bytes(value)
