@@ -22,7 +22,10 @@ module Skyfall
     #
     def initialize(json)
       super
-      raise DecodeError, "Missing event details (account)" if !@payload['account'].is_a?(Hash) || @payload['account']['active'].nil?
+
+      raise DecodeError, "Missing account object" if @payload['account'].nil?
+      raise DecodeError, "Invalid account object" unless @payload['account'].is_a?(Hash)
+      raise DecodeError, "Missing event details (account.active)" if @payload['account']['active'].nil?
     end
 
     # @return [Boolean] true if the account is active, false if it's deactivated/suspended etc.

@@ -64,6 +64,9 @@ module Skyfall
     # Maximum allowed value for :maxMessageSizeBytes (max value of uint32).
     MAX_MAX_BYTES = 4_294_967_295
 
+    JETSTREAM_V1_DICTIONARY = File.join(__dir__, '../../data/jetstream_zstd_dictionary')
+    private_constant :JETSTREAM_V1_DICTIONARY
+
     # Current cursor (time in microseconds of the last seen message, or a
     # sequential number on a v2 server using the v1 compatibility API).
     #
@@ -85,7 +88,8 @@ module Skyfall
     #
     # @option params [String, Symbol, Array<String, Symbol>] :wanted_collections
     #   collection filter to pass to the server (`:wantedCollections` or `:collections` is also accepted);
-    #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand, or an array of those
+    #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand,
+    #   or an array of those
     #
     # @option params [Integer, String] :max_message_size_bytes
     #   server-side message size filter (`:maxMessageSizeBytes` is also accepted);
@@ -152,7 +156,7 @@ module Skyfall
     # @return [Zstd::DDict]
 
     def compression_dictionary
-      @compression_dictionary ||= Zstd::DDict.new(File.binread(File.join(__dir__, '../../data/jetstream_zstd_dictionary')))
+      @compression_dictionary ||= Zstd::DDict.new(File.binread(JETSTREAM_V1_DICTIONARY))
     end
 
 
@@ -265,7 +269,7 @@ module Skyfall
       end
 
       unless value.between?(0, MAX_MAX_BYTES)
-        raise ArgumentError, "Invalid maxMessageSizeBytes argument: #{value.inspect} (expected an integer between 0 and 4,294,967,295)"
+        raise ArgumentError, "Invalid maxMessageSizeBytes argument: #{value.inspect} (expected an integer between 0 and #{MAX_MAX_BYTES})"
       end
 
       value

@@ -26,9 +26,17 @@ module Skyfall
 
       sync = @payload['sync']
 
-      unless sync.is_a?(Hash) && !sync['rev'].nil? && sync['blocks'].is_a?(Hash) && sync['blocks']['$bytes'].is_a?(String)
-        raise DecodeError, "Missing event details (sync)"
-      end
+      raise DecodeError, "Missing sync object" if sync.nil?
+      raise DecodeError, "Invalid sync object" unless sync.is_a?(Hash)
+
+      raise DecodeError, "Missing event details (sync.rev)" if sync['rev'].nil?
+      raise DecodeError, "Invalid sync.rev field" unless sync['rev'].is_a?(String)
+
+      raise DecodeError, "Missing event details (sync.blocks)" if sync['blocks'].nil?
+      raise DecodeError, "Invalid sync.blocks field" unless sync['blocks'].is_a?(Hash)
+
+      raise DecodeError, "Missing event details (sync.blocks.$bytes)" if sync['blocks']['$bytes'].nil?
+      raise DecodeError, "Invalid sync.blocks.$bytes field" unless sync['blocks']['$bytes'].is_a?(String)
     end
 
     # @return [String] current revision of the repo

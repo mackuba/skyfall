@@ -98,7 +98,8 @@ module Skyfall
     #
     # @option params [String, Symbol, Array<String, Symbol>] :collections
     #   collection filter to pass to the server (`:wanted_collections` or `:wantedCollections` is also accepted);
-    #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand, or an array of those
+    #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand,
+    #   or an array of those
     #
     # @option params [Integer, String] :max_message_size_bytes
     #   server-side message size filter (`:maxMessageSizeBytes` is also accepted);

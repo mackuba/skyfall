@@ -3,52 +3,54 @@
 require_relative 'ex_jetstream_compression'
 
 describe Skyfall::JetstreamV2 do
+  let(:base_url) { "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents" }
+
   it "should build a subscribe url without params if no params are passed" do
     stream = Skyfall::JetstreamV2.new("example.com")
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
+    stream.send(:build_websocket_url).should == base_url
   end
 
   it "should accept nil params as no filters" do
     stream = Skyfall::JetstreamV2.new("example.com", nil)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
+    stream.send(:build_websocket_url).should == base_url
   end
 
   it "should include params as GET query parameters" do
     stream = Skyfall::JetstreamV2.new("example.com", { collections: :bsky_post, cursor: 42 })
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&cursor=42"
+    stream.send(:build_websocket_url).should == "#{base_url}?collections=app.bsky.feed.post&cursor=42"
   end
 
   it "should build a subscribe url with only a cursor" do
     stream = Skyfall::JetstreamV2.new("example.com", cursor: 42)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=42"
+    stream.send(:build_websocket_url).should == "#{base_url}?cursor=42"
   end
 
   it "should accept cursor param name as string" do
     stream = Skyfall::JetstreamV2.new("example.com", 'cursor' => 400)
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=400"
+    stream.send(:build_websocket_url).should == "#{base_url}?cursor=400"
   end
 
   it "should accept cursor value as string" do
     stream = Skyfall::JetstreamV2.new("example.com", cursor: '100')
 
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=100"
+    stream.send(:build_websocket_url).should == "#{base_url}?cursor=100"
   end
 
   it "should omit a nil cursor" do
     stream = Skyfall::JetstreamV2.new("example.com", cursor: nil)
     stream.cursor.should be_nil
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents"
+    stream.send(:build_websocket_url).should == base_url
   end
 
   it "should preserve a zero cursor" do
     stream = Skyfall::JetstreamV2.new("example.com", cursor: 0)
     stream.cursor.should == 0
-    stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?cursor=0"
+    stream.send(:build_websocket_url).should == "#{base_url}?cursor=0"
   end
 
   {
@@ -65,8 +67,7 @@ describe Skyfall::JetstreamV2 do
       params = { dids_key => "did:plc:alice", collections_key => :bsky_post }
       stream = Skyfall::JetstreamV2.new("example.com", params)
 
-      expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post"
-      stream.send(:build_websocket_url).should == expected_url
+      stream.send(:build_websocket_url).should == "#{base_url}?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post"
     end
   end
 
@@ -77,7 +78,8 @@ describe Skyfall::JetstreamV2 do
       "cursor" => 42
     })
 
-    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post&cursor=42"
+    expected_url = "#{base_url}?dids=did%3Aplc%3Aalice&collections=app.bsky.feed.post&cursor=42"
+
     stream.send(:build_websocket_url).should == expected_url
   end
 
@@ -87,9 +89,11 @@ describe Skyfall::JetstreamV2 do
       collections: [:bsky_post, "app.bsky.feed.like"]
     })
 
-    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
-      "dids=did%3Aplc%3Aalice&dids=did%3Aplc%3Abob&" +
-      "collections=app.bsky.feed.post&collections=app.bsky.feed.like"
+    expected_url = "#{base_url}?" +
+      "dids=did%3Aplc%3Aalice&" +
+      "dids=did%3Aplc%3Abob&" +
+      "collections=app.bsky.feed.post&" +
+      "collections=app.bsky.feed.like"
 
     stream.send(:build_websocket_url).should == expected_url
   end
@@ -97,15 +101,16 @@ describe Skyfall::JetstreamV2 do
   it "should include multiple dids as repeated query parameters" do
     stream = Skyfall::JetstreamV2.new("example.com", dids: ["did:plc:alice", "did:web:example.com"])
 
-    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?dids=did%3Aplc%3Aalice&dids=did%3Aweb%3Aexample.com"
-    stream.send(:build_websocket_url).should == expected_url
+    stream.send(:build_websocket_url).should == "#{base_url}?dids=did%3Aplc%3Aalice&dids=did%3Aweb%3Aexample.com"
   end
 
   it "should include multiple collections as repeated query parameters and expand shortcodes" do
     stream = Skyfall::JetstreamV2.new("example.com", collections: [:bsky_post, "app.bsky.feed.like", :bsky_follow])
 
-    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
-      "collections=app.bsky.feed.post&collections=app.bsky.feed.like&collections=app.bsky.graph.follow"
+    expected_url = "#{base_url}?" +
+      "collections=app.bsky.feed.post&" +
+      "collections=app.bsky.feed.like&" +
+      "collections=app.bsky.graph.follow"
 
     stream.send(:build_websocket_url).should == expected_url
   end
@@ -117,7 +122,7 @@ describe Skyfall::JetstreamV2 do
       cursor: 42
     })
 
-    expected_url = "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?" +
+    expected_url = "#{base_url}?" +
       "dids=did%3Aplc%3Aalice&" +
       "dids=did%3Aplc%3Abob&" +
       "collections=app.bsky.feed.post&" +
@@ -130,17 +135,22 @@ describe Skyfall::JetstreamV2 do
   it "should accept collection wildcard strings" do
     stream = Skyfall::JetstreamV2.new("example.com", collections: ['app.bsky.*', 'app.bsky.feed.*'])
 
-    stream.send(:build_websocket_url).should ==
-      "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.*&collections=app.bsky.feed.*"
+    expected_url = "#{base_url}?collections=app.bsky.*&collections=app.bsky.feed.*"
+
+    stream.send(:build_websocket_url).should == expected_url
   end
 
   it "should reject unknown params" do
-    expect { Skyfall::JetstreamV2.new("example.com", unknown: true) }.to raise_error(ArgumentError, "Unknown option: :unknown")
+    expect { Skyfall::JetstreamV2.new("example.com", unknown: true) }.to raise_error(
+      ArgumentError, "Unknown option: :unknown"
+    )
   end
 
   it "should reject params that are not a hash" do
     [[], 'params', 42, true].each do |params|
-      expect { Skyfall::JetstreamV2.new("example.com", params) }.to raise_error(ArgumentError, "Params should be a hash")
+      expect { Skyfall::JetstreamV2.new("example.com", params) }.to raise_error(
+        ArgumentError, "Params should be a hash"
+      )
     end
   end
 
@@ -182,7 +192,9 @@ describe Skyfall::JetstreamV2 do
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
 
-      expect { Skyfall::JetstreamV2.new("example.com", collections: [:bsky_post, collection, "app.bsky.feed.like"]) }.to raise_error(
+      expect {
+        Skyfall::JetstreamV2.new("example.com", collections: [:bsky_post, collection, "app.bsky.feed.like"])
+      }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
     end
@@ -203,21 +215,21 @@ describe Skyfall::JetstreamV2 do
       it "should accept #{key.inspect} as a message size limit param key" do
         stream = Skyfall::JetstreamV2.new("example.com", key => 1_000_000)
 
-        stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?maxMessageSizeBytes=1000000"
+        stream.send(:build_websocket_url).should == "#{base_url}?maxMessageSizeBytes=1000000"
       end
     end
 
     it "should accept a message size limit as a string" do
       stream = Skyfall::JetstreamV2.new("example.com", max_message_size_bytes: '1000000')
 
-      stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?maxMessageSizeBytes=1000000"
+      stream.send(:build_websocket_url).should == "#{base_url}?maxMessageSizeBytes=1000000"
     end
 
     it "should accept zero and the maximum message size limit" do
       [0, 4_294_967_295].each do |size|
         stream = Skyfall::JetstreamV2.new("example.com", max_message_size_bytes: size)
 
-        stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?maxMessageSizeBytes=#{size}"
+        stream.send(:build_websocket_url).should == "#{base_url}?maxMessageSizeBytes=#{size}"
       end
     end
 
@@ -230,9 +242,15 @@ describe Skyfall::JetstreamV2 do
     end
 
     it "should combine a message size limit with filters and a cursor" do
-      stream = Skyfall::JetstreamV2.new("example.com", collections: :bsky_post, max_message_size_bytes: 1_000_000, cursor: 42)
+      stream = Skyfall::JetstreamV2.new("example.com", {
+        collections: :bsky_post,
+        max_message_size_bytes: 1_000_000,
+        cursor: 42
+      })
 
-      stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+      expected_url = "#{base_url}?collections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+
+      stream.send(:build_websocket_url).should == expected_url
     end
   end
 

@@ -33,29 +33,35 @@ describe Skyfall::Jetstream::CommitMessage do
 
   context 'with missing data' do
     it "should throw an error if commit is not a hash" do
-      [nil, [], 'commit', 42, true, false].each do |value|
+      [[], 'commit', 42, true, false].each do |value|
         json = JSON.generate(data.merge('commit' => value))
-        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (commit)')
+        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Invalid commit object')
       end
     end
 
     it 'should throw an error if commit is missing' do
       data.delete('commit')
 
-      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (commit)')
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing commit object')
+    end
+
+    it 'should throw an error if commit is nil' do
+      data['commit'] = nil
+
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing commit object')
     end
 
     %w(collection rkey operation rev).each do |field|
       it "should throw an error if commit.#{field} is missing" do
         data['commit'].delete(field)
 
-        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, /#{field}/)
+        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, "Missing event details (commit.#{field})")
       end
 
       it "should throw an error if commit.#{field} is nil" do
         data['commit'][field] = nil
 
-        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, /#{field}/)
+        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, "Missing event details (commit.#{field})")
       end
     end
   end

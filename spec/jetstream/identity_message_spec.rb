@@ -23,16 +23,22 @@ describe Skyfall::Jetstream::IdentityMessage do
 
   context 'with missing data' do
     it "should throw an error if identity is not a hash" do
-      [nil, [], 'identity', 42, true, false].each do |value|
+      [[], 'identity', 42, true, false].each do |value|
         json = JSON.generate(data.merge('identity' => value))
-        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (identity)')
+        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Invalid identity object')
       end
     end
 
     it 'should throw an error if identity is missing' do
       data.delete('identity')
 
-      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (identity)')
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing identity object')
+    end
+
+    it 'should throw an error if identity is nil' do
+      data['identity'] = nil
+
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing identity object')
     end
   end
 
@@ -109,7 +115,8 @@ describe Skyfall::Jetstream::IdentityMessage do
     describe '#handle' do
       context 'with a handle present' do
         it 'should return the handle' do
-          build_message(json).handle.should == 'alice.test'
+          message = build_message(json)
+          message.handle.should == 'alice.test'
         end
       end
 
@@ -119,7 +126,8 @@ describe Skyfall::Jetstream::IdentityMessage do
         end
 
         it 'should return nil' do
-          build_message(json).handle.should be_nil
+          message = build_message(json)
+          message.handle.should be_nil
         end
       end
     end

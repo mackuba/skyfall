@@ -18,7 +18,8 @@ describe Skyfall::Jetstream do
   it "should include params as GET query parameters" do
     stream = Skyfall::Jetstream.new("example.com", { wanted_collections: :bsky_post, cursor: 42 })
 
-    stream.send(:build_websocket_url).should == "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&cursor=42"
+    expected_url = "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&cursor=42"
+    stream.send(:build_websocket_url).should == expected_url
   end
 
   it "should build a subscribe url with only a cursor" do
@@ -77,7 +78,11 @@ describe Skyfall::Jetstream do
       "cursor" => 42
     })
 
-    expected_url = "wss://example.com/subscribe?wantedDids=did%3Aplc%3Aalice&wantedCollections=app.bsky.feed.post&cursor=42"
+    expected_url = "wss://example.com/subscribe?" +
+      "wantedDids=did%3Aplc%3Aalice&" +
+      "wantedCollections=app.bsky.feed.post&" +
+      "cursor=42"
+
     stream.send(:build_websocket_url).should == expected_url
   end
 
@@ -105,7 +110,9 @@ describe Skyfall::Jetstream do
     stream = Skyfall::Jetstream.new("example.com", wanted_collections: [:bsky_post, "app.bsky.feed.like", :bsky_follow])
 
     expected_url = "wss://example.com/subscribe?" +
-      "wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like&wantedCollections=app.bsky.graph.follow"
+      "wantedCollections=app.bsky.feed.post&" +
+      "wantedCollections=app.bsky.feed.like&" +
+      "wantedCollections=app.bsky.graph.follow"
 
     stream.send(:build_websocket_url).should == expected_url
   end
@@ -135,7 +142,9 @@ describe Skyfall::Jetstream do
   end
 
   it "should reject unknown params" do
-    expect { Skyfall::Jetstream.new("example.com", unknown: true) }.to raise_error(ArgumentError, "Unknown option: :unknown")
+    expect { Skyfall::Jetstream.new("example.com", unknown: true) }.to raise_error(
+      ArgumentError, "Unknown option: :unknown"
+    )
   end
 
   it "should reject params that are not a hash" do
@@ -178,7 +187,9 @@ describe Skyfall::Jetstream do
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
 
-      expect { Skyfall::Jetstream.new("example.com", wanted_dids: ["did:plc:alice", did, "did:plc:bob"]) }.to raise_error(
+      expect {
+        Skyfall::Jetstream.new("example.com", wanted_dids: ["did:plc:alice", did, "did:plc:bob"])
+      }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
     end
@@ -190,7 +201,9 @@ describe Skyfall::Jetstream do
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
 
-      expect { Skyfall::Jetstream.new("example.com", wanted_collections: [:bsky_post, collection, "app.bsky.feed.like"]) }.to raise_error(
+      expect {
+        Skyfall::Jetstream.new("example.com", wanted_collections: [:bsky_post, collection, "app.bsky.feed.like"])
+      }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
     end
@@ -201,7 +214,9 @@ describe Skyfall::Jetstream do
       ArgumentError, "Unknown collection symbol: :unknown_collection"
     )
 
-    expect { Skyfall::Jetstream.new("example.com", wanted_collections: [:bsky_post, :unknown_collection]) }.to raise_error(
+    expect {
+      Skyfall::Jetstream.new("example.com", wanted_collections: [:bsky_post, :unknown_collection])
+    }.to raise_error(
       ArgumentError, "Unknown collection symbol: :unknown_collection"
     )
   end
@@ -238,9 +253,18 @@ describe Skyfall::Jetstream do
     end
 
     it "should combine a message size limit with filters and a cursor" do
-      stream = Skyfall::Jetstream.new("example.com", wanted_collections: :bsky_post, max_message_size_bytes: 1_000_000, cursor: 42)
+      stream = Skyfall::Jetstream.new("example.com", {
+        wanted_collections: :bsky_post,
+        max_message_size_bytes: 1_000_000,
+        cursor: 42
+      })
 
-      stream.send(:build_websocket_url).should == "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+      expected_url = "wss://example.com/subscribe?" +
+        "wantedCollections=app.bsky.feed.post&" +
+        "maxMessageSizeBytes=1000000&" +
+        "cursor=42"
+
+      stream.send(:build_websocket_url).should == expected_url
     end
   end
 
@@ -265,7 +289,8 @@ describe Skyfall::Jetstream do
     it "should request compression together with filters and a cursor" do
       stream = Skyfall::Jetstream.new('example.com', compress: true, collections: :bsky_post, cursor: 42)
 
-      stream.send(:build_websocket_url).should == websocket_url + '?wantedCollections=app.bsky.feed.post&cursor=42&compress=true'
+      url = stream.send(:build_websocket_url)
+      url.should == websocket_url + '?wantedCollections=app.bsky.feed.post&cursor=42&compress=true'
     end
 
     it "should bundle the legacy dictionary in the gem" do

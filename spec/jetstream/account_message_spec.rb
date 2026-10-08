@@ -23,28 +23,34 @@ describe Skyfall::Jetstream::AccountMessage do
 
   context 'with missing data' do
     it "should throw an error if account is not a hash" do
-      [nil, [], 'account', 42, true, false].each do |value|
+      [[], 'account', 42, true, false].each do |value|
         json = JSON.generate(data.merge('account' => value))
-        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account)')
+        expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Invalid account object')
       end
     end
 
     it 'should throw an error if account is missing' do
       data.delete('account')
 
-      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account)')
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing account object')
+    end
+
+    it 'should throw an error if account is nil' do
+      data['account'] = nil
+
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing account object')
     end
 
     it 'should throw an error if account.active is missing' do
       data['account'].delete('active')
 
-      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account)')
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account.active)')
     end
 
     it 'should throw an error if account.active is nil' do
       data['account']['active'] = nil
 
-      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account)')
+      expect { build_message(json) }.to raise_error(Skyfall::DecodeError, 'Missing event details (account.active)')
     end
   end
 

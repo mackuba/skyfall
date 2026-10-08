@@ -24,7 +24,9 @@ module Skyfall
     #
     def initialize(json)
       super
-      raise DecodeError, "Missing event details (identity)" unless @payload['identity'].is_a?(Hash)
+
+      raise DecodeError, "Missing identity object" if @payload['identity'].nil?
+      raise DecodeError, "Invalid identity object" unless @payload['identity'].is_a?(Hash)
     end
 
     # @return [String, nil] current handle assigned to the DID
