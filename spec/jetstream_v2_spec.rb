@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'ex_jetstream_compression'
+
 describe Skyfall::JetstreamV2 do
   it "should build a subscribe url without params if no params are passed" do
     stream = described_class.new("example.com")
@@ -231,6 +233,131 @@ describe Skyfall::JetstreamV2 do
       stream = described_class.new("example.com", collections: :bsky_post, max_message_size_bytes: 1_000_000, cursor: 42)
 
       stream.send(:build_websocket_url).should == "wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+    end
+  end
+
+  describe 'compression' do
+    let(:stream) { described_class.new('example.com', compress: true) }
+    let(:websocket_url) { 'wss://example.com/xrpc/network.bsky.jetstream.subscribeEvents' }
+    let(:message_class) { Skyfall::JetstreamV2::AccountMessage }
+    let(:expected_cursor) { 2222 }
+    let(:dictionary) { File.binread(File.expand_path('fixtures/jetstream_v2_dictionary', __dir__)) }
+
+    let(:json) do
+      JSON.generate({
+        '$type' => 'message',
+        'payload' => {
+          '$type' => 'network.bsky.jetstream.subscribeEvents#account',
+          'did' => 'did:plc:foobar',
+          'seq' => 2222,
+          'time' => '2023-11-14T22:15:00Z',
+          'account' => { 'active' => true }
+        }
+      })
+    end
+
+    let(:dictionary_url) { 'https://example.com/xrpc/network.bsky.jetstream.getZstdDictionary' }
+    let(:dictionary_headers) {{ 'Content-Type' => 'application/octet-stream', 'X-Zstd-Dictionary-Id' => '20260811' }}
+
+    before do
+      stub_request(:get, dictionary_url).to_return(body: dictionary, headers: dictionary_headers)
+    end
+
+    include_examples 'a compressed Jetstream stream'
+
+    it "should accept string and symbol compression keys without sending adding compress param to the URL" do
+      [:compress, 'compress'].each do |key|
+        client = described_class.new('example.com', key => true, collections: :bsky_post)
+        client.send(:build_websocket_url).should == websocket_url + '?collections=app.bsky.feed.post&zstdDictionary=20260811'
+      end
+    end
+
+    it "should cache the dictionary and its ID across reconnections" do
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=20260811'
+      stream.cursor = 42
+      stream.send(:build_websocket_url).should == websocket_url + '?cursor=42&zstdDictionary=20260811'
+
+      expect(a_request(:get, dictionary_url)).to have_been_made.once
+    end
+
+    it "should not cache the dictionary between stream instances" do
+      2.times { described_class.new('example.com', compress: true).send(:build_websocket_url) }
+
+      expect(a_request(:get, dictionary_url)).to have_been_made.twice
+    end
+
+    it "should not fetch the dictionary when compression is omitted or false" do
+      [nil, { compress: false }].each do |params|
+        described_class.new('example.com', params).send(:build_websocket_url).should == websocket_url
+      end
+
+      expect(a_request(:get, dictionary_url)).not_to have_been_made
+    end
+
+    it "should request the dictionary via http: for a ws: server and preserve the port number" do
+      url = 'http://localhost:6008/xrpc/network.bsky.jetstream.getZstdDictionary'
+
+      stub_request(:get, url).to_return(body: dictionary, headers: dictionary_headers)
+      client = described_class.new('ws://localhost:6008', compress: true)
+
+      client.send(:build_websocket_url).should == 'ws://localhost:6008/xrpc/network.bsky.jetstream.subscribeEvents?zstdDictionary=20260811'
+      expect(a_request(:get, url)).to have_been_made.once
+    end
+
+    it "should not cache failed dictionary downloads" do
+      stub_request(:get, dictionary_url)
+        .to_return(status: 503)
+        .then.to_return(body: dictionary, headers: dictionary_headers)
+
+      expect { stream.send(:build_websocket_url) }.to raise_error(
+        Skyfall::DictionaryError, 'Unable to fetch Jetstream zstd dictionary: HTTP 503'
+      )
+
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=20260811'
+      expect(a_request(:get, dictionary_url)).to have_been_made.twice
+    end
+
+    it "should not cache malformed dictionaries" do
+      bad_dictionaries = [
+        [0xEC30A437, 0].pack('V2'),
+        [0xEC30A437, 20260811].pack('V2')
+      ]
+
+      bad_dictionaries.each do |body|
+        stub_request(:get, dictionary_url).to_return(body: body, headers: dictionary_headers)
+        expect { stream.send(:build_websocket_url) }.to raise_error(Skyfall::DictionaryError, /Invalid Jetstream zstd dictionary/)
+      end
+
+      stub_request(:get, dictionary_url).to_return(body: dictionary, headers: dictionary_headers)
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=20260811'
+    end
+
+    it "should use the dictionary ID from the header rather than the binary prefix" do
+      stub_request(:get, dictionary_url).to_return(body: dictionary, headers: { 'X-Zstd-Dictionary-Id' => '98765' })
+
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=98765'
+    end
+
+    it "should reject missing or invalid dictionary ID headers without caching the response" do
+      [nil, '', '0', '-1', 'lizard', '123abc', '1.5'].each do |id|
+        headers = id ? { 'X-Zstd-Dictionary-Id' => id } : {}
+        stub_request(:get, dictionary_url).to_return(body: dictionary, headers: headers)
+
+        expect { stream.send(:build_websocket_url) }.to raise_error(
+          Skyfall::DictionaryError, "Invalid Jetstream zstd dictionary ID: #{id.inspect}"
+        )
+      end
+
+      stub_request(:get, dictionary_url).to_return(body: dictionary, headers: dictionary_headers)
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=20260811'
+    end
+
+    it "should propagate dictionary request timeouts without caching the failure" do
+      stub_request(:get, dictionary_url).to_timeout
+      expect { stream.send(:build_websocket_url) }.to raise_error(Net::OpenTimeout)
+
+      stub_request(:get, dictionary_url).to_return(body: dictionary, headers: dictionary_headers)
+      stream.send(:build_websocket_url).should == websocket_url + '?zstdDictionary=20260811'
     end
   end
 end

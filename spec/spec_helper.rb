@@ -29,3 +29,9 @@ WebMock.enable!
 def cbor_sequence(*objects)
   objects.map { |o| CBOR.encode(o) }.join
 end
+
+TestWebsocketFrame = Struct.new(:data)
+
+def websocket_frame(data)
+  TestWebsocketFrame.new(data)
+end

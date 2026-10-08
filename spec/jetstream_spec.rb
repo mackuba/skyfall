@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'ex_jetstream_compression'
+
 describe Skyfall::Jetstream do
   it "should build a subscribe url without params if no params are passed" do
     stream = described_class.new("example.com")
@@ -239,6 +241,38 @@ describe Skyfall::Jetstream do
       stream = described_class.new("example.com", wanted_collections: :bsky_post, max_message_size_bytes: 1_000_000, cursor: 42)
 
       stream.send(:build_websocket_url).should == "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+    end
+  end
+
+  describe 'compression' do
+    let(:stream) { described_class.new('example.com', compress: true) }
+    let(:websocket_url) { 'wss://example.com/subscribe' }
+    let(:dictionary) { File.binread(File.expand_path('../data/jetstream_zstd_dictionary', __dir__)) }
+    let(:message_class) { Skyfall::Jetstream::AccountMessage }
+    let(:expected_cursor) { 1_700_000_100_000_000 }
+
+    let(:json) {
+      JSON.generate({
+        'kind' => 'account',
+        'did' => 'did:plc:foobar',
+        'time_us' => 1_700_000_100_000_000,
+        'account' => { 'active' => true }
+      })
+    }
+
+    include_examples 'a compressed Jetstream stream'
+
+    it "should request compression together with filters and a cursor" do
+      stream = described_class.new('example.com', compress: true, collections: :bsky_post, cursor: 42)
+
+      stream.send(:build_websocket_url).should == websocket_url + '?wantedCollections=app.bsky.feed.post&cursor=42&compress=true'
+    end
+
+    it "should bundle the legacy dictionary in the gem" do
+      dictionary.unpack('V2').should == [0xEC30A437, 1_612_007_021]
+
+      spec = Gem::Specification.load(File.expand_path('../skyfall.gemspec', __dir__))
+      spec.files.should include('data/jetstream_zstd_dictionary')
     end
   end
 end
