@@ -1,4 +1,17 @@
-## [0.7.2] - 2026.08-17
+## [Unreleased]
+
+- added supprt for the Jetstream v2 API via `Skyfall::JetstreamV2` and related `Message` class family; `Skyfall::Jetstream` can also be used to connect to a v2 service, though it uses the `/subscribe` compatibility endpoint (`JetstreamV2` does not work with v1 services)
+- added support for Zstd compression (`:compress => true`) in both Jetstream APIs
+- added support for `:maxMessageSizeBytes` option in both Jetstream APIs
+- added `#cursor` as an alias for `#seq` in `Message` classes
+- added `#time_us` to `Skyfall::Firehose::Message`
+- added `#rev` to `Skyfall::Jetstream::CommitMessage`
+- possibly breaking change: when connecting to a Jetstream v2 service using `Skyfall::Jetstream` through the compatibility API, `#seq` and `#cursor` will now return a sequential number cursor from the `cursor` field instead of the `time_us` timestamp (both can be passed as the cursor when reconnecting)
+- `Skyfall::Jetstream` also accepts parameter names `dids` & `collections` as used in `Skyfall::JetstreamV2`
+- some stricted/improved validation in `Message` constructors and in parameter parsing
+- don't reset `cursor` to nil when processing a `Skyfall::Firehose::InfoMessage`
+
+## [0.7.2] - 2026-08-17
 
 - bumped up Oxygene dependency (see below under 0.7.1) to 0.1, with a stricter dependency rule
   - includes various performance improvements for Base 32 en/decoding, CID & CAR parsing
