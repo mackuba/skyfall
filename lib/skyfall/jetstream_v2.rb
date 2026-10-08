@@ -98,6 +98,13 @@ module Skyfall
     #   collection filter to pass to the server (`:wanted_collections` or `:wantedCollections` is also accepted);
     #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand, or an array of those
     #
+    # @option params [Integer, String] :max_message_size_bytes
+    #   server-side message size filter (`:maxMessageSizeBytes` is also accepted);
+    #   tells the server to skip events larger than the given number of bytes in size
+    #   (0 is the default and means no limit). **Note:** When compression is enabled,
+    #   Jetstream v2 servers compare this against the *uncompressed* message size, while
+    #   Jetstream v1 servers count the *compressed* message size.
+    #
     # @raise [ArgumentError] if the server parameter or the options are invalid
     #
     def initialize(server, params = {})
@@ -158,6 +165,8 @@ module Skyfall
         [:dids, check_wanted_dids(v)]
       when :cursor
         [:cursor, check_cursor(v)]
+      when :maxMessageSizeBytes
+        [:maxMessageSizeBytes, check_max_message_size_bytes(v)]
       when :kinds
         [:kinds, check_kinds(v)]
       when :compress, :requireHello

@@ -60,6 +60,9 @@ module Skyfall
 
   class Jetstream < Stream
 
+    # Maximum allowed value for :maxMessageSizeBytes (max value of uint32).
+    MAX_MAX_BYTES = 4_294_967_295
+
     # Current cursor (time in microseconds of the last seen message, or a
     # sequential number on a v2 server using the v1 compatibility API).
     #
@@ -82,6 +85,14 @@ module Skyfall
     # @option params [String, Symbol, Array<String, Symbol>] :wanted_collections
     #   collection filter to pass to the server (`:wantedCollections` or `:collections` is also accepted);
     #   value should be: an string with a concrete NSID or a prefix and wildcard, a symbol shorthand, or an array of those
+    #
+    # @option params [Integer, String] :max_message_size_bytes
+    #   server-side message size filter (`:maxMessageSizeBytes` is also accepted);
+    #   tells the server to skip events larger than the given number of bytes in size
+    #   (0 is the default and means no limit). **Note:** When compression is enabled,
+    #   Jetstream v1 servers compare this against the *compressed* message size, while
+    #   Jetstream v2 servers (both in the v2 API and the v1 compatibility API) count the
+    #   *uncompressed* message size.
     #
     # @raise [ArgumentError] if the server parameter or the options are invalid
     #
@@ -165,6 +176,8 @@ module Skyfall
         [:wantedDids, check_wanted_dids(v)]
       when :cursor
         [:cursor, check_cursor(v)]
+      when :maxMessageSizeBytes
+        [:maxMessageSizeBytes, check_max_message_size_bytes(v)]
       when :compress, :requireHello
         raise ArgumentError.new("Skyfall::Jetstream doesn't support the #{k.inspect} option yet")
       when :kinds
@@ -205,6 +218,20 @@ module Skyfall
 
     def check_cursor(cursor)
       cursor&.to_i
+    end
+
+    def check_max_message_size_bytes(value)
+      if value.is_a?(String) && value.match?(/\A[0-9]+\z/)
+        value = value.to_i
+      elsif !value.is_a?(Integer)
+        raise ArgumentError, "Invalid maxMessageSizeBytes argument: #{value.inspect}"
+      end
+
+      unless value.between?(0, MAX_MAX_BYTES)
+        raise ArgumentError, "Invalid maxMessageSizeBytes argument: #{value.inspect} (expected an integer between 0 and 4,294,967,295)"
+      end
+
+      value
     end
   end
 end

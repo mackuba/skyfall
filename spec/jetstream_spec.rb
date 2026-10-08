@@ -211,4 +211,42 @@ describe Skyfall::Jetstream do
       ArgumentError, "Unknown collection symbol: :unknown_collection"
     )
   end
+
+  describe 'message bytes filter' do
+    [:max_message_size_bytes, :maxMessageSizeBytes, 'max_message_size_bytes', 'maxMessageSizeBytes'].each do |key|
+      it "should accept #{key.inspect} as a message size limit param key" do
+        stream = described_class.new("example.com", key => 1_000_000)
+
+        stream.send(:build_websocket_url).should == "wss://example.com/subscribe?maxMessageSizeBytes=1000000"
+      end
+    end
+
+    it "should accept a message size limit as a string" do
+      stream = described_class.new("example.com", max_message_size_bytes: '1000000')
+
+      stream.send(:build_websocket_url).should == "wss://example.com/subscribe?maxMessageSizeBytes=1000000"
+    end
+
+    it "should accept zero and the maximum message size limit" do
+      [0, 4_294_967_295].each do |size|
+        stream = described_class.new("example.com", max_message_size_bytes: size)
+
+        stream.send(:build_websocket_url).should == "wss://example.com/subscribe?maxMessageSizeBytes=#{size}"
+      end
+    end
+
+    it "should reject an invalid message size limit" do
+      [nil, -1, 4_294_967_296, 1.5, true, false, [], '', 'lizard', '100MB', '-1', '1.5', '4294967296'].each do |size|
+        expect { described_class.new("example.com", max_message_size_bytes: size) }.to raise_error(
+          ArgumentError, /Invalid maxMessageSizeBytes argument:/
+        )
+      end
+    end
+
+    it "should combine a message size limit with filters and a cursor" do
+      stream = described_class.new("example.com", wanted_collections: :bsky_post, max_message_size_bytes: 1_000_000, cursor: 42)
+
+      stream.send(:build_websocket_url).should == "wss://example.com/subscribe?wantedCollections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
+    end
+  end
 end
