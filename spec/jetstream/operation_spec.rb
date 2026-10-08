@@ -23,7 +23,7 @@ describe Skyfall::Jetstream::Operation do
   end
 
   let(:message) { Skyfall::Jetstream::Message.new(JSON.generate(commit_data)) }
-  let(:operation) { described_class.new(message, commit_data['commit']) }
+  let(:operation) { Skyfall::Jetstream::Operation.new(message, commit_data['commit']) }
 
   it 'should read repo information from the CommitMessage' do
     operation.repo.should == message.repo

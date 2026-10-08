@@ -14,7 +14,7 @@ describe Skyfall::Label do
     'neg' => true
   }}
 
-  subject(:label) { described_class.new(data) }
+  subject(:label) { Skyfall::Label.new(data) }
 
   context "with valid data" do
     it "should expose the original data" do

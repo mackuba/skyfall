@@ -28,14 +28,14 @@ describe Skyfall::Firehose::Operation do
   let(:commit) { Skyfall::Firehose::Message.new(cbor_sequence(*commit_data)) }
 
   it "should read repo information from the CommitMessage" do
-    op = described_class.new(commit, commit_data[1]['ops'][0])
+    op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
 
     op.repo.should == commit.repo
     op.did.should == commit.repo
   end
 
   it "should parse operation details" do
-    op = described_class.new(commit, commit_data[1]['ops'][0])
+    op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
 
     op.collection.should == "app.bsky.feed.post"
     op.rkey.should == "3mt37ifa2ev2f"
@@ -49,7 +49,7 @@ describe Skyfall::Firehose::Operation do
 
   describe '#type' do
     it 'should return a symbolic shortcode of the record collection' do
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       op.type.should == :bsky_post
     end
 
@@ -59,7 +59,7 @@ describe Skyfall::Firehose::Operation do
       end
 
       it 'should return :unknown' do
-        op = described_class.new(commit, commit_data[1]['ops'][0])
+        op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
         op.type.should == :unknown
       end
     end
@@ -67,7 +67,7 @@ describe Skyfall::Firehose::Operation do
 
   describe '#raw_record' do
     it 'should look up the record data through the CommitMessage' do
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       record = op.raw_record
 
       record.should be_a(Hash)
@@ -79,7 +79,7 @@ describe Skyfall::Firehose::Operation do
     it 'should return nil from #cid' do
       commit_data[1]['ops'][0]['cid'] = nil
 
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       op.cid.should be_nil
     end
   end
@@ -90,19 +90,19 @@ describe Skyfall::Firehose::Operation do
     end
 
     it 'should raise a DecodeError in #collection' do
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       expect { op.collection }.to raise_error(Skyfall::DecodeError)
     end
 
     it 'should raise a DecodeError in #rkey' do
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       expect { op.rkey }.to raise_error(Skyfall::DecodeError)
     end
   end
 
   describe '#inspect' do
     it 'should not include the message object' do
-      op = described_class.new(commit, commit_data[1]['ops'][0])
+      op = Skyfall::Firehose::Operation.new(commit, commit_data[1]['ops'][0])
       op.inspect.should_not include('@message')
       op.inspect.should include('@data')
     end
