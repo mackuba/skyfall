@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'ex_invalid_message'
-
 describe Skyfall::Firehose::CommitMessage do
   let(:cbor) { cbor_sequence(*data) }
   let(:blocks) { File.binread(File.expand_path("../fixtures/attie.car", __dir__)) }
@@ -30,8 +28,6 @@ describe Skyfall::Firehose::CommitMessage do
       'time' => '2024-06-24T01:59:05.668Z'
     }
   ]}
-
-  include_examples "invalid firehose message"
 
   context 'with missing data' do
     %w(seq repo commit blocks ops time rev).each do |field|

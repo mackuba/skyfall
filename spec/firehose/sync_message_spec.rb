@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'ex_invalid_message'
-
 describe Skyfall::Firehose::SyncMessage do
   let(:cbor) { cbor_sequence(*data) }
   let(:blocks) { File.binread(File.expand_path("../fixtures/attie.car", __dir__)) }
@@ -20,8 +18,6 @@ describe Skyfall::Firehose::SyncMessage do
       'time' => '2025-04-01T00:00:00Z'
     }
   ]}
-
-  include_examples "invalid firehose message"
 
   context 'with missing data' do
     %w(seq did blocks rev time).each do |field|

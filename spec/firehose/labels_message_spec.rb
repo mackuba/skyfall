@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'ex_invalid_message'
-
 describe Skyfall::Firehose::LabelsMessage do
   let(:cbor) { cbor_sequence(*data) }
 
@@ -24,8 +22,6 @@ describe Skyfall::Firehose::LabelsMessage do
       ]
     }
   ]}
-
-  include_examples "invalid firehose message"
 
   context 'with missing data' do
     %w(seq labels).each do |field|

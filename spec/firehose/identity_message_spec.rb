@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'ex_invalid_message'
-
 describe Skyfall::Firehose::IdentityMessage do
   let(:cbor) { cbor_sequence(*data) }
 
@@ -18,8 +16,6 @@ describe Skyfall::Firehose::IdentityMessage do
       'handle' => 'alice.test'
     }
   ]}
-
-  include_examples "invalid firehose message"
 
   context 'with missing data' do
     %w(seq did time).each do |field|

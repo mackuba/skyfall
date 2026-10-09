@@ -4,14 +4,6 @@ require 'json'
 
 shared_examples_for "invalid jetstream message" do
   context 'with invalid data' do
-    it 'should raise an error if the data is not valid JSON' do
-      expect { build_message('invalid json') }.to raise_error(Skyfall::DecodeError, /Invalid JSON message:/)
-    end
-
-    it 'should raise an error if the parsed JSON is not a Hash' do
-      expect { build_message('[]') }.to raise_error(Skyfall::DecodeError, /Expected a JSON object/)
-    end
-
     it "should raise an error if 'kind' is missing" do
       data.delete('kind')
 

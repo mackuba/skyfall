@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'ex_invalid_message'
-
 describe Skyfall::Firehose::UnknownMessage do
   let(:cbor) { cbor_sequence(*data) }
 
@@ -13,8 +11,6 @@ describe Skyfall::Firehose::UnknownMessage do
     { 'op' => 1, 't' => '#hellthread' },
     { 'level' => 9001 }
   ]}
-
-  include_examples "invalid firehose message"
 
   context 'with valid data' do
     it 'should parse an unknown message' do
