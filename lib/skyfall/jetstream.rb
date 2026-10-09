@@ -209,6 +209,8 @@ module Skyfall
     end
 
     def check_wanted_collections(list)
+      raise ArgumentError, "Collections filter must not be empty" if list.nil? || list == []
+
       list = [list] unless list.is_a?(Array)
       list.map { |c| check_collection_param(c) }
     end
@@ -225,6 +227,8 @@ module Skyfall
     end
 
     def check_wanted_dids(value)
+      raise ArgumentError, "DIDs filter must not be empty" if value.nil? || value == []
+
       list = value.is_a?(Array) ? value : [value]
 
       list.each do |did|

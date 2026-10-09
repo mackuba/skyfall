@@ -90,7 +90,7 @@ module Skyfall
     #
     # @option params [String, Symbol, Array<String, Symbol>] :kinds
     #   event kind filter to pass to the server; accepts one or more of `:commit`, `:identity`,
-    #   `:account` or `:sync`, empty means all event kinds are received
+    #   `:account` or `:sync`. Omit the option to receive all event kinds.
     #
     # @option params [String, Array<String>] :dids
     #   DID filter to pass to the server (`:wanted_dids` or `:wantedDids` is also accepted);
@@ -206,6 +206,8 @@ module Skyfall
     end
 
     def check_kinds(value)
+      raise ArgumentError, "Kinds filter must not be empty" if value.nil? || value == []
+
       kinds = value.is_a?(Array) ? value : [value]
 
       kinds = kinds.map { |kind|

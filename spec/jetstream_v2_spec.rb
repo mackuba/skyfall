@@ -175,7 +175,7 @@ describe Skyfall::JetstreamV2 do
   end
 
   it "should reject non-string dids" do
-    [:alice, 42, true, false, nil, {}].each do |did|
+    [:alice, 42, true, false, {}].each do |did|
       expect { Skyfall::JetstreamV2.new("example.com", dids: did) }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
@@ -186,8 +186,18 @@ describe Skyfall::JetstreamV2 do
     end
   end
 
+  it "should reject nil or empty array dids value" do
+    expect { Skyfall::JetstreamV2.new("example.com", dids: nil) }.to raise_error(
+      ArgumentError, "DIDs filter must not be empty"
+    )
+
+    expect { Skyfall::JetstreamV2.new("example.com", dids: []) }.to raise_error(
+      ArgumentError, "DIDs filter must not be empty"
+    )
+  end
+
   it "should reject collection values that are neither symbols nor strings" do
-    [42, true, false, nil, {}].each do |collection|
+    [42, true, false, {}].each do |collection|
       expect { Skyfall::JetstreamV2.new("example.com", collections: collection) }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
@@ -198,6 +208,16 @@ describe Skyfall::JetstreamV2 do
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
     end
+  end
+
+  it "should reject nil or empty array collections value" do
+    expect { Skyfall::JetstreamV2.new("example.com", collections: nil) }.to raise_error(
+      ArgumentError, "Collections filter must not be empty"
+    )
+
+    expect { Skyfall::JetstreamV2.new("example.com", collections: []) }.to raise_error(
+      ArgumentError, "Collections filter must not be empty"
+    )
   end
 
   it "should reject unknown collection shortcodes" do
@@ -251,6 +271,83 @@ describe Skyfall::JetstreamV2 do
       expected_url = "#{base_url}?collections=app.bsky.feed.post&maxMessageSizeBytes=1000000&cursor=42"
 
       stream.send(:build_websocket_url).should == expected_url
+    end
+  end
+
+  describe 'kinds filter' do
+    it "should accept both param name and values as either symbols or strings" do
+      [:kinds, 'kinds'].each do |key|
+        [:identity, 'identity'].each do |kind|
+          stream = Skyfall::JetstreamV2.new("example.com", key => kind)
+
+          stream.send(:build_websocket_url).should == "#{base_url}?kinds=identity"
+        end
+      end
+    end
+
+    it "should include all supported kinds as repeated query parameters" do
+      stream = Skyfall::JetstreamV2.new("example.com", kinds: [:commit, 'identity', :account, 'sync'])
+
+      stream.send(:build_websocket_url).should == "#{base_url}?kinds=commit&kinds=identity&kinds=account&kinds=sync"        
+    end
+
+    it "should remove duplicated kinds" do
+      stream = Skyfall::JetstreamV2.new("example.com", kinds: [:sync, 'commit', 'sync', :commit])
+
+      stream.send(:build_websocket_url).should == "#{base_url}?kinds=sync&kinds=commit"
+    end
+
+    it "should reject invalid kinds individually and inside an array" do
+      [:unknown, 'info', 'Commit', '', 42, true, false, {}, []].each do |kind|
+        values = (kind == []) ? [[kind]] : [kind, [:commit, kind]]
+
+        values.each do |value|
+          expect { Skyfall::JetstreamV2.new("example.com", kinds: value) }.to raise_error(
+            ArgumentError, "Invalid event kind: #{kind.inspect}"
+          )
+        end
+      end
+    end
+
+    it "should reject nil or empty array value" do
+      expect { Skyfall::JetstreamV2.new("example.com", kinds: nil) }.to raise_error(
+        ArgumentError, "Kinds filter must not be empty"
+      )
+
+      expect { Skyfall::JetstreamV2.new("example.com", kinds: []) }.to raise_error(
+        ArgumentError, "Kinds filter must not be empty"
+      )
+    end
+
+    it "should reject a collections filter if a nonempty kinds filter excludes commit" do
+      [
+        :collections, :wanted_collections, :wantedCollections,
+        'collections', 'wanted_collections', 'wantedCollections'
+      ].each do |key|
+        expect { Skyfall::JetstreamV2.new("example.com", key => :bsky_post, kinds: [:identity, :sync]) }.to raise_error(
+          ArgumentError, "Kinds filter must include :commit if collections filter is included"
+        )
+      end
+    end
+
+    it "should accept collections if kinds includes commit" do
+      stream = Skyfall::JetstreamV2.new("example.com", collections: :bsky_post, kinds: [:commit, :identity])
+
+      expected_url = "#{base_url}?collections=app.bsky.feed.post&kinds=commit&kinds=identity"
+
+      stream.send(:build_websocket_url).should == expected_url
+    end
+
+    it "should accept collections if kinds is omitted" do
+      stream = Skyfall::JetstreamV2.new("example.com", collections: :bsky_post)
+
+      stream.send(:build_websocket_url).should == "#{base_url}?collections=app.bsky.feed.post"
+    end
+
+    it "should accept other kinds if collections is omitted" do
+      stream = Skyfall::JetstreamV2.new("example.com", kinds: :account)
+
+      stream.send(:build_websocket_url).should == "#{base_url}?kinds=account"
     end
   end
 

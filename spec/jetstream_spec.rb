@@ -182,7 +182,7 @@ describe Skyfall::Jetstream do
   end
 
   it "should reject non-string dids" do
-    [:alice, 42, true, false, nil, {}].each do |did|
+    [:alice, 42, true, false, {}].each do |did|
       expect { Skyfall::Jetstream.new("example.com", wanted_dids: did) }.to raise_error(
         ArgumentError, "Invalid DID argument: #{did.inspect}"
       )
@@ -195,8 +195,18 @@ describe Skyfall::Jetstream do
     end
   end
 
+  it "should reject nil or empty array dids value" do
+    expect { Skyfall::Jetstream.new("example.com", wanted_dids: nil) }.to raise_error(
+      ArgumentError, "DIDs filter must not be empty"
+    )
+
+    expect { Skyfall::Jetstream.new("example.com", wanted_dids: []) }.to raise_error(
+      ArgumentError, "DIDs filter must not be empty"
+    )
+  end
+
   it "should reject collection values that are neither symbols nor strings" do
-    [42, true, false, nil, {}].each do |collection|
+    [42, true, false, {}].each do |collection|
       expect { Skyfall::Jetstream.new("example.com", wanted_collections: collection) }.to raise_error(
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
@@ -207,6 +217,16 @@ describe Skyfall::Jetstream do
         ArgumentError, "Invalid collection argument: #{collection.inspect}"
       )
     end
+  end
+
+  it "should reject nil or empty array collections value" do
+    expect { Skyfall::Jetstream.new("example.com", wanted_collections: nil) }.to raise_error(
+      ArgumentError, "Collections filter must not be empty"
+    )
+
+    expect { Skyfall::Jetstream.new("example.com", wanted_collections: []) }.to raise_error(
+      ArgumentError, "Collections filter must not be empty"
+    )
   end
 
   it "should reject unknown collection shortcodes" do
