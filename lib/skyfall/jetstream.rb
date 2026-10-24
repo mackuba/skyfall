@@ -30,7 +30,7 @@ module Skyfall
   # so the first event you receive will likely be one you've already processed before.
   #
   # @example
-  #   client = Skyfall::Jetstream.new('jetstream2.us-east.bsky.network', {
+  #   client = Skyfall::Jetstream.new('frankfurt.firehose.stream', {
   #     wanted_collections: 'app.bsky.feed.post',
   #     wanted_dids: @dids
   #   })

@@ -394,17 +394,12 @@ Relay:
 
 - `bsky.network`
 
-Jetstream v1:
-
-- `jetstream1.us-west.bsky.network`, `jetstream2.us-west.bsky.network`
-- `jetstream1.us-east.bsky.network`, `jetstream2.us-east.bsky.network`
-
 Jetstream v2:
 
 - `jetstream.us-west.bsky.network`
 - `jetstream.us-east.bsky.network`
 
-The ATProto developer community is running a number of independent relays and Jetstream instances, including:
+The ATProto developer community is running a number of independent relays and Jetstream v1 instances, including:
 
 - the [firehose.network](https://firehose.network) relays and [firehose.stream](https://firehose.stream) Jetstream servers run by [@sri.xyz](https://bsky.app/profile/did:plc:7gm5ejhut7kia2kzglqfew5b)
 - the [Microcosm relays](https://www.microcosm.blue/#infra) run by [@bad-example.com](https://bsky.app/profile/did:plc:hdhoaan3xa3jiuq4fg4mefid)
