@@ -1,18 +1,27 @@
-## [Unreleased]
+## [0.8.0] – 2026-11-24
 
-- added support for the Jetstream v2 API via `Skyfall::JetstreamV2` and related `Message` class family; `Skyfall::Jetstream` can also be used to connect to a v2 service, though it uses the `/subscribe` compatibility endpoint (`JetstreamV2` does not work with v1 services)
+Added:
+
+- added support for the Jetstream v2 API via `Skyfall::JetstreamV2` and related `Message` class family; `Skyfall::Jetstream` can also be used to connect to a v2 service, though it uses the `/subscribe` compatibility endpoint (`Skyfall::JetstreamV2` does not work with v1 services)
 - added support for Zstd compression (`:compress => true`) in both Jetstream APIs
 - added support for `:maxMessageSizeBytes` option in both Jetstream APIs
 - added `#cursor` as an alias for `#seq` in `Message` classes
 - added `#time_us` to `Skyfall::Firehose::Message`
 - added `#rev` to `Skyfall::Jetstream::CommitMessage`
-- possibly breaking change: when connecting to a Jetstream v2 service using `Skyfall::Jetstream` through the compatibility API, `#seq` and `#cursor` will now return a sequential number cursor from the `cursor` field instead of the `time_us` timestamp (both can be passed as the cursor when reconnecting)
 - `Skyfall::Jetstream` also accepts parameter names `dids` & `collections` as used in `Skyfall::JetstreamV2`
-- `Skyfall::Jetstream` and `Skyfall::JetstreamV2` will now reject `nil` and `[]` values passed as dids/collections/kinds filter
-- some stricted/improved validation in `Message` constructors and in parameter parsing
+- added constants and symbol shortcodes for `app.bsky.actor.link`, `app.bsky.graph.referencelistoptout` and `app.bsky.actor.contentVisibilityDeclaration`
+
+Changed:
+
+- some stricter/improved validation in `Message` constructors and in parameter parsing
 - don't reset `cursor` to nil when processing a `Skyfall::Firehose::InfoMessage`
 
-## [0.7.2] - 2026-08-17
+Possibly breaking changes:
+
+- when connecting to a Jetstream v2 service using `Skyfall::Jetstream` through the compatibility API, `#seq` and `#cursor` will now return a sequential number cursor from the `cursor` field instead of the `time_us` timestamp (both can be passed as the cursor when reconnecting)
+- `Skyfall::Jetstream` and `Skyfall::JetstreamV2` will now reject `nil` and `[]` values passed as dids/collections/kinds filter
+
+## [0.7.2] – 2026-08-17
 
 - bumped up Oxygene dependency (see below under 0.7.1) to 0.1, with a stricter dependency rule
   - includes various performance improvements for Base 32 en/decoding, CID & CAR parsing
@@ -24,12 +33,12 @@
 - some minor optimizations
 - added some unit tests
 
-## [0.7.1] - 2026-08-05
+## [0.7.1] – 2026-08-05
 
 - extracted `CID` and `CarArchive` to a new gem "oxygene"
 - added `CommitMessage#cid` as alias of `#commit`
 
-## [0.7.0] - 2026-02-13
+## [0.7.0] – 2026-02-13
 
 The main change in this version is that inline [YARD documentation](https://rubydoc.info/gems/skyfall/) has been added. This was also a good opportunity to review some APIs and tweak some things in order to get Skyfall a bit closer to 1.0.
 
@@ -72,26 +81,26 @@ Additional validations and other changes:
 - fixed the `require`s config in some files so they can be loaded in any order
 
 
-## [0.6.1] - 2026-01-08
+## [0.6.1] – 2026-01-08
 
 - added `:bsky_notif_declaration` shortcode for `app.bsky.notification.declaration` collection
 - throw error when trying to run two streams in one process (see b4a1514f5da28983205765e55724b5c4abe6c5e4 for details)
 - added protected `#send_data` and `#socket` methods in `Stream` for use in `Stream` subclasses (currently for the Tapfall gem)
 - added a way to customize headers sent when connecting in `Stream` subclasses through the `#request_headers` method
 
-## [0.6.0] - 2025-06-25
+## [0.6.0] – 2025-06-25
 
 - significantly speeded up reading of events from the binary firehose (`Skyfall::Firehose`) – up to 4-5x faster than before
 - removed the `Skyfall::Stream.new` constructor deprecated in 0.5.0
 
-## [0.5.1] - 2025-05-18
+## [0.5.1] – 2025-05-18
 
 - added support for the new `#sync` message type
 - added `#unknown?` helper in `Skyfall::Firehose::Message` and `Skyfall::Jetstream::Message`, which returns true if the message type is `UnknownMessage`
 - added `:bsky_verification` and `:bsky_actor_status` lexicon type and shortcode
 - added one missing require
 
-## [0.5.0] - 2024-11-15
+## [0.5.0] – 2024-11-15
 
 Jetstream support! You can now connect to [Jetstream](https://github.com/bluesky-social/jetstream) sources using `Skyfall::Jetstream` (see readme).
 
@@ -106,17 +115,17 @@ In most cases, you should only need to update the `Skyfall::Stream` class name i
 
 Also, small change to the user agent API: `Skyfall::Stream` now has an additional metod `version_string`, which will always return `Skyfall/0.x.y` – it's recommended to use that instead of `default_user_agent` to build your own user agent string that includes the library version. `default_user_agent` now passes through to `version_string`, but it could be changed in future to return something else.
 
-## [0.4.1] - 2024-10-04
+## [0.4.1] – 2024-10-04
 
 - performance fix – don't decode CAR sections which aren't needed, which is most of them; this cuts the amount of memory that GC has to free up by about one third, and should speed up processing by around ~10%
 
-## [0.4.0] - 2024-09-23
+## [0.4.0] – 2024-09-23
 
 - (re)added a "hearbeat" feature (removed earlier in 0.2.0) to fix the occasional issue when the websocket stops receiving data, but doesn't disconnect (not enabled by default, turn it on by setting `check_heartbeat` to true)
 - added a way to set the user agent sent when connecting using the `user_agent` field (default is `"Skyfall/#{version}"`)
 - added `app.bsky.feed.postgate` record type
 
-## [0.3.1] - 2024-06-28
+## [0.3.1] – 2024-06-28
 
 - added `app.bsky.graph.starterpack` and `chat.bsky.actor.declaration` record types
 - added `#account` event type (`AccountMessage`)
@@ -124,7 +133,7 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 - fixed param validation on `Stream` initialization
 - reverted the change that added Ruby stdlib dependencies explicitly to the gemspec, since this causes more problems than it's worth – only `base64` is left there, since it's the one now required to be listed
 
-## [0.3.0] - 2024-03-21
+## [0.3.0] – 2024-03-21
 
 - added support for labeller firehose, served by labeller services at the `com.atproto.label.subscribeLabels` endpoint (aliased as `:subscribe_labels`)
 - the `#labels` messages from the labeller firehose are parsed into a `LabelsMessage`, which includes a `labels` array of `Label` objects
@@ -132,11 +141,11 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 - added default error handler to `Stream` which logs the error to `$stdout` – set `stream.on_error = nil` to disable
 - added Ruby stdlib dependencies explicitly to the gemspec – fixes a warning in Ruby 3.3 when requiring `base64`, which will be extracted as an optional gem in 3.4
 
-## [0.2.5] - 2024-03-14
+## [0.2.5] – 2024-03-14
 
 - added `:bsky_labeler` record type symbol & collection constant
 
-## [0.2.4] - 2024-02-27
+## [0.2.4] – 2024-02-27
 
 - added support for `#identity` message type
 - added `Operation#did` as an alias of `#repo`
@@ -145,24 +154,24 @@ Also, small change to the user agent API: `Skyfall::Stream` now has an additiona
 - the `server` parameter in `Stream` initializer can be a full URL with scheme, which lets you connect to e.g. `ws://localhost` (since by default, `wss://` is used)
 - tweaked `#inspect` output of `Stream` and `Operation`
 
-## [0.2.3] - 2023-09-28
+## [0.2.3] – 2023-09-28
 
 - fixed encoding of image CIDs again (they should be wrapped in a `$link` object)
 - binary strings are now correctly returned as `$bytes` objects
 - added `list`, `listblock` and `threadgate` to record type symbols and collection constants
 
-## [0.2.2] - 2023-09-06
+## [0.2.2] – 2023-09-06
 
 - fixed image CIDs returned in the record JSON as CBOR tag objects (they are now returned decoded to the string form)
 
-## [0.2.1] - 2023-08-19
+## [0.2.1] – 2023-08-19
 
 - optimized `WebsocketMessage` parsing performance – lazy parsing of most properties (message decoding should be over 50% faster on average)
 - added separate subclasses of `WebsocketMessage` for different message types
 - added support for `#handle`, `#info` and `#tombstone` message types
 - `UnknownMessage` is returned for unrecognized message types
 
-## [0.2.0] - 2023-07-24
+## [0.2.0] – 2023-07-24
 
 - switched the websocket library from `websocket-client-simple` to `faye-websocket`, which should make event parsing up to ~30× faster (!)
 - added `auto_reconnect` property to `Stream` (on by default) – if true, it will try to reconnect with an exponential backoff when the websocket disconnects, until you call `Stream#disconnect`
@@ -173,7 +182,7 @@ Note:
 - the disconnect event no longer passes an error object in the argument
 - there is currently no "heartbeat" feature as in 0.1.x that checks for a stuck connection – but it doesn't seem to be needed
 
-## [0.1.3] - 2023-07-04
+## [0.1.3] – 2023-07-04
 
 - allow passing a previously saved cursor to websocket to replay any missed events
 - the cursor is also kept in memory and automatically used when reconnecting
@@ -181,19 +190,19 @@ Note:
 - fixed connecting to websocket when endpoint is given as a string
 - improved error handling during parsing
 
-## [0.1.2] - 2023-06-15
+## [0.1.2] – 2023-06-15
 
 - added rkey property for Operation
 
-## [0.1.1] - 2023-06-13
+## [0.1.1] – 2023-06-13
 
 - added heartbeat thread to restart websocket if it stops responding
 
-## [0.1.0] - 2023-06-01
+## [0.1.0] – 2023-06-01
 
 - connecting to the firehose websocket
 
-## [0.0.1] - 2023-05-31
+## [0.0.1] – 2023-05-31
 
 Initial release:
 
