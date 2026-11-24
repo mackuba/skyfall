@@ -2,7 +2,8 @@
 
 require_relative '../firehose'
 require_relative 'message'
-require 'oxygene'
+
+require 'oxygene/car_archive'
 
 module Skyfall
 

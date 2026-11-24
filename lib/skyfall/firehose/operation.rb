@@ -3,7 +3,8 @@
 require_relative '../collection'
 require_relative '../errors'
 require_relative '../firehose'
-require 'oxygene'
+
+require 'oxygene/cid'
 
 module Skyfall
 

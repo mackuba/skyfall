@@ -2,7 +2,7 @@
 
 require_relative 'message'
 require 'base64'
-require 'oxygene'
+require 'oxygene/car_archive'
 
 module Skyfall
 

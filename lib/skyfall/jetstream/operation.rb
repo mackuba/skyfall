@@ -2,7 +2,8 @@
 
 require_relative '../collection'
 require_relative '../jetstream'
-require 'oxygene'
+
+require 'oxygene/cid'
 
 module Skyfall
 
