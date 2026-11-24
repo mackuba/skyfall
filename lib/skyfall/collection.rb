@@ -9,6 +9,7 @@ module Skyfall
   #
 
   module Collection
+    BSKY_ACTOR_LINK   = "app.bsky.actor.link"
     BSKY_PROFILE      = "app.bsky.actor.profile"
     BSKY_ACTOR_STATUS = "app.bsky.actor.status"
     BSKY_FEED         = "app.bsky.feed.generator"
@@ -22,16 +23,20 @@ module Skyfall
     BSKY_LIST         = "app.bsky.graph.list"
     BSKY_LISTBLOCK    = "app.bsky.graph.listblock"
     BSKY_LISTITEM     = "app.bsky.graph.listitem"
+    BSKY_LIST_OPTOUT  = "app.bsky.graph.referencelistoptout"
     BSKY_STARTERPACK  = "app.bsky.graph.starterpack"
     BSKY_VERIFICATION = "app.bsky.graph.verification"
     BSKY_LABELER      = "app.bsky.labeler.service"
 
     BSKY_NOTIF_DECLARATION = "app.bsky.notification.declaration"
     BSKY_CHAT_DECLARATION  = "chat.bsky.actor.declaration"
+    BSKY_VISIBILITY_DECLARATION = "app.bsky.actor.contentVisibilityDeclaration"
+
 
     # Mapping of NSID collection names to symbol short codes
 
     SHORT_CODES = {
+      BSKY_ACTOR_LINK   => :bsky_actor_link,
       BSKY_ACTOR_STATUS => :bsky_actor_status,
       BSKY_BLOCK        => :bsky_block,
       BSKY_FEED         => :bsky_feed,
@@ -41,6 +46,7 @@ module Skyfall
       BSKY_LIST         => :bsky_list,
       BSKY_LISTBLOCK    => :bsky_listblock,
       BSKY_LISTITEM     => :bsky_listitem,
+      BSKY_LIST_OPTOUT  => :bsky_list_optout,
       BSKY_POST         => :bsky_post,
       BSKY_POSTGATE     => :bsky_postgate,
       BSKY_PROFILE      => :bsky_profile,
@@ -49,7 +55,8 @@ module Skyfall
       BSKY_THREADGATE   => :bsky_threadgate,
       BSKY_VERIFICATION => :bsky_verification,
       BSKY_CHAT_DECLARATION => :bsky_chat_declaration,
-      BSKY_NOTIF_DECLARATION => :bsky_notif_declaration
+      BSKY_NOTIF_DECLARATION => :bsky_notif_declaration,
+      BSKY_VISIBILITY_DECLARATION => :bsky_visibility_declaration
     }
 
     # Returns a symbol short code for a given collection NSID, or `:unknown`
