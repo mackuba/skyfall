@@ -69,7 +69,7 @@ module Skyfall
     # @return [Hash, nil]
     def raw_record_for_operation(op)
       cid = op.cid
-      cid && blocks.section_with_cid(cid, use_map: false, return_body: false)&.json_body
+      cid && blocks.section_with_cid(cid, use_map: false)&.json_body
     end
   end
 end

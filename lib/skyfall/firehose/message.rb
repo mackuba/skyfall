@@ -3,7 +3,6 @@
 require_relative '../errors'
 require_relative '../firehose'
 
-require 'cbor'
 require 'oxygene'
 require 'time'
 
@@ -24,7 +23,6 @@ module Skyfall
   # the {Skyfall::Stream#on_raw_message} event handler.
 
   class Firehose::Message
-    using Oxygene::Extensions
 
     # Type of the message (e.g. `:commit`, `:identity` etc.)
     # @return [Symbol]
@@ -189,7 +187,7 @@ module Skyfall
     end
 
     def self.decode_cbor_objects(data)
-      objects = CBOR.decode_sequence(data)
+      objects = Oxygene::CBOR.decode_sequence(data)
 
       if objects.length < 2
         raise DecodeError.new("Malformed message: #{objects.inspect}")

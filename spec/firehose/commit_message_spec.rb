@@ -51,7 +51,17 @@ describe Skyfall::Firehose::CommitMessage do
       message.should be_a(Skyfall::Firehose::CommitMessage)
 
       message.type_object.should == data[0]
-      message.data_object.should == data[1]
+
+      if Oxygene::CBOR.native_module?
+        message.data_object.should == data[1]
+      else
+        message.data_object.should == data[1].merge(
+          'commit' => Oxygene::CID.from_cbor_tag(data[1]['commit']),
+          'ops' => [
+            data[1]['ops'][0].merge('cid' => Oxygene::CID.from_cbor_tag(data[1]['ops'][0]['cid']))
+          ]
+        )
+      end
 
       message.type.should == :commit
       message.kind.should == :commit

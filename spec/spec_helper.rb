@@ -13,6 +13,10 @@ require 'cbor'
 require 'skyfall'
 require 'webmock/rspec'
 
+if ENV['NATIVE_CBOR']
+  require 'oxygene/cbor_native'
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
@@ -26,8 +30,18 @@ end
 
 WebMock.enable!
 
+def sort_cbor_maps(obj)
+  if obj.is_a?(Hash)
+    obj.map { |k, v| [k, sort_cbor_maps(v)] }.sort_by { |k, v| [k.length, k] }.to_h
+  elsif obj.is_a?(Array)
+    obj.map { |x| sort_cbor_maps(x) }
+  else
+    obj
+  end
+end
+
 def cbor_sequence(*objects)
-  objects.map { |o| CBOR.encode(o) }.join
+  objects.map { |o| CBOR.encode(sort_cbor_maps(o)) }.join
 end
 
 TestWebsocketFrame = Struct.new(:data)
