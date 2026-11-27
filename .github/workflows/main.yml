@@ -30,5 +30,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
-    - name: Run the default task
-      run: bundle exec rake
+    - name: Run tests with pure Ruby CBOR
+      run: "bundle exec rspec"
+    - name: Run tests with native CBOR gem
+      run: "NATIVE_CBOR=1 bundle exec rspec"
