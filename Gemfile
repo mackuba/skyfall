@@ -17,3 +17,5 @@ gem 'yard'
 gem 'mocha'
 gem 'simplecov', require: false
 gem 'webmock'
+
+gem 'oxygene', git: 'https://tangled.org/mackuba.eu/oxygene'
